@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"database/sql"
@@ -18,13 +18,13 @@ import (
 
 // DB keeps everyting related to database
 //
-type DB struct {
+type DatabaseManager struct {
 	DB  *sql.DB
 	DBR *reform.DB
 }
 
-func (m *DB) initDatabase(connectionString string) {
-	db, _ := sql.Open("mysql", connectionString)
+func (m *DatabaseManager) initDatabase(dataSourceName string) {
+	db, _ := sql.Open("mysql", dataSourceName)
 	m.DB = db
 
 	if err := m.DB.Ping(); err != nil {
@@ -32,7 +32,7 @@ func (m *DB) initDatabase(connectionString string) {
 	}
 }
 
-func (m *DB) runMigrations() {
+func (m *DatabaseManager) runMigrations() {
 	driver, _ := migrateMySQL.WithInstance(m.DB, &migrateMySQL.Config{})
 	migrations, _ := migrate.NewWithDatabaseInstance(
 		"file://migrations",
@@ -41,21 +41,21 @@ func (m *DB) runMigrations() {
 	)
 	err := migrations.Up()
 	if err != nil {
-		panic(fmt.Sprintf("Migration status: %v", err.Error()))
+		fmt.Printf("Migration status: %v\n", err.Error())
 	} else {
 		fmt.Println("Sidekiq: applied latest database migrations")
 	}
 }
 
-func (m *DB) initReform() {
+func (m *DatabaseManager) initReform() {
 	logger := log.New(os.Stderr, "SQL: ", log.Flags())
 	m.DBR = reform.NewDB(m.DB, reformMySQL.Dialect, reform.NewPrintfLogger(logger.Printf))
 }
 
 // Setup initializes database connection and runs migrations
 //
-func (m *DB) Setup(connectionString string) {
-	m.initDatabase(connectionString)
+func (m *DatabaseManager) Setup(dataSourceName string) {
+	m.initDatabase(dataSourceName)
 	m.runMigrations()
 	m.initReform()
 }

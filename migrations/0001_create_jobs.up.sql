@@ -8,7 +8,7 @@ CREATE TABLE `jobs`
     `sid`          VARCHAR(255)     NOT NULL DEFAULT '',
     `input`        JSON             NOT NULL,
     `output`       JSON             NULL DEFAULT NULL,
-    `status`       ENUM('initial', 'procesing', 'failed', 'succeed') NOT NULL DEFAULT 'initial',
+    `status`       ENUM('initial', 'processing', 'failed', 'completed') NOT NULL DEFAULT 'initial',
     `retries_left` INT              NOT NULL DEFAULT 0,
     `created_at`   TIMESTAMP        NOT NULL DEFAULT NOW(),
     PRIMARY KEY (`id`)
