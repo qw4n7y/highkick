@@ -47,7 +47,7 @@ func (v *jobTableType) PKColumnIndex() uint {
 
 // JobTable represents jobs view or table in SQL database.
 var JobTable = &jobTableType{
-	s: parse.StructInfo{Type: "Job", SQLSchema: "", SQLName: "jobs", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "string", Column: "type"}, {Name: "Path", Type: "string", Column: "path"}, {Name: "Sid", Type: "string", Column: "sid"}, {Name: "Input", Type: "string", Column: "input"}, {Name: "Output", Type: "*string", Column: "output"}, {Name: "Status", Type: "string", Column: "status"}, {Name: "RetriesLeft", Type: "int32", Column: "retries_left"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Job", SQLSchema: "", SQLName: "jobs", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "string", Column: "type"}, {Name: "Path", Type: "string", Column: "path"}, {Name: "Sid", Type: "*string", Column: "sid"}, {Name: "Input", Type: "*string", Column: "input"}, {Name: "Output", Type: "*string", Column: "output"}, {Name: "Status", Type: "string", Column: "status"}, {Name: "RetriesLeft", Type: "int32", Column: "retries_left"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}}, PKFieldIndex: 0},
 	z: new(Job).Values(),
 }
 

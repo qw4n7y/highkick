@@ -2,16 +2,16 @@ package repository
 
 import (
 	"fmt"
-	"sidekiq/database"
-	"sidekiq/models"
+	"highkick/database"
+	"highkick/models"
 )
 
 // GetJobs is SELECT for jobs
 //
 func GetJobs(tail string) []*models.Job {
-	database := database.Database
+	dbr := database.Manager.DBR
 
-	rows, err := database.DBR.SelectAllFrom(models.JobTable, tail)
+	rows, err := dbr.SelectAllFrom(models.JobTable, tail)
 	if err != nil {
 		panic(err)
 	}
@@ -34,4 +34,30 @@ func GetJobTree(job *models.Job) []*models.Job {
 	tail := fmt.Sprintf("WHERE path LIKE \"%v.%%\" OR id = %v", rootID, rootID)
 	jobs := GetJobs(tail)
 	return jobs
+}
+
+// SaveJob persists job to database
+func SaveJob(job *models.Job) error {
+	dbr := database.Manager.DBR
+
+	err := dbr.Save(job)
+
+	return err
+}
+
+// GetRootJob gets the root job
+func GetRootJob(job *models.Job) *models.Job {
+	dbr := database.Manager.DBR
+
+	if job.IsRoot() {
+		return job
+	}
+
+	rootID, _ := job.GetRootID()
+	rootJob := &models.Job{}
+	tail := fmt.Sprintf("WHERE id = %v", dbr.Placeholder(1))
+	if err := dbr.SelectOneTo(rootJob, tail, rootID); err != nil {
+		panic(err)
+	}
+	return rootJob
 }

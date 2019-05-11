@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-type JSONDictionary map[string]string
+type JSONDictionary map[string]interface{}
 
 func (m JSONDictionary) Value() (driver.Value, error) {
 	return json.Marshal(m)

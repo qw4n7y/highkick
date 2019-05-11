@@ -1,10 +1,18 @@
 package database
 
+// Keeps singleton instance of Manager
 var (
-	Database DatabaseManager
+	Manager manager
 )
 
 // Setup inits singleton
 func Setup(dataSourceName string) {
-	Database.Setup(dataSourceName)
+	Manager.Setup(dataSourceName)
+}
+
+// Close closes all connections
+func Close() {
+	if db := Manager.DB; db != nil {
+		db.Close()
+	}
 }

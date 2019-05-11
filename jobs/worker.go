@@ -1,8 +1,8 @@
 package jobs
 
 import (
-	"sidekiq/models"
+	"highkick/models"
 )
 
 // Worker is job processing handler
-type Worker = func(manager *Manager, job *models.Job)
+type Worker = func(manager *Manager, job *models.Job) error

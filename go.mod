@@ -1,4 +1,4 @@
-module sidekiq
+module highkick
 
 go 1.12
 

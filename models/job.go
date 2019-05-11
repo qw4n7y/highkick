@@ -24,8 +24,8 @@ type Job struct {
 	ID          int32     `reform:"id,pk"`
 	Type        string    `reform:"type"`
 	Path        string    `reform:"path"`
-	Sid         string    `reform:"sid"`
-	Input       string    `reform:"input"`
+	Sid         *string   `reform:"sid"`
+	Input       *string   `reform:"input"`
 	Output      *string   `reform:"output"`
 	Status      string    `reform:"status"`
 	RetriesLeft int32     `reform:"retries_left"`
@@ -35,7 +35,7 @@ type Job struct {
 // GetInput is getter for Input
 func (job *Job) GetInput() JSONDictionary {
 	var dict JSONDictionary
-	_ = json.Unmarshal([]byte(job.Input), &dict)
+	_ = json.Unmarshal([]byte(*job.Input), &dict)
 	return dict
 }
 
@@ -43,7 +43,7 @@ func (job *Job) GetInput() JSONDictionary {
 func (job *Job) SetInput(dict JSONDictionary) string {
 	valueAsBytes, _ := json.Marshal(dict)
 	value := string(valueAsBytes)
-	job.Input = value
+	job.Input = &value
 	return value
 }
 
@@ -65,4 +65,20 @@ func (job *Job) SetParent(parent *Job) {
 	} else {
 		job.Path = strings.Join([]string{parent.Path, parentIDString}, "/")
 	}
+}
+
+// IsRoot returns whether the job is root or not
+func (job *Job) IsRoot() bool {
+	_, hasRoot := job.GetRootID()
+	return !hasRoot
+}
+
+// IsCompleted returns if job is completed
+func (job *Job) IsCompleted() bool {
+	return job.Status == StatusCompleted || job.Status == StatusFailed
+}
+
+// IsFailed returns if job is failed
+func (job *Job) IsFailed() bool {
+	return job.Status == StatusCompleted
 }
