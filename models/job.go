@@ -21,15 +21,15 @@ const (
 //go:generate reform
 //reform:jobs
 type Job struct {
-	ID          int32     `reform:"id,pk"`
-	Type        string    `reform:"type"`
-	Path        string    `reform:"path"`
-	Sid         *string   `reform:"sid"`
-	Input       *string   `reform:"input"`
-	Output      *string   `reform:"output"`
-	Status      string    `reform:"status"`
-	RetriesLeft int32     `reform:"retries_left"`
-	CreatedAt   time.Time `reform:"created_at"`
+	ID          int32     `reform:"id,pk" json:"id"`
+	Type        string    `reform:"type" json:"type"`
+	Path        string    `reform:"path" json:"path"`
+	Sid         *string   `reform:"sid" json:"sid"`
+	Input       *string   `reform:"input" json:"input"`
+	Output      *string   `reform:"output" json:"output"`
+	Status      string    `reform:"status" json:"status"`
+	RetriesLeft int32     `reform:"retries_left" json:"retriesLeft"`
+	CreatedAt   time.Time `reform:"created_at" json:"createdAt"`
 }
 
 // GetInput is getter for Input

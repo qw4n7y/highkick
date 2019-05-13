@@ -27,7 +27,7 @@ func (v *jobLogTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *jobLogTableType) Columns() []string {
-	return []string{"id", "job_id", "content", "created_at"}
+	return []string{"id", "job_id", "job_path", "content", "created_at"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,17 +47,18 @@ func (v *jobLogTableType) PKColumnIndex() uint {
 
 // JobLogTable represents job_logs view or table in SQL database.
 var JobLogTable = &jobLogTableType{
-	s: parse.StructInfo{Type: "JobLog", SQLSchema: "", SQLName: "job_logs", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "JobID", Type: "int32", Column: "job_id"}, {Name: "Content", Type: "string", Column: "content"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "JobLog", SQLSchema: "", SQLName: "job_logs", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "JobID", Type: "int32", Column: "job_id"}, {Name: "JobPath", Type: "string", Column: "job_path"}, {Name: "Content", Type: "string", Column: "content"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}}, PKFieldIndex: 0},
 	z: new(JobLog).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s JobLog) String() string {
-	res := make([]string, 4)
+	res := make([]string, 5)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "JobID: " + reform.Inspect(s.JobID, true)
-	res[2] = "Content: " + reform.Inspect(s.Content, true)
-	res[3] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[2] = "JobPath: " + reform.Inspect(s.JobPath, true)
+	res[3] = "Content: " + reform.Inspect(s.Content, true)
+	res[4] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -67,6 +68,7 @@ func (s *JobLog) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.JobID,
+		s.JobPath,
 		s.Content,
 		s.CreatedAt,
 	}
@@ -78,6 +80,7 @@ func (s *JobLog) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.JobID,
+		&s.JobPath,
 		&s.Content,
 		&s.CreatedAt,
 	}

@@ -1,6 +1,7 @@
 package jobs
 
 import (
+	"errors"
 	"fmt"
 	"highkick/models"
 	"highkick/repository"
@@ -15,24 +16,32 @@ type Manager struct {
 
 // RunJob runs / restarts a new job
 func (m *Manager) RunJob(job *models.Job) {
-	go func() {
+	go func() (err error) {
+		defer func() {
+			if r := recover(); r != nil {
+				err = errors.New(fmt.Sprintf("%v", r))
+			}
+
+			if err == nil {
+				m.completeJob(job)
+			} else {
+				m.failJob(job, err)
+			}
+		}()
+
 		worker := m.workers[job.Type]
 		if worker == nil {
 			panic(fmt.Sprintf("No worker found for %v", job.Type))
 		}
 
 		job.Status = models.StatusProcessing
-		err := repository.SaveJob(job)
+		err = repository.SaveJob(job)
 		if err != nil {
 			panic(err)
 		}
 
 		err = worker(m, job)
-		if err == nil {
-			m.completeJob(job)
-		} else {
-			m.failJob(job, err)
-		}
+		return
 	}()
 }
 
@@ -97,6 +106,7 @@ func (m *Manager) failJob(job *models.Job, err error) {
 func (m *Manager) Log(job *models.Job, message string) {
 	jobLog := &models.JobLog{
 		JobID:     job.ID,
+		JobPath:   job.Path,
 		Content:   message,
 		CreatedAt: time.Now(),
 	}

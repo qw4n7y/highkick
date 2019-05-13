@@ -8,7 +8,11 @@ import (
 	"highkick/database"
 	"highkick/jobs"
 	"highkick/models"
+	"highkick/server"
 	"time"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 // Data source names
@@ -66,4 +70,9 @@ func main() {
 	database.Manager.TruncateDatabase()
 	testJobsUsage()
 	time.Sleep(time.Second)
+
+	r := gin.Default()
+	r.Use(cors.Default()) // Default() allows all origins
+	server.Setup(r)
+	r.Run(":8000")
 }
