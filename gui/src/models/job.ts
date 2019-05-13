@@ -1,3 +1,5 @@
+import TreeLeaf from './tree_leaf'
+
 type Props = {
   id: number
   type: string
@@ -11,7 +13,7 @@ type Props = {
   childs: Job[]
 }
 
-class Job implements Props {
+class Job implements Props, TreeLeaf {
   id: number = 0
   type: string = ''
   path: string = ''

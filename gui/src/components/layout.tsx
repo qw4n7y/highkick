@@ -12,9 +12,9 @@ const App: React.FC = (props: any) => {
             src="/logo.png"
             width="30"
             height="30"
-            className="d-inline-block align-top"
+            className="d-inline-block align-top mr-4"
           />
-          {' High kick'}
+          {'High kick'}
         </Navbar.Brand>
       </Navbar>
       <Container>

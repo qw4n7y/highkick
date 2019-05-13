@@ -6,8 +6,20 @@ import (
 	"highkick/models"
 )
 
+// GetJobByID is GetJobByID
+func GetJobByID(id int32) *models.Job {
+	dbr := database.Manager.DBR
+
+	row, err := dbr.SelectOneFrom(models.JobTable, "WHERE id = ?", id)
+	if err != nil {
+		panic(err)
+	}
+
+	job := row.(*models.Job)
+	return job
+}
+
 // GetJobs is SELECT for jobs
-//
 func GetJobs(tail string) []*models.Job {
 	dbr := database.Manager.DBR
 
@@ -24,8 +36,8 @@ func GetJobs(tail string) []*models.Job {
 	return jobs
 }
 
-// GetJobTreeByRootID is GetJobTreeByRootID
-func GetJobTreeByRootID(rootID int32) []*models.Job {
+// GetJobSubTree is GetJobSubTree
+func GetJobSubTree(rootID int32) []*models.Job {
 	tail := fmt.Sprintf("WHERE path LIKE \"%v.%%\" OR path = \"%v\" OR id = %v", rootID, rootID, rootID)
 	jobs := GetJobs(tail)
 	return jobs
@@ -38,7 +50,7 @@ func GetJobTree(job *models.Job) []*models.Job {
 		return []*models.Job{job}
 	}
 
-	return GetJobTreeByRootID(rootID)
+	return GetJobSubTree(rootID)
 }
 
 // SaveJob persists job to database

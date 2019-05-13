@@ -3,14 +3,14 @@ import React from 'react';
 import { Row, Col } from 'react-bootstrap'
 
 import Layout from './components/layout'
-import RootList from './components/roots_list'
+import JobRootsList from './components/jobs/roots'
 
 const App: React.FC = () => {
   return (
     <Layout>
       <Row>
-        <Col md={12}>
-          <RootList/>
+        <Col md={12} className="pt-4">
+          <JobRootsList/>
         </Col>
       </Row>
     </Layout>

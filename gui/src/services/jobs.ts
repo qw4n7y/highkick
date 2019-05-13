@@ -1,20 +1,28 @@
 import Job from '../models/job'
 
-function composeTree(jobs: Job[]) {
-  const root = jobs.find(j => j.isRoot())
-  if (!root) {
-    throw new Error('No root found')
-  }
+import API from './api'
+import HTTP from '../lib/http'
 
-  const composeSubTree = (leaf: Job) => {
-    leaf.childs = jobs.filter(job => job.parentID() === leaf.id)
-    for(const child of leaf.childs) {
-      composeSubTree(child)
-    }
-  }
+import Tree from './tree'
 
-  composeSubTree(root)
-  return root
+async function loadRoots() {
+  const rootJsons = await HTTP.get(API.URLS.jobRoots.index)
+  const roots = rootJsons.map(Job.deserialize)
+  return roots
 }
 
-export default { composeTree }
+async function updateJob(job: Job) {
+  const jsons = await HTTP.get(API.URLS.jobs.subtree(job.id))
+  const jobs = jsons.map(Job.deserialize)
+  const updatedJob = Tree.compose<Job>({
+    items: jobs,
+    rootId: job.id
+  })
+  return updatedJob
+}
+
+async function retry(job: Job) {
+  await HTTP.post(API.URLS.jobs.retry(job.id))
+}
+
+export default { loadRoots, updateJob, retry }

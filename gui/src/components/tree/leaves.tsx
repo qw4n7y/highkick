@@ -1,0 +1,32 @@
+import React from 'react'
+import classnames from 'classnames'
+
+import TreeLeafInterface from '../../models/tree_leaf'
+import Builder from './builder'
+import Leaf from './leaf'
+
+type Props<Item> = {
+  items: Item[]
+  builder: Builder<Item>
+}
+
+class TreeLeaves<Item extends TreeLeafInterface> extends React.Component<Props<Item>> {
+  render() {
+    const { items, builder } = this.props
+
+    return (
+      <ul className={classnames('list-group')}>
+        { items.map(item => {
+          return (
+            <li className="list-group-item" key={item.id}>
+              <Leaf 
+                item={item}
+                builder={builder}
+              />
+            </li>)
+        }) }
+      </ul>)
+  }
+}
+
+export default TreeLeaves

@@ -49,7 +49,7 @@ func testJobsUsage() {
 		return errors.New("Oops")
 	}
 
-	m := jobs.Manager{}
+	m := jobs.ManagerSingleton
 	m.RegisterWorker("increment", increment)
 
 	job := &models.Job{
@@ -73,6 +73,6 @@ func main() {
 
 	r := gin.Default()
 	r.Use(cors.Default()) // Default() allows all origins
-	server.Setup(r)
+	server.Register(r)
 	r.Run(":8000")
 }
