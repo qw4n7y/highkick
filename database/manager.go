@@ -3,8 +3,8 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"log"
-	"os"
 
 	sqlDriverMySQL "github.com/go-sql-driver/mysql"
 
@@ -38,14 +38,21 @@ func (m *manager) initDatabase(dataSourceName string) {
 }
 
 func (m *manager) runMigrations() {
-	driver, _ := migrateMySQL.WithInstance(m.DB, &migrateMySQL.Config{})
-	migrations, _ := migrate.NewWithDatabaseInstance(
-		"file://migrations",
+	driver, err := migrateMySQL.WithInstance(m.DB, &migrateMySQL.Config{})
+	if err != nil {
+		panic(err.Error())
+	}
+
+	migrations, err := migrate.NewWithDatabaseInstance(
+		"file://../migrations",
 		"mysql",
 		driver,
 	)
-	err := migrations.Up()
 	if err != nil {
+		panic(err.Error())
+	}
+
+	if err := migrations.Up(); err != nil {
 		log.Printf("Migration status: %v\n", err.Error())
 	} else {
 		log.Println("highkick: applied latest database migrations")
@@ -53,8 +60,10 @@ func (m *manager) runMigrations() {
 }
 
 func (m *manager) initReform() {
-	logger := log.New(os.Stderr, "SQL: ", log.Flags())
-	m.DBR = reform.NewDB(m.DB, reformMySQL.Dialect, reform.NewPrintfLogger(logger.Printf))
+	logger := log.New(ioutil.Discard, "SQL: ", log.Flags()) // /dev/null
+	// logger := log.New(os.Stderr, "SQL: ", log.Flags())
+	reformLogger := reform.NewPrintfLogger(logger.Printf)
+	m.DBR = reform.NewDB(m.DB, reformMySQL.Dialect, reformLogger)
 }
 
 // Setup initializes database connection and runs migrations

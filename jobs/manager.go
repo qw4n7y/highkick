@@ -16,10 +16,12 @@ type Manager struct {
 
 // RunJob runs / restarts a new job
 func (m *Manager) RunJob(job *models.Job) {
-	go func() (err error) {
+	go func() {
 		defer func() {
+			var err error
+
 			if r := recover(); r != nil {
-				err = errors.New(fmt.Sprintf("%v", r))
+				err = errors.New(fmt.Sprintf("Recovered panic: %v", r))
 			}
 
 			if err == nil {
@@ -35,12 +37,15 @@ func (m *Manager) RunJob(job *models.Job) {
 		}
 
 		job.Status = models.StatusProcessing
-		err = repository.SaveJob(job)
-		if err != nil {
-			panic(err)
+		job.CreatedAt = time.Now()
+		if err := repository.SaveJob(job); err != nil {
+			panic(err.Error())
 		}
 
-		err = worker(m, job)
+		if err := worker(m, job); err != nil {
+			panic(err.Error())
+		}
+
 		return
 	}()
 }
@@ -121,4 +126,9 @@ func (m *Manager) RegisterWorker(jobType string, worker Worker) {
 		m.workers = make(map[string]Worker)
 	}
 	m.workers[jobType] = worker
+}
+
+// UnregisterAllWorkers unregisters all workers
+func (m *Manager) UnregisterAllWorkers() {
+	m.workers = make(map[string]Worker)
 }

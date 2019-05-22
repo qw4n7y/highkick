@@ -35,13 +35,13 @@ class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Ite
     const { item, opened } = this.state
 
     return (
-      <Row>
-        <Col md={1} className="p-0">
+      <div className="d-flex">
+        <div style={{width: 45}}>
           <Button size="sm" onClick={this.toggle}>
             { opened ? '↘' : '↗'}
           </Button>
-        </Col>
-        <Col md={11} className="p-0">
+        </div>
+        <div className="flex-fill">
           {builder({ item, onItemUpdate: this.onItemUpdate })}
           <div className={classnames({'d-none': !opened})}>
             <Leaves
@@ -49,8 +49,8 @@ class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Ite
               builder={builder}
             />
           </div>
-        </Col> 
-      </Row>)
+        </div> 
+      </div>)
   }
 
   private toggle() {
@@ -60,7 +60,10 @@ class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Ite
   }
 
   private onItemUpdate(item: Item) {
-    this.setState({ item })
+    this.setState({
+      item,
+      opened: true
+    })
   }
 }
 

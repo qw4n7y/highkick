@@ -36,21 +36,11 @@ func GetJobs(tail string) []*models.Job {
 	return jobs
 }
 
-// GetJobSubTree is GetJobSubTree
-func GetJobSubTree(rootID int32) []*models.Job {
-	tail := fmt.Sprintf("WHERE path LIKE \"%v.%%\" OR path = \"%v\" OR id = %v", rootID, rootID, rootID)
-	jobs := GetJobs(tail)
-	return jobs
-}
-
 // GetJobTree returns all jobs in the tree of specified job
 func GetJobTree(job *models.Job) []*models.Job {
-	rootID, hasRoot := job.GetRootID()
-	if !hasRoot {
-		return []*models.Job{job}
-	}
-
-	return GetJobSubTree(rootID)
+	tail := fmt.Sprintf("WHERE path LIKE \"%v/%%\" OR path LIKE \"%v/%%\" OR path LIKE \"%v\" OR id = %v", job.Path, job.ID, job.ID, job.ID)
+	jobs := GetJobs(tail)
+	return jobs
 }
 
 // SaveJob persists job to database

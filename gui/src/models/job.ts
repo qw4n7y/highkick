@@ -46,7 +46,7 @@ class Job implements Props, TreeLeaf {
     if (this.isRoot()) {
       return null
     }
-    const ids = this.path.split('/').map(parseInt)
+    const ids = this.path.split('/').map(i => parseInt(i))
     return ids[ids.length - 1]
   }
 

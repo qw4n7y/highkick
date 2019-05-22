@@ -59,6 +59,9 @@ func (job *Job) GetRootID() (int32, bool) {
 
 // SetParent initialize job's path by it's parent
 func (job *Job) SetParent(parent *Job) {
+	if parent == nil {
+		return
+	}
 	parentIDString := strconv.Itoa(int(parent.ID))
 	if parent.Path == "" {
 		job.Path = parentIDString
@@ -81,4 +84,14 @@ func (job *Job) IsCompleted() bool {
 // IsFailed returns if job is failed
 func (job *Job) IsFailed() bool {
 	return job.Status == StatusCompleted
+}
+
+// BuildJob is a builder helper
+func BuildJob(jobType string, input JSONDictionary, parent *Job) *Job {
+	job := &Job{
+		Type: jobType,
+	}
+	job.SetInput(input)
+	job.SetParent(parent)
+	return job
 }

@@ -10,3 +10,7 @@ AIR:
   curl -o air https://raw.githubusercontent.com/cosmtrek/air/master/bin/darwin/air
   chmod +x ./air
   ./air -c .air.conf
+
+TESTING:
+
+  go test -v ./...

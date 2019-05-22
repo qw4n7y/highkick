@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, ButtonGroup, Button, Badge, Table } from 'react-bootstrap'
+import { Row, Col, ButtonGroup, Button, Badge, Card } from 'react-bootstrap'
 
 import Job from '../../models/job'
 import JobLog from '../../models/job_log'
@@ -35,28 +35,31 @@ class JobComponent extends React.Component<Props, State> {
 
     return (
       <>
-        <Row>
-          <Col md={1}>{job.id}</Col>
-          <Col md={3}>{job.type}</Col>
-          <Col md={2}>
+        <div className="d-flex">
+          <div>{job.id}</div>
+          <div>{job.type}</div>
+          <div className="flex-fill d-flex">
             <code>{job.input}</code>
-          </Col>
-          <Col md={2}>
             <code>{job.output}</code>
-          </Col>
-          <Col md={2}>
-            <Badge variant="primary">{job.status}</Badge>
-          </Col>
-          <Col md={2}>
+          </div>
+          <div>{this.renderStatus()}</div>
+          <div>
             <ButtonGroup size="sm">
               <Button key="update" onClick={this.updateItem}>Up</Button>
               <Button key="logs" onClick={this.showLogs}>Logs</Button>
               <Button key="retry" onClick={this.retry}>Retry</Button>
             </ButtonGroup>
-          </Col>
-        </Row>
+          </div>
+        </div>
         { this.renderLogs() }
       </>)
+  }
+
+  renderStatus() {
+    const { job } = this.props
+    const { status } = job
+
+    return <Badge variant={status === 'failed' ? 'danger' : 'info'}>{status}</Badge>
   }
 
   renderLogs() {
@@ -64,17 +67,15 @@ class JobComponent extends React.Component<Props, State> {
 
     if (!showLogs) { return null }
     return (
-      <div style={{ fontSize: '12px', overflowY: 'scroll' }}>
-        <Table size="sm">
-          { jobLogs.map(jobLog => {
-            return (
-              <tr key={jobLog.id}>
-                <td>{jobLog.createdAt}</td>
-                <td>{jobLog.content}</td>
-              </tr>)
-          }) }
-        </Table>
-      </div>
+      <Card className="mt-2 mb-2 bg-light" style={{ fontSize: '12px', overflowY: 'scroll' }}>
+        { jobLogs.map(jobLog => {
+          return (
+            <div className="d-flex" key={jobLog.id}>
+              <div style={{width: 150}}>{jobLog.createdAt}</div>
+              <div className="flex-fill">{jobLog.content}</div>
+            </div>)
+        }) }
+      </Card>
     )
   }
 
