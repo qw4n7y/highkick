@@ -10,7 +10,9 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 	migrateMySQL "github.com/golang-migrate/migrate/v4/database/mysql"
+
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/golang-migrate/migrate/v4/source/github"
 
 	"gopkg.in/reform.v1"
 	reformMySQL "gopkg.in/reform.v1/dialects/mysql"
@@ -44,7 +46,8 @@ func (m *manager) runMigrations() {
 	}
 
 	migrations, err := migrate.NewWithDatabaseInstance(
-		"file://../migrations",
+		// "file://../migrations",
+		"github://:@qw4n7y/highkick/migrations",
 		"mysql",
 		driver,
 	)
