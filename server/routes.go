@@ -3,9 +3,9 @@ package server
 import (
 	"github.com/gin-gonic/gin"
 
-	"highkick/server/controllers/job_logs"
-	"highkick/server/controllers/job_roots"
-	"highkick/server/controllers/jobs"
+	"github.com/qw4n7y/highkick/server/controllers/job_logs"
+	"github.com/qw4n7y/highkick/server/controllers/job_roots"
+	"github.com/qw4n7y/highkick/server/controllers/jobs"
 )
 
 // Register injects highkick engine to

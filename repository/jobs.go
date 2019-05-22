@@ -2,8 +2,9 @@ package repository
 
 import (
 	"fmt"
-	"highkick/database"
-	"highkick/models"
+
+	"github.com/qw4n7y/highkick/database"
+	"github.com/qw4n7y/highkick/models"
 )
 
 // GetJobByID is GetJobByID

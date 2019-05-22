@@ -1,7 +1,7 @@
 package jobs
 
 import (
-	"highkick/repository"
+	"github.com/qw4n7y/highkick/repository"
 
 	"net/http"
 

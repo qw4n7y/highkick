@@ -1,7 +1,7 @@
 package jobs
 
 import (
-	"highkick/models"
+	"github.com/qw4n7y/highkick/models"
 )
 
 // Worker is job processing handler

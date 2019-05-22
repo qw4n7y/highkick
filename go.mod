@@ -1,4 +1,4 @@
-module highkick
+module github.com/qw4n7y/highkick
 
 go 1.12
 

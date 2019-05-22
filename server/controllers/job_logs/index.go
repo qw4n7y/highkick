@@ -1,8 +1,9 @@
 package job_logs
 
 import (
-	"highkick/repository"
 	"net/http"
+
+	"github.com/qw4n7y/highkick/repository"
 
 	"github.com/gin-gonic/gin"
 )

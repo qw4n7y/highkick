@@ -1,11 +1,12 @@
 package jobs
 
 import (
-	"highkick"
-	"highkick/database"
-	"highkick/models"
 	"testing"
 	"time"
+
+	"github.com/qw4n7y/highkick"
+	"github.com/qw4n7y/highkick/database"
+	"github.com/qw4n7y/highkick/models"
 )
 
 func TestSimpleUsage(t *testing.T) {

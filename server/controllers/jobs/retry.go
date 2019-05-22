@@ -1,9 +1,10 @@
 package jobs
 
 import (
-	"highkick/jobs"
-	"highkick/repository"
 	"net/http"
+
+	"github.com/qw4n7y/highkick/jobs"
+	"github.com/qw4n7y/highkick/repository"
 
 	"github.com/gin-gonic/gin"
 )

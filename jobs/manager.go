@@ -3,10 +3,11 @@ package jobs
 import (
 	"errors"
 	"fmt"
-	"highkick/models"
-	"highkick/repository"
 	"log"
 	"time"
+
+	"github.com/qw4n7y/highkick/models"
+	"github.com/qw4n7y/highkick/repository"
 )
 
 // Manager is Manager
