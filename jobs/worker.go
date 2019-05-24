@@ -5,4 +5,4 @@ import (
 )
 
 // Worker is job processing handler
-type Worker = func(manager *Manager, job *models.Job) error
+type Worker = func(job *models.Job) error

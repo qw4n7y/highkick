@@ -83,7 +83,7 @@ func (job *Job) IsCompleted() bool {
 
 // IsFailed returns if job is failed
 func (job *Job) IsFailed() bool {
-	return job.Status == StatusCompleted
+	return job.Status == StatusFailed
 }
 
 // BuildJob is a builder helper

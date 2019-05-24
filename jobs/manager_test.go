@@ -1,12 +1,15 @@
 package jobs
 
 import (
+	"errors"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/qw4n7y/highkick"
 	"github.com/qw4n7y/highkick/database"
 	"github.com/qw4n7y/highkick/models"
+	"github.com/qw4n7y/highkick/repository"
 )
 
 func TestSimpleUsage(t *testing.T) {
@@ -17,35 +20,50 @@ func TestSimpleUsage(t *testing.T) {
 	m.UnregisterAllWorkers()
 
 	counter := 0
+	workersCount := 0
 
-	worker := func(manager *Manager, job *models.Job) error {
+	worker := func(job *models.Job) error {
 		input := job.GetInput()
 		counter += int(input["value"].(float64)) // Why float64?
-		return nil
+
+		if workersCount < 10 {
+			m.RunJob(models.BuildJob("increment", models.JSONDictionary{
+				"value": 10,
+			}, job))
+
+			workersCount++
+			return nil
+		}
+
+		return errors.New("Oops")
 	}
 	m.RegisterWorker("increment", worker)
 
-	job := models.BuildJob("increment", models.JSONDictionary{
+	rootJob := m.RunJob(models.BuildJob("increment", models.JSONDictionary{
 		"value": 10,
-	}, nil)
-	m.RunJob(job)
+	}, nil))
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
-	rows, _ := database.Manager.DB.Query("SELECT * FROM jobs")
-	cols, _ := rows.Columns()
-	for rows.Next() {
-		cells := make([]interface{}, len(cols))
-		cellsPointers := make([]interface{}, len(cols))
-		for i := range cells {
-			cellsPointers[i] = &cells[i]
-		}
-
-		rows.Scan(cellsPointers...)
-	}
-
-	want := 10
+	want := 110
 	if counter != want {
 		t.Errorf("Want %v Got %v", want, counter)
+	}
+
+	jobs := repository.GetJobs("ORDER BY path ASC")
+	if len(jobs) != 11 {
+		t.Errorf("Total jobs created: Want %v Got %v", 11, len(jobs))
+	}
+
+	rootJob = repository.GetJobByID(rootJob.ID)
+	if rootJob.Status != "failed" {
+		t.Errorf("Root job: Want %v Got %v", "failed", rootJob.Status)
+	}
+
+	lastJob := jobs[len(jobs)-1]
+	rootLogs := repository.GetJobLogs(lastJob)
+	lastLog := rootLogs[len(rootLogs)-1]
+	if !strings.Contains(lastLog.Content, "[ERROR] Recovered panic: Oops") {
+		t.Errorf("Last Log of the last Job: Want %v Got %v", "[ERROR] Recovered panic: Oops", lastLog)
 	}
 }

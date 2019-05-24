@@ -1,7 +1,6 @@
 package jobs
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -16,39 +15,43 @@ type Manager struct {
 }
 
 // RunJob runs / restarts a new job
-func (m *Manager) RunJob(job *models.Job) {
-	go func() {
+func (m *Manager) RunJob(job *models.Job) *models.Job {
+	worker := m.workers[job.Type]
+	if worker == nil {
+		panic(fmt.Sprintf("No worker found for %v", job.Type))
+	}
+
+	job.Status = models.StatusProcessing
+	job.CreatedAt = time.Now()
+	if err := repository.SaveJob(job); err != nil {
+		panic(err.Error())
+	}
+
+	// NOTE: meditate about: share pointers or pass a copies
+	go func(worker Worker, job models.Job) {
 		defer func() {
 			var err error
 
 			if r := recover(); r != nil {
-				err = errors.New(fmt.Sprintf("Recovered panic: %v", r))
+				// errors.New(fmt.Sprintf("Recovered panic: %v", r))
+				err = fmt.Errorf("Recovered panic: %v (from job#%v)", r, job.ID)
 			}
 
 			if err == nil {
-				m.completeJob(job)
+				m.completeJob(&job)
 			} else {
-				m.failJob(job, err)
+				m.failJob(&job, err)
 			}
 		}()
 
-		worker := m.workers[job.Type]
-		if worker == nil {
-			panic(fmt.Sprintf("No worker found for %v", job.Type))
-		}
-
-		job.Status = models.StatusProcessing
-		job.CreatedAt = time.Now()
-		if err := repository.SaveJob(job); err != nil {
-			panic(err.Error())
-		}
-
-		if err := worker(m, job); err != nil {
+		if err := worker(&job); err != nil {
 			panic(err.Error())
 		}
 
 		return
-	}()
+	}(worker, *job)
+
+	return job
 }
 
 // checkIfTreeIsDone checks if all jobs are done and completes
@@ -103,6 +106,8 @@ func (m *Manager) failJob(job *models.Job, err error) {
 	if err := repository.SaveJob(job); err != nil {
 		log.Fatal(err)
 	}
+
+	m.checkIfTreeIsDoneAndCompleteRootJob(job)
 
 	log.Print(fmt.Sprintf("[JOB] [%v] %v", job.Type, err.Error()))
 	m.Log(job, fmt.Sprintf("[ERROR] %v", err.Error()))
