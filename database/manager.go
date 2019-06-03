@@ -47,7 +47,7 @@ func (m *manager) runMigrations() {
 
 	migrations, err := migrate.NewWithDatabaseInstance(
 		// "file://../migrations",
-		"github://:@qw4n7y/highkick/migrations",
+		"github://qw4n7y:6ae00fd10ca3fc71257ff07000c13be678654369@qw4n7y/highkick/migrations",
 		"mysql",
 		driver,
 	)
