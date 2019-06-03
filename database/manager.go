@@ -11,7 +11,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	migrateMySQL "github.com/golang-migrate/migrate/v4/database/mysql"
 
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+	// _ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/golang-migrate/migrate/v4/source/github"
 
 	"gopkg.in/reform.v1"
@@ -40,7 +40,9 @@ func (m *manager) initDatabase(dataSourceName string) {
 }
 
 func (m *manager) runMigrations() {
-	driver, err := migrateMySQL.WithInstance(m.DB, &migrateMySQL.Config{})
+	driver, err := migrateMySQL.WithInstance(m.DB, &migrateMySQL.Config{
+		MigrationsTable: "highkick_schema_migrations",
+	})
 	if err != nil {
 		panic(err.Error())
 	}
