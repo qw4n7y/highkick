@@ -9,7 +9,7 @@ const App: React.FC = (props: any) => {
         <Navbar.Brand href="">
           <img
             alt=""
-            src="/logo.png"
+            src="./logo.png"
             width="30"
             height="30"
             className="d-inline-block align-top mr-4"

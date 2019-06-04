@@ -3,6 +3,7 @@ package jobs
 import (
 	"fmt"
 	"log"
+	"runtime/debug"
 	"time"
 
 	"github.com/qw4n7y/highkick/models"
@@ -110,7 +111,7 @@ func (m *Manager) failJob(job *models.Job, err error) {
 	m.checkIfTreeIsDoneAndCompleteRootJob(job)
 
 	log.Print(fmt.Sprintf("[JOB] [%v] %v", job.Type, err.Error()))
-	m.Log(job, fmt.Sprintf("[ERROR] %v", err.Error()))
+	m.Log(job, fmt.Sprintf("[ERROR] %v. Stack: %v", err.Error(), string(debug.Stack())))
 }
 
 // Log message for a job
