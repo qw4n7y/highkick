@@ -119,11 +119,11 @@ func (m *Manager) failJob(job *models.Job, err error) {
 func (m *Manager) clearJob(job *models.Job) {
 	jobs := repository.GetJobTree(job)
 	for _, j := range jobs {
-		if j.ID == job.ID {
-			continue
-		}
 		if err := repository.DestroyJobLogsFor(j); err != nil {
 			panic(err.Error())
+		}
+		if j.ID == job.ID {
+			continue
 		}
 		if err := repository.DestroyJob(j); err != nil {
 			panic(err.Error())
