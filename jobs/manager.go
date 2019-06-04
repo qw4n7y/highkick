@@ -45,6 +45,8 @@ func (m *Manager) RunJob(job *models.Job) *models.Job {
 			}
 		}()
 
+		m.clearJob(&job)
+
 		if err := worker(&job); err != nil {
 			panic(err.Error())
 		}
@@ -112,6 +114,21 @@ func (m *Manager) failJob(job *models.Job, err error) {
 
 	log.Print(fmt.Sprintf("[JOB] [%v] %v", job.Type, err.Error()))
 	m.Log(job, fmt.Sprintf("[ERROR] %v. Stack: %v", err.Error(), string(debug.Stack())))
+}
+
+func (m *Manager) clearJob(job *models.Job) {
+	jobs := repository.GetJobTree(job)
+	for _, j := range jobs {
+		if j.ID == job.ID {
+			continue
+		}
+		if err := repository.DestroyJobLogsFor(j); err != nil {
+			panic(err.Error())
+		}
+		if err := repository.DestroyJob(j); err != nil {
+			panic(err.Error())
+		}
+	}
 }
 
 // Log message for a job

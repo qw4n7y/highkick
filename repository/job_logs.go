@@ -34,3 +34,11 @@ func SaveJobLog(jobLog *models.JobLog) error {
 
 	return err
 }
+
+// DestroyJobLogsFor clears all logs for particular job
+func DestroyJobLogsFor(job *models.Job) error {
+	dbr := database.Manager.DBR
+	tail := fmt.Sprintf("WHERE job_id = %s", dbr.Placeholder(1))
+	_, err := dbr.DeleteFrom(models.JobLogTable, tail, job.ID)
+	return err
+}

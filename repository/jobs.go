@@ -75,3 +75,10 @@ func GetRootJobs() []*models.Job {
 	roots := GetJobs("WHERE path = ''")
 	return roots
 }
+
+// DestroyJob destroys job from database
+func DestroyJob(job *models.Job) error {
+	dbr := database.Manager.DBR
+	err := dbr.Delete(job)
+	return err
+}
