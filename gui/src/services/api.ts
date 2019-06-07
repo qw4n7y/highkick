@@ -4,6 +4,7 @@ const API_BASE = `${protocol}//${hostname}:8000/highkick`
 
 const URLS = {
   jobs: {
+    job: (id: number) => `${API_BASE}/jobs/${id}`,
     retry: (id: number) => `${API_BASE}/jobs/${id}/retry`,
     subtree: (id: number) => `${API_BASE}/jobs/${id}/subtree`
   },

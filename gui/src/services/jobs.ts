@@ -25,4 +25,8 @@ async function retry(job: Job) {
   await HTTP.post(API.URLS.jobs.retry(job.id))
 }
 
-export default { loadRoots, updateJob, retry }
+async function destroy(job: Job) {
+  await HTTP.del(API.URLS.jobs.job(job.id))
+}
+
+export default { loadRoots, updateJob, retry, destroy }

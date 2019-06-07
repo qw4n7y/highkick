@@ -14,6 +14,7 @@ func Register(e *gin.Engine) {
 	{
 		routes.GET("/job_roots", job_roots.Index)
 
+		routes.DELETE("/jobs/:job_id", jobs.Destroy)
 		routes.POST("/jobs/:job_id/retry", jobs.Retry)
 		routes.GET("/jobs/:job_id/subtree", jobs.Subtree)
 		routes.GET("/jobs/:job_id/logs", job_logs.Index)

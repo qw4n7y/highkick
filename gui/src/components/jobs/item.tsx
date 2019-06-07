@@ -1,5 +1,6 @@
 import React from 'react'
-import { Row, Col, ButtonGroup, Button, Badge, Card } from 'react-bootstrap'
+import ReactJsonView from 'react-json-view'
+import { ButtonGroup, Button, Badge, Card } from 'react-bootstrap'
 
 import Job from '../../models/job'
 import JobLog from '../../models/job_log'
@@ -28,26 +29,45 @@ class JobComponent extends React.Component<Props, State> {
     this.updateItem = this.updateItem.bind(this)
     this.showLogs = this.showLogs.bind(this)
     this.retry = this.retry.bind(this)
+    this.destroy = this.destroy.bind(this)
   }
 
   render() {
     const { job } = this.props
+    const input = job.input !== "" ? JSON.parse(job.input) : {}
+    const output = job.output !== "" ? JSON.parse(job.output) : {}
 
     return (
       <>
         <div className="d-flex">
-          <div>{job.id}</div>
-          <div>{job.type}</div>
-          <div className="flex-fill d-flex">
-            <code>{job.input}</code>
-            <code>{job.output}</code>
+          <div className="mr-2">{job.id}</div>
+          <div
+            className="font-italic"
+            style={{fontSize: '12px', maxWidth: '150px', overflow: 'scroll'}}
+          >{job.type}</div>
+          <div className="flex-fill d-flex flex-column">
+            <ReactJsonView
+              src={input}
+              collapsed={true}
+              displayDataTypes={false}
+              enableClipboard={false}
+              style={{fontSize: 10}}
+            />
+            <ReactJsonView
+              src={output}
+              collapsed={true}
+              displayDataTypes={false}
+              enableClipboard={false}
+              style={{fontSize: 10}}
+            />
           </div>
-          <div>{this.renderStatus()}</div>
+          <div className="mr-1">{this.renderStatus()}</div>
           <div>
             <ButtonGroup size="sm">
-              <Button key="update" onClick={this.updateItem}>Up</Button>
-              <Button key="logs" onClick={this.showLogs}>Logs</Button>
-              <Button key="retry" onClick={this.retry}>Retry</Button>
+              <Button variant="light" onClick={this.updateItem}>👁</Button>
+              <Button variant="light" className="text-muted" onClick={this.showLogs}>Logs</Button>
+              <Button variant="light" className="text-success" onClick={this.retry}>↻</Button>
+              <Button variant="light" onClick={this.destroy}>🗑</Button>
             </ButtonGroup>
           </div>
         </div>
@@ -111,6 +131,17 @@ class JobComponent extends React.Component<Props, State> {
 
     (async () => {
       await Jobs.retry(job)
+    })()
+  }
+
+  private destroy() {
+    const { job } = this.props;
+    if (window.confirm('Do you wanna to destroy this job?') === false) {
+      return
+    }
+
+    (async () => {
+      await Jobs.destroy(job)
     })()
   }
 }

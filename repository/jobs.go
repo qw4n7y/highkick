@@ -72,7 +72,7 @@ func GetRootJob(job *models.Job) *models.Job {
 
 // GetRootJobs is GetRootJobs
 func GetRootJobs() []*models.Job {
-	roots := GetJobs("WHERE path = ''")
+	roots := GetJobs("WHERE path = '' ORDER BY id DESC")
 	return roots
 }
 
