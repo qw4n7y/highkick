@@ -1,6 +1,12 @@
 const {protocol, hostname} = window.location
 
-const API_BASE = `${protocol}//${hostname}:8000/highkick`
+const BASE = {
+  'development': `${protocol}//${hostname}:8000`,
+  'production': window.location.origin,
+  'test': window.location.origin
+}[process.env.NODE_ENV]
+
+const API_BASE = `${BASE}/highkick`
 
 const URLS = {
   jobs: {
