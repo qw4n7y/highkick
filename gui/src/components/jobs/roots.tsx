@@ -30,7 +30,7 @@ class RootsList extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    this.loadItems().then(() => {})
+    this.loadItems(1).then(() => {})
   }
 
   render() {
@@ -55,18 +55,15 @@ class RootsList extends React.Component<Props, State> {
   }
 
   private onPageChange(newPage: number) {
-    this.setState({
-      page: newPage,
-    })
-    this.loadItems().then(() => {})
+    this.loadItems(newPage).then(() => {})
   }
 
-  private async loadItems() {
-    const { page, maxPage } = this.state
-    this.setState({ loading: true })
+  private async loadItems(page: number) {
+    const { maxPage } = this.state
     const roots = await Jobs.loadRoots({ page })
     this.setState({
       loading: false,
+      page,
       roots,
       maxPage: Math.max(maxPage, page + 1),
     })

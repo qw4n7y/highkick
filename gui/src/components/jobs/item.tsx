@@ -64,13 +64,13 @@ class JobComponent extends React.Component<Props, State> {
             />
           </div>
           <div className="mr-1">{this.renderStatus(job.status)}</div>
-          <div className="mr-1">{this.renderStatus(treeStatus, 'Tree: ')}</div>
+          <div className="mr-1">{this.renderStatus(treeStatus, '🌳: ')}</div>
           <div>
             <ButtonGroup size="sm">
               <Button variant="light" onClick={this.updateItem}>👁</Button>
               <Button variant="light" className="text-muted" onClick={this.showLogs}>Logs</Button>
-              { (job.status != 'completed') && <Button variant="light" className="text-success" onClick={this.retry}>↻ self</Button> }
-              { (treeStatus != 'completed') && <Button variant="light" className="text-success" onClick={this.retryFailedChildren}>↻ failed</Button> }
+              { (job.status != 'completed') && <Button variant="light" className="text-success" onClick={this.retry}>↻</Button> }
+              { (treeStatus != 'completed') && <Button variant="light" className="text-success" onClick={this.retryFailedChildren}>↻ 🍂</Button> }
               <Button variant="light" onClick={this.destroy}>🗑</Button>
             </ButtonGroup>
           </div>
@@ -81,8 +81,11 @@ class JobComponent extends React.Component<Props, State> {
 
   renderStatus(status: Status, title?: string) {
     const variant = (status === 'completed') ? 'success' : ((status === 'failed') ? 'danger' : 'info' )
-    const sign = (status === 'completed') ? '✌' : ((status === 'failed') ? '❌' : '༗' )
-    return <Badge variant={variant}>{title}{sign}</Badge>
+    const sign = (status === 'completed') ? '✌' : ((status === 'failed') ? '✘' : '༗' )
+    return (
+      <h4 className="m-0 p-0">
+        <Badge variant={variant}>{title}{sign}</Badge>
+      </h4>)
   }
 
   renderLogs() {

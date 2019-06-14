@@ -57,50 +57,12 @@ func (m *Manager) RunJob(job *models.Job) *models.Job {
 	return job
 }
 
-// checkIfTreeIsDone checks if all jobs are done and completes
-// the root
-func (m *Manager) checkIfTreeIsDoneAndCompleteRootJob(job *models.Job) {
-	jobs := repository.GetJobTree(job)
-
-	anyFailed := false
-	allAreDone := true
-	for _, job := range jobs {
-		if job.IsRoot() {
-			continue
-		}
-
-		if job.IsFailed() {
-			anyFailed = true
-		}
-
-		if !job.IsFailed() && !job.IsCompleted() {
-			allAreDone = false
-		}
-	}
-
-	if !allAreDone {
-		return
-	}
-
-	rootJob := repository.GetRootJob(job)
-	if anyFailed {
-		rootJob.Status = models.StatusFailed
-	} else {
-		rootJob.Status = models.StatusCompleted
-	}
-	if err := repository.SaveJob(rootJob); err != nil {
-		panic(err)
-	}
-}
-
 // completeJob is called on job's completion
 func (m *Manager) completeJob(job *models.Job) {
 	job.Status = models.StatusCompleted
 	if err := repository.SaveJob(job); err != nil {
 		log.Fatal(err)
 	}
-
-	m.checkIfTreeIsDoneAndCompleteRootJob(job)
 }
 
 // completeJob is called when job has failed
@@ -109,8 +71,6 @@ func (m *Manager) failJob(job *models.Job, err error) {
 	if err := repository.SaveJob(job); err != nil {
 		log.Fatal(err)
 	}
-
-	m.checkIfTreeIsDoneAndCompleteRootJob(job)
 
 	log.Print(fmt.Sprintf("[JOB] [%v] %v", job.Type, err.Error()))
 	m.Log(job, fmt.Sprintf("[ERROR] %v. Stack: %v", err.Error(), string(debug.Stack())))
