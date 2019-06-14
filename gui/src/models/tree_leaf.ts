@@ -4,6 +4,7 @@ interface TreeLeaf {
 
   isRoot: () => boolean
   parentID: () => number | null
+  digest: () => string
 }
 
 export default TreeLeaf

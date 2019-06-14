@@ -52,6 +52,10 @@ class Job implements Props, TreeLeaf {
     return ids[ids.length - 1]
   }
 
+  digest() {
+    return `${this.id}${this.status}`
+  }
+
   static deserialize(json: any): Job {
     const job = new Job(json as Partial<Props>)
     return job

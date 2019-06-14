@@ -18,12 +18,11 @@ class TreeLeaves<Item extends TreeLeafInterface> extends React.Component<Props<I
       <ul className={classnames('list-group', 'p-0')}>
         { items.map(item => {
           return (
-            <li className="list-group-item p-0" key={item.id}>
-              <Leaf 
-                item={item}
-                builder={builder}
-              />
-            </li>)
+            <Leaf
+              key={item.digest()}
+              item={item}
+              builder={builder}
+            />)
         }) }
       </ul>)
   }
