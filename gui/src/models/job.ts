@@ -1,5 +1,7 @@
 import TreeLeaf from './tree_leaf'
 
+export type Status = 'initial' | 'processing' | 'failed' | 'completed'
+
 type Props = {
   id: number
   type: string
@@ -7,7 +9,7 @@ type Props = {
   sid: string
   input: string
   output: string
-  status: string
+  status: Status
   createdAt: string
 
   childs: Job[]
@@ -20,7 +22,7 @@ class Job implements Props, TreeLeaf {
   sid: string = ''
   input: string = ''
   output: string = ''
-  status: string = 'initial'
+  status: Status = 'initial'
   createdAt: string = ''
 
   childs: Job[] = []

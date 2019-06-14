@@ -5,10 +5,13 @@ import Jobs from '../../services/jobs'
 import Job from '../../models/job'
 import Leaf from './leaf'
 import TreeLeaves from '../tree/leaves'
+import Paginator from '../misc/paginator'
 
 type Props = {}
 type State = {
   loading: boolean
+  page: number
+  maxPage: number
   roots: Job[]
 }
 
@@ -18,19 +21,20 @@ class RootsList extends React.Component<Props, State> {
 
     this.state = {
       loading: true,
+      page: 1,
+      maxPage: 1,
       roots: []
     }
+    
+    this.onPageChange = this.onPageChange.bind(this)
   }
 
   componentDidMount() {
-    (async () => {
-      const roots = await Jobs.loadRoots()
-      this.setState({ loading: false, roots })
-    })()
+    this.loadItems().then(() => {})
   }
 
   render() {
-    const { loading, roots } = this.state
+    const { loading, roots, page, maxPage } = this.state
 
     if (loading) {
       return (
@@ -41,10 +45,31 @@ class RootsList extends React.Component<Props, State> {
     }
 
     return (
-      <TreeLeaves
-        items={roots}
-        builder={Leaf.builder}
-      />)
+      <>
+        <TreeLeaves
+          items={roots}
+          builder={Leaf.builder}
+        />
+        <Paginator page={page} maxPage={maxPage} onPageChange={this.onPageChange}/>
+      </>)
+  }
+
+  private onPageChange(newPage: number) {
+    this.setState({
+      page: newPage,
+    })
+    this.loadItems().then(() => {})
+  }
+
+  private async loadItems() {
+    const { page, maxPage } = this.state
+    this.setState({ loading: true })
+    const roots = await Jobs.loadRoots({ page })
+    this.setState({
+      loading: false,
+      roots,
+      maxPage: Math.max(maxPage, page + 1),
+    })
   }
 }
 

@@ -2,7 +2,7 @@ import React from 'react'
 import ReactJsonView from 'react-json-view'
 import { ButtonGroup, Button, Badge, Card } from 'react-bootstrap'
 
-import Job from '../../models/job'
+import Job, { Status } from '../../models/job'
 import JobLog from '../../models/job_log'
 import Jobs from '../../services/jobs'
 import JobLogs from '../../services/job_logs'
@@ -29,20 +29,22 @@ class JobComponent extends React.Component<Props, State> {
     this.updateItem = this.updateItem.bind(this)
     this.showLogs = this.showLogs.bind(this)
     this.retry = this.retry.bind(this)
+    this.retryFailedChildren = this.retryFailedChildren.bind(this)
     this.destroy = this.destroy.bind(this)
   }
 
   render() {
     const { job } = this.props
+    const treeStatus = Jobs.treeStatus(job)
     const input = job.input !== "" ? JSON.parse(job.input) : {}
     const output = job.output !== "" ? JSON.parse(job.output) : {}
 
     return (
       <>
         <div className="d-flex">
-          <div className="mr-2">{job.id}</div>
+          <div className="mr-1 text-muted" style={{ fontSize: 12 }}>{job.id}</div>
           <div
-            className="font-italic"
+            className="mr-1 font-italic"
             style={{fontSize: '12px', maxWidth: '150px', overflow: 'scroll'}}
           >{job.type}</div>
           <div className="flex-fill d-flex flex-column">
@@ -61,12 +63,14 @@ class JobComponent extends React.Component<Props, State> {
               style={{fontSize: 10}}
             />
           </div>
-          <div className="mr-1">{this.renderStatus()}</div>
+          <div className="mr-1">{this.renderStatus(job.status)}</div>
+          <div className="mr-1">{this.renderStatus(treeStatus, 'Tree: ')}</div>
           <div>
             <ButtonGroup size="sm">
               <Button variant="light" onClick={this.updateItem}>👁</Button>
               <Button variant="light" className="text-muted" onClick={this.showLogs}>Logs</Button>
-              <Button variant="light" className="text-success" onClick={this.retry}>↻</Button>
+              { (job.status != 'completed') && <Button variant="light" className="text-success" onClick={this.retry}>↻ self</Button> }
+              { (treeStatus != 'completed') && <Button variant="light" className="text-success" onClick={this.retryFailedChildren}>↻ failed</Button> }
               <Button variant="light" onClick={this.destroy}>🗑</Button>
             </ButtonGroup>
           </div>
@@ -75,11 +79,10 @@ class JobComponent extends React.Component<Props, State> {
       </>)
   }
 
-  renderStatus() {
-    const { job } = this.props
-    const { status } = job
-
-    return <Badge variant={status === 'failed' ? 'danger' : 'info'}>{status}</Badge>
+  renderStatus(status: Status, title?: string) {
+    const variant = (status === 'completed') ? 'success' : ((status === 'failed') ? 'danger' : 'info' )
+    const sign = (status === 'completed') ? '✌' : ((status === 'failed') ? '❌' : '༗' )
+    return <Badge variant={variant}>{title}{sign}</Badge>
   }
 
   renderLogs() {
@@ -131,6 +134,17 @@ class JobComponent extends React.Component<Props, State> {
 
     (async () => {
       await Jobs.retry(job)
+    })()
+  }
+
+  private retryFailedChildren() {
+    const { job } = this.props;
+    if (window.confirm('Do you wanna to retry failed children of this job?') === false) {
+      return
+    }
+
+    (async () => {
+      await Jobs.retryFailedChildren(job)
     })()
   }
 

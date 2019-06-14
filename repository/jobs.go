@@ -71,8 +71,10 @@ func GetRootJob(job *models.Job) *models.Job {
 }
 
 // GetRootJobs is GetRootJobs
-func GetRootJobs() []*models.Job {
-	roots := GetJobs("WHERE path = '' ORDER BY id DESC")
+func GetRootJobs(page int, limit int) []*models.Job {
+	offset := (page - 1) * limit
+	tail := fmt.Sprintf("WHERE path = '' ORDER BY id DESC LIMIT %v OFFSET %v", limit, offset)
+	roots := GetJobs(tail)
 	return roots
 }
 

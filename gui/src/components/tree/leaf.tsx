@@ -36,7 +36,7 @@ class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Ite
 
     return (
       <div className="d-flex">
-        <div style={{width: 45}}>
+        <div style={{width: 40}}>
           <Button variant="light" size="sm" onClick={this.toggle}>
             { opened ? '↘' : '↗'}
           </Button>
