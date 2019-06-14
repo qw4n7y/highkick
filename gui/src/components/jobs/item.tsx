@@ -83,9 +83,9 @@ class JobComponent extends React.Component<Props, State> {
     const variant = (status === 'completed') ? 'success' : ((status === 'failed') ? 'danger' : 'info' )
     const sign = (status === 'completed') ? '✌' : ((status === 'failed') ? '✘' : '༗' )
     return (
-      <h4 className="m-0 p-0">
+      <h5 className="m-0 p-0">
         <Badge variant={variant}>{title}{sign}</Badge>
-      </h4>)
+      </h5>)
   }
 
   renderLogs() {
