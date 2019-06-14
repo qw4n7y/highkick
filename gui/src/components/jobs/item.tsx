@@ -64,7 +64,7 @@ class JobComponent extends React.Component<Props, State> {
             />
           </div>
           <div className="mr-1">{this.renderStatus(job.status)}</div>
-          <div className="mr-1">{this.renderStatus(treeStatus, '🌳: ')}</div>
+          <div className="mr-1">{this.renderStatus(treeStatus, '🌳')}</div>
           <div>
             <ButtonGroup size="sm">
               <Button variant="light" onClick={this.updateItem}>👁</Button>
