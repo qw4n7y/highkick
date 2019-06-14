@@ -52,6 +52,7 @@ class Job implements Props, TreeLeaf {
     return ids[ids.length - 1]
   }
 
+  // TODO: use hash function
   digest(): string {
     const childsDigest = this.childs.map(c => c.digest()).join()
     return `${this.id}${this.status}${childsDigest}`
