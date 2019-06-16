@@ -9,6 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang-migrate/migrate/v4 v4.3.1
+	github.com/gorilla/websocket v1.4.0
 	gopkg.in/reform.v1 v1.3.3
 	syreclabs.com/go/faker v1.0.1 // indirect
 )
