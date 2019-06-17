@@ -46,7 +46,7 @@ func HandleClient(client *Client) {
 			select {
 			case message := <-client.Write:
 				if err := client.Conn.WriteJSON(message); err != nil {
-					fmt.Println("[WS] [Write]: ", message, err)
+					fmt.Println("[WS] [Write]: ", err)
 				}
 			default:
 			}
