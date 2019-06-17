@@ -82,7 +82,6 @@ func HandleIncommingMessages(client *Client) {
 					ID:             message.ID,
 					SubscriptionID: &subscription.ID,
 				}
-				fmt.Println("[WS] WRITE <-")
 				client.Write <- answer
 			default:
 			}

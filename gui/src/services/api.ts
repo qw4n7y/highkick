@@ -1,15 +1,17 @@
 const {protocol, hostname} = window.location
 
+const env = process.env.NODE_ENV
+
 const BASE = {
   'development': `${protocol}//${hostname}:8000`,
   'production': window.location.origin,
   'test': window.location.origin
-}[process.env.NODE_ENV]
+}[env]
 
 const API_BASE = `${BASE}/highkick`
 
 const URLS = {
-  ws: `ws://${API_BASE.split("//")[1]}/ws`,
+  ws: `ws${env === 'production' ? 's' : ''}://${API_BASE.split("//")[1]}/ws`,
   jobs: {
     job: (id: number) => `${API_BASE}/jobs/${id}`,
     retry: (id: number) => `${API_BASE}/jobs/${id}/retry`,

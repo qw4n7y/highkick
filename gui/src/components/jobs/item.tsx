@@ -69,14 +69,14 @@ class JobComponent extends React.Component<Props, State> {
             <StatusComponent status={job.status}/>
           </div>
           <div className="mr-1">
-            {job.childs.length > 0 && <StatusComponent status={treeStatus} title="🌳"/>}
+            {(job.childs.length > 0 || job.isRoot()) && <StatusComponent status={treeStatus} title="🌳"/>}
           </div>
           <div>
             <ButtonGroup size="sm">
               <Button variant="light" onClick={this.updateItem}>👁</Button>
               <Button variant="light" className="text-muted" onClick={this.showLogs}>Logs</Button>
               { (job.status !== 'completed') && <Button variant="light" className="text-success" onClick={this.retry}>↻</Button> }
-              { (treeStatus !== 'completed' && job.childs.length > 0) && <Button variant="light" className="text-success" onClick={this.retryFailedChildren}>↻ 🍂</Button> }
+              { (treeStatus !== 'completed' && (job.childs.length > 0 || job.isRoot())) && <Button variant="light" className="text-success" onClick={this.retryFailedChildren}>↻ 🍂</Button> }
               <Button variant="light" onClick={this.destroy}>🗑</Button>
             </ButtonGroup>
           </div>
