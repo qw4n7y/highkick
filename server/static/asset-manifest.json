@@ -1,11 +1,11 @@
 {
   "files": {
-    "index.js": "./static/js/index.8808e6c7.js",
-    "index.js.map": "./static/js/index.8808e6c7.js.map",
+    "index.js": "./static/js/index.d8548e91.js",
+    "index.js.map": "./static/js/index.d8548e91.js.map",
     "widget.js": "./static/widget/widget.js",
     "widget.js.map": "./static/widget/widget.js.map",
     "index.html": "./index.html",
-    "precache-manifest.8ad688f74c3dd1e5196e2a4e6d47c24e.js": "./precache-manifest.8ad688f74c3dd1e5196e2a4e6d47c24e.js",
+    "precache-manifest.b8cd1d73e7f551e76eb293c32230c27a.js": "./precache-manifest.b8cd1d73e7f551e76eb293c32230c27a.js",
     "service-worker.js": "./service-worker.js"
   }
 }
