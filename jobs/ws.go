@@ -14,10 +14,10 @@ func NotifyAllThatJobWasUpdated(job *models.Job) {
 	treeStatus := repository.GetJobTreeStatus(job)
 	root.TreeStatus = &treeStatus
 
-	jobJSON, _ := json.Marshal(job)
+	rootJobJSON, _ := json.Marshal(root)
 	message := ws.Message{
 		Type:    "update",
-		Payload: json.RawMessage(fmt.Sprintf(`{"job": %v}`, string(jobJSON))),
+		Payload: json.RawMessage(fmt.Sprintf(`{"job": %v}`, string(rootJobJSON))),
 	}
 	ws.TheHub.BroadcastToChannel("jobs", &message)
 }
