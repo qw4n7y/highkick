@@ -1,18 +1,21 @@
 import React from 'react'
-
-import Jobs from '../../services/jobs'
+import * as ReactRedux from 'react-redux'
+import ReduxState from './../../redux/state'
+import Actions from '../../redux/actions/jobs'
 
 import Job from '../../models/job'
 import Leaf from './leaf'
 import TreeLeaves from '../tree/leaves'
 import Paginator from '../misc/paginator'
 
-type Props = {}
+type Props = {
+  roots?: Job[]
+  index?: (params: { page: number }) => any
+}
 type State = {
   loading: boolean
   page: number
   maxPage: number
-  roots: Job[]
 }
 
 class RootsList extends React.Component<Props, State> {
@@ -22,8 +25,7 @@ class RootsList extends React.Component<Props, State> {
     this.state = {
       loading: true,
       page: 1,
-      maxPage: 1,
-      roots: []
+      maxPage: 1
     }
     
     this.onPageChange = this.onPageChange.bind(this)
@@ -34,7 +36,8 @@ class RootsList extends React.Component<Props, State> {
   }
 
   render() {
-    const { loading, roots, page, maxPage } = this.state
+    const { roots } = this.props
+    const { loading, page, maxPage } = this.state
 
     if (loading) {
       return (
@@ -47,7 +50,7 @@ class RootsList extends React.Component<Props, State> {
     return (
       <>
         <TreeLeaves
-          items={roots}
+          items={roots! || []}
           builder={Leaf.builder}
         />
         <Paginator page={page} maxPage={maxPage} onPageChange={this.onPageChange}/>
@@ -60,14 +63,20 @@ class RootsList extends React.Component<Props, State> {
 
   private async loadItems(page: number) {
     const { maxPage } = this.state
-    const roots = await Jobs.loadRoots({ page })
+    await this.props.index!({ page })
     this.setState({
       loading: false,
       page,
-      roots,
       maxPage: Math.max(maxPage, page + 1),
     })
   }
 }
 
-export default RootsList
+const mapStateToProps = (state: ReduxState, ownProps: Props) => ({
+  roots: state.jobs
+})
+const mapDispatchToProps = (dispatch: any, ownProps: Props) => ({
+  index: (params: { page: number }) => dispatch(Actions.index(params)),
+})
+
+export default ReactRedux.connect(mapStateToProps, mapDispatchToProps)(RootsList)

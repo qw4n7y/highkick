@@ -53,6 +53,36 @@ func SaveJob(job *models.Job) error {
 	return err
 }
 
+// GetJobTreeStatus .
+func GetJobTreeStatus(job *models.Job) string {
+	jobs := GetJobTree(job)
+	anyProcessing := false
+	anyFailed := false
+	allCompleted := true
+	for _, j := range jobs {
+		switch j.Status {
+		case models.StatusProcessing:
+			anyProcessing = true
+			allCompleted = false
+		case models.StatusFailed:
+			anyFailed = true
+			allCompleted = false
+		case models.StatusInitial:
+			allCompleted = false
+		}
+	}
+	switch {
+	case anyProcessing:
+		return models.StatusProcessing
+	case anyFailed:
+		return models.StatusFailed
+	case allCompleted:
+		return models.StatusCompleted
+	default:
+		return models.StatusInitial
+	}
+}
+
 // GetRootJob gets the root job
 func GetRootJob(job *models.Job) *models.Job {
 	dbr := database.Manager.DBR

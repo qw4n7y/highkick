@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactJsonView from 'react-json-view'
-import { ButtonGroup, Button, Badge, Card } from 'react-bootstrap'
+import { ButtonGroup, Button, Card } from 'react-bootstrap'
+
+import StatusComponent from './status'
 
 import Job, { Status } from '../../models/job'
 import JobLog from '../../models/job_log'
@@ -35,7 +37,7 @@ class JobComponent extends React.Component<Props, State> {
 
   render() {
     const { job } = this.props
-    const treeStatus = Jobs.treeStatus(job)
+    const treeStatus = job.treeStatus || Jobs.treeStatus(job)
     const input = job.input !== "" ? JSON.parse(job.input) : {}
     const output = job.output !== "" ? JSON.parse(job.output) : {}
 
@@ -63,9 +65,11 @@ class JobComponent extends React.Component<Props, State> {
               style={{fontSize: 10}}
             />
           </div>
-          <div className="mr-1">{this.renderStatus(job.status)}</div>
           <div className="mr-1">
-            {job.childs.length > 0 && this.renderStatus(treeStatus, '🌳')}
+            <StatusComponent status={job.status}/>
+          </div>
+          <div className="mr-1">
+            {job.childs.length > 0 && <StatusComponent status={treeStatus} title="🌳"/>}
           </div>
           <div>
             <ButtonGroup size="sm">
@@ -79,15 +83,6 @@ class JobComponent extends React.Component<Props, State> {
         </div>
         { this.renderLogs() }
       </>)
-  }
-
-  renderStatus(status: Status, title?: string) {
-    const variant = (status === 'completed') ? 'success' : ((status === 'failed') ? 'danger' : 'info' )
-    const sign = (status === 'completed') ? '✌' : ((status === 'failed') ? '✘' : '༗' )
-    return (
-      <h5 className="m-0 p-0">
-        <Badge variant={variant}>{title}{sign}</Badge>
-      </h5>)
   }
 
   renderLogs() {

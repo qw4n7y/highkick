@@ -9,11 +9,12 @@ const BASE = {
 const API_BASE = `${BASE}/highkick`
 
 const URLS = {
+  ws: `ws://${API_BASE.split("//")[1]}/ws`,
   jobs: {
     job: (id: number) => `${API_BASE}/jobs/${id}`,
     retry: (id: number) => `${API_BASE}/jobs/${id}/retry`,
     retryFailedChildren: (id: number) => `${API_BASE}/jobs/${id}/retry_failed_children`,
-    subtree: (id: number) => `${API_BASE}/jobs/${id}/subtree`
+    subtree: (id: number) => `${API_BASE}/jobs/${id}/subtree`,
   },
   jobRoots: {
     index: `${API_BASE}/job_roots`

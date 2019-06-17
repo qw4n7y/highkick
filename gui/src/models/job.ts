@@ -10,6 +10,7 @@ type Props = {
   input: string
   output: string
   status: Status
+  treeStatus?: Status
   createdAt: string
 
   childs: Job[]
@@ -23,6 +24,7 @@ class Job implements Props, TreeLeaf {
   input: string = ''
   output: string = ''
   status: Status = 'initial'
+  treeStatus?: Status = undefined
   createdAt: string = ''
 
   childs: Job[] = []
@@ -35,6 +37,7 @@ class Job implements Props, TreeLeaf {
     if(props.input) { this.input = props.input }
     if(props.output) { this.output = props.output }
     if(props.status) { this.status = props.status }
+    if(props.treeStatus) { this.treeStatus = props.treeStatus }
     if(props.createdAt) { this.createdAt = props.createdAt }
 
     if(props.childs) { this.childs = props.childs }

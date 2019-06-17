@@ -2,7 +2,13 @@ import React from 'react';
 
 import { Container, Navbar } from 'react-bootstrap'
 
-const App: React.FC = (props: any) => {
+type Props = React.PropsWithChildren<{
+  widget?: boolean
+}>
+
+const App: React.FC<Props> = (props: Props) => {
+  const isWidget = props.widget || false
+
   return (
     <>
       <Navbar bg="dark" variant="dark">
@@ -17,7 +23,7 @@ const App: React.FC = (props: any) => {
           {'High kick'}
         </Navbar.Brand>
       </Navbar>
-      <Container>
+      <Container className={isWidget ? "m-0 p-0" : undefined}>
         { props.children }
       </Container>
     </>);

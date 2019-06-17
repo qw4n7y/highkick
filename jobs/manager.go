@@ -45,6 +45,7 @@ func (m *Manager) RunJob(job *models.Job) *models.Job {
 			}
 		}()
 
+		NotifyAllThatJobWasUpdated(&job)
 		m.clearJob(&job)
 
 		if err := worker(&job); err != nil {
@@ -63,6 +64,7 @@ func (m *Manager) completeJob(job *models.Job) {
 	if err := repository.SaveJob(job); err != nil {
 		log.Fatal(err)
 	}
+	NotifyAllThatJobWasUpdated(job)
 }
 
 // completeJob is called when job has failed
@@ -74,6 +76,7 @@ func (m *Manager) failJob(job *models.Job, err error) {
 
 	log.Print(fmt.Sprintf("[JOB] [%v] %v", job.Type, err.Error()))
 	m.Log(job, fmt.Sprintf("[ERROR] %v. Stack: %v", err.Error(), string(debug.Stack())))
+	NotifyAllThatJobWasUpdated(job)
 }
 
 func (m *Manager) clearJob(job *models.Job) {

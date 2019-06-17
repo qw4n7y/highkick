@@ -15,5 +15,10 @@ func Index(c *gin.Context) {
 	limit := 25
 
 	roots := repository.GetRootJobs(page, limit)
+	for _, root := range roots {
+		treeStatus := repository.GetJobTreeStatus(root)
+		root.TreeStatus = &treeStatus
+	}
+
 	c.JSON(http.StatusOK, roots)
 }

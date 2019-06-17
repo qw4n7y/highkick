@@ -21,7 +21,7 @@ func Register(e *gin.Engine) {
 		routes.GET("/jobs/:job_id/subtree", jobs.Subtree)
 		routes.GET("/jobs/:job_id/logs", job_logs.Index)
 
-		routes.GET("/jobs/ws", ws.HttpUpgadeHandler)
+		routes.GET("/ws", ws.HttpUpgadeHandler)
 
 		routes.Static("/gui", "server/static")
 	}

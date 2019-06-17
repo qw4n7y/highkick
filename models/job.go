@@ -28,6 +28,7 @@ type Job struct {
 	Input       *string   `reform:"input" json:"input"`
 	Output      *string   `reform:"output" json:"output"`
 	Status      string    `reform:"status" json:"status"`
+	TreeStatus  *string   `json:"treeStatus"`
 	RetriesLeft int32     `reform:"retries_left" json:"retriesLeft"`
 	CreatedAt   time.Time `reform:"created_at" json:"createdAt"`
 }
