@@ -86,8 +86,11 @@ func HandleIncommingMessages(client *Client) {
 				}
 				client.Write <- answer
 			default:
+				fmt.Println("[WS] [Read] Not known message type: ", message.Type)
 			}
-		default:
+			// Let this be blocking (not to consume CPU)
+			// Having default case makes it UNblocking
+			// default:
 		}
 	}
 }
