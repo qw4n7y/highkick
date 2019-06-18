@@ -12,27 +12,25 @@ type Props<Item> = {
   builder: Builder<Item>
 }
 
-type State<Item> = {
-  item: Item
+type State = {
   opened: boolean
 }
 
-class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Item>, State<Item>> {
+class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Item>, State> {
   constructor(props: Props<Item>) {
     super(props)
 
     this.state = {
-      item: props.item,
       opened: props.item.isRoot() ? false : true
     }
 
     this.toggle = this.toggle.bind(this)
-    this.onItemUpdate = this.onItemUpdate.bind(this)
+    this.expand = this.expand.bind(this)
   }
 
   render() {
-    const { builder } = this.props
-    const { item, opened } = this.state
+    const { item, builder } = this.props
+    const { opened } = this.state
 
     return (
       <li className="list-group-item p-0">
@@ -43,7 +41,7 @@ class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Ite
             </Button>
           </div>
           <div className="flex-fill">
-            {builder({ item, onItemUpdate: this.onItemUpdate })}
+            {builder({ item, expandTreeLeaf: this.expand })}
             <div className={classnames({'d-none': !opened})}>
               <Leaves
                 items={item.childs as Item[]}
@@ -61,9 +59,8 @@ class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Ite
     })
   }
 
-  private onItemUpdate(item: Item) {
+  private expand() {
     this.setState({
-      item,
       opened: true
     })
   }

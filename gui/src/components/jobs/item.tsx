@@ -1,17 +1,24 @@
 import React from 'react'
+import * as ReactRedux from 'react-redux'
+import ReduxState from './../../redux/state'
+import Actions from '../../redux/actions/jobs'
+
 import ReactJsonView from 'react-json-view'
 import { ButtonGroup, Button, Card } from 'react-bootstrap'
 
 import StatusComponent from './status'
 
-import Job, { Status } from '../../models/job'
+import Job from '../../models/job'
 import JobLog from '../../models/job_log'
 import Jobs from '../../services/jobs'
 import JobLogs from '../../services/job_logs'
 
 type Props = {
   job: Job
-  onItemUpdate: (job: Job) => any
+  expandTreeLeaf: () => any
+
+  update?: (job: Job) => any
+  destroy?: (job: Job) => any
 }
 
 type State = {
@@ -104,11 +111,8 @@ class JobComponent extends React.Component<Props, State> {
 
   private updateItem() {
     const { job } = this.props;
-
-    (async () => {
-      let updatedJob = await Jobs.updateJob(job)
-      this.props.onItemUpdate(updatedJob)
-    })()
+    this.props.update!(job)
+    this.props.expandTreeLeaf()
   }
 
   private showLogs() {
@@ -154,10 +158,14 @@ class JobComponent extends React.Component<Props, State> {
       return
     }
 
-    (async () => {
-      await Jobs.destroy(job)
-    })()
+    this.props.destroy!(job)
   }
 }
 
-export default JobComponent
+const mapStateToProps = (state: ReduxState, ownProps: Props) => ({})
+const mapDispatchToProps = (dispatch: any, ownProps: Props) => ({
+  update: (job: Job) => dispatch(Actions.update(job)),
+  destroy: (job: Job) => dispatch(Actions.destroy(job)),
+})
+
+export default ReactRedux.connect(mapStateToProps, mapDispatchToProps)(JobComponent)

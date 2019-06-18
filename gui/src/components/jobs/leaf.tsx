@@ -9,7 +9,7 @@ const builder: LeafBuilder<Job> = props => {
   return (
     <ItemComponent
       job={props.item}
-      onItemUpdate={props.onItemUpdate}
+      expandTreeLeaf={props.expandTreeLeaf}
     />)
 }
 
