@@ -48,7 +48,9 @@ func HandleClient(client *Client) {
 				if err := client.Conn.WriteJSON(message); err != nil {
 					fmt.Println("[WS] [Write]: ", err)
 				}
-			default:
+				// Let this be blocking (not to consume CPU)
+				// Having default case makes it UNblocking
+				// default:
 			}
 		}
 	}()

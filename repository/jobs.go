@@ -39,7 +39,9 @@ func GetJobs(tail string) []*models.Job {
 
 // GetJobTree returns all jobs in the tree of specified job
 func GetJobTree(job *models.Job) []*models.Job {
-	tail := fmt.Sprintf("WHERE path LIKE \"%v/%%\" OR path LIKE \"%v/%%\" OR path LIKE \"%v\" OR id = %v", job.Path, job.ID, job.ID, job.ID)
+	tail := fmt.Sprintf(
+		`WHERE path LIKE "%v/%v/%%" OR path LIKE "%v/%%" OR path = "%v" OR id = %v`,
+		job.Path, job.ID, job.ID, job.ID, job.ID)
 	jobs := GetJobs(tail)
 	return jobs
 }
