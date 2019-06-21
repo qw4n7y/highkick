@@ -11,6 +11,7 @@ import (
 
 func NotifyAllThatJobWasUpdated(job *models.Job) {
 	root := repository.GetRootJob(job)
+
 	treeStatus := repository.GetJobTreeStatus(root)
 	root.TreeStatus = &treeStatus
 
