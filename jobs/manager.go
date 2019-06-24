@@ -96,10 +96,15 @@ func (m *Manager) clearJob(job *models.Job) {
 
 // Log message for a job
 func (m *Manager) Log(job *models.Job, message string) {
+	maxContentLength := len(message)
+	if maxContentLength > 65535 {
+		maxContentLength = 65535
+	}
+
 	jobLog := &models.JobLog{
 		JobID:     job.ID,
 		JobPath:   job.Path,
-		Content:   message[:65535], // Content is MySql TEXT
+		Content:   message[:maxContentLength], // Content is MySQL TEXT
 		CreatedAt: time.Now(),
 	}
 	if err := repository.SaveJobLog(jobLog); err != nil {
