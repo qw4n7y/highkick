@@ -99,7 +99,7 @@ func (m *Manager) Log(job *models.Job, message string) {
 	jobLog := &models.JobLog{
 		JobID:     job.ID,
 		JobPath:   job.Path,
-		Content:   message,
+		Content:   message[:65535], // Content is MySql TEXT
 		CreatedAt: time.Now(),
 	}
 	if err := repository.SaveJobLog(jobLog); err != nil {
