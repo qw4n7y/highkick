@@ -1,5 +1,6 @@
 import React from 'react'
 import * as ReactRedux from 'react-redux'
+
 import ReduxState from './../../redux/state'
 import Actions from '../../redux/actions/jobs'
 
@@ -54,9 +55,10 @@ class JobComponent extends React.Component<Props, State> {
           <div className="mr-1 text-muted" style={{ fontSize: 12 }}>{job.id}</div>
           <div
             className="mr-1 font-italic"
-            style={{fontSize: '12px', maxWidth: '150px', overflow: 'scroll'}}
+            style={{fontSize: '12px', width: '160px', overflow: 'scroll'}}
           >{job.type}</div>
           <div className="flex-fill d-flex flex-column">
+            <div className="text-muted" style={{ fontSize: 12 }}>Created at: {job.createdAt}</div>
             <ReactJsonView
               src={input}
               collapsed={true}

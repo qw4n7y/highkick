@@ -13,14 +13,7 @@ const App: React.FC<Props> = (props: Props) => {
     <>
       <Navbar bg="dark" variant="dark">
         <Navbar.Brand href="">
-          <img
-            alt=""
-            src="./logo.png"
-            width="30"
-            height="30"
-            className="d-inline-block align-top mr-4"
-          />
-          {'High kick'}
+          🥋 High kick
         </Navbar.Brand>
       </Navbar>
       <Container className={isWidget ? "m-0 p-0" : undefined}>

@@ -26,19 +26,19 @@ func init() {
 func main() {
 	highkick.Setup("root:root@tcp(127.0.0.1:3307)/highkick?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true")
 
-	go func() {
-		for {
-			job := highkick.NewJob(HELLO_WORLD, highkick.Input{}, nil)
-			highkick.Run(job)
-			fmt.Println("[JOB] Run", job)
-			time.Sleep(5 * time.Second)
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		job := highkick.NewJob(HELLO_WORLD, highkick.Input{}, nil)
+	// 		highkick.Run(job)
+	// 		fmt.Println("[JOB] Run", job)
+	// 		time.Sleep(5 * time.Second)
+	// 	}
+	// }()
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(cors.Default())
-	r.Static("/gui", "./gui/build")
+	r.Static("/app", "./examples")
 	highkick.RegisterGuiBackendHandler(r)
 	log.Fatalln(r.Run())
 
