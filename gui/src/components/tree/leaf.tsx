@@ -40,7 +40,7 @@ class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Ite
               { opened ? '↘' : '↗'}
             </Button>
           </div>
-          <div className="flex-fill">
+          <div className="flex-fill" key={item.digest()}>
             {builder({ item, expandTreeLeaf: this.expand })}
             <div className={classnames({'d-none': !opened})}>
               <Leaves

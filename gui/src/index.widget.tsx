@@ -7,6 +7,9 @@ import WS from './services/ws'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
 
+import EventEmitter from './services/event_emitter'
+(window as any).highkickEventEmitter = EventEmitter
+
 WS.handle()
 
 ReactDOM.render(

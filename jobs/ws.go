@@ -9,7 +9,7 @@ import (
 	"github.com/qw4n7y/highkick/server/ws"
 )
 
-func NotifyAllThatJobWasUpdated(job *models.Job) {
+func BroadcastJobUpdateViaWS(job *models.Job) {
 	root := repository.GetRootJob(job)
 
 	treeStatus := repository.GetJobTreeStatus(root)

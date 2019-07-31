@@ -11,7 +11,7 @@ const BASE = {
 const API_BASE = `${BASE}/highkick`
 
 const URLS = {
-  ws: `ws${env === 'production' ? 's' : ''}://${API_BASE.split("//")[1]}/ws`,
+  ws: `ws${window.location.protocol === 'https:' ? 's' : ''}://${API_BASE.split("//")[1]}/ws`,
   jobs: {
     job: (id: number) => `${API_BASE}/jobs/${id}`,
     retry: (id: number) => `${API_BASE}/jobs/${id}/retry`,

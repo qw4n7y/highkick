@@ -16,16 +16,22 @@ export default function reducer(state: State = defaultState, action: Action) {
       const a = action as Actions.Update
       const newJob = a.job
       
-      const sameJob = state.find((j: Job) => j.id === a.job.id)
-      if (!sameJob) {
+      const existingJob = state.find((j: Job) => j.id === a.job.id)
+
+      // New root job
+      if (!existingJob && newJob.isRoot()) {
         state.unshift(newJob)
-        return state
+        return state.slice(0)
       }
 
-      const index = state.indexOf(sameJob)
-      state[index] = newJob
-
-      return state.slice(0)
+      // In the list already
+      if (existingJob) {
+        const index = state.indexOf(existingJob)
+        state[index] = newJob
+        return state.slice(0)
+      }
+      
+      return state
     }
     case Actions.DESTROY: {
       const a = action as Actions.Destroy

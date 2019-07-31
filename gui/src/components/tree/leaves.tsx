@@ -19,7 +19,7 @@ class TreeLeaves<Item extends TreeLeafInterface> extends React.Component<Props<I
         { items.map(item => {
           return (
             <Leaf
-              key={item.digest()}
+              key={item.id}
               item={item}
               builder={builder}
             />)

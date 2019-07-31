@@ -11,6 +11,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.3.1
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.0
+	github.com/qw4n7y/gopubsub v0.0.0-20190731133402-2fbb3c9b2107
 	gopkg.in/reform.v1 v1.3.3
 	syreclabs.com/go/faker v1.0.1 // indirect
 )

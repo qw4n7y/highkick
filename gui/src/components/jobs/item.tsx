@@ -18,7 +18,7 @@ type Props = {
   job: Job
   expandTreeLeaf: () => any
 
-  update?: (job: Job) => any
+  update?: (job: Job) => Promise<any>
   destroy?: (job: Job) => any
 }
 
@@ -112,9 +112,10 @@ class JobComponent extends React.Component<Props, State> {
   }
 
   private updateItem() {
-    const { job } = this.props;
-    this.props.update!(job)
-    this.props.expandTreeLeaf()
+    const { job } = this.props
+    this.props.update!(job).then(() => {
+      this.props.expandTreeLeaf()
+    })
   }
 
   private showLogs() {

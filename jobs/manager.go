@@ -6,13 +6,23 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/qw4n7y/gopubsub"
 	"github.com/qw4n7y/highkick/models"
 	"github.com/qw4n7y/highkick/repository"
 )
 
 // Manager is Manager
 type Manager struct {
-	workers map[string]Worker
+	workers    map[string]Worker
+	JobsPubSub *gopubsub.Hub
+}
+
+// NewManager is a constructor
+func NewManager() *Manager {
+	manager := Manager{
+		JobsPubSub: gopubsub.NewHub(),
+	}
+	return &manager
 }
 
 // RunJob runs / restarts a new job
@@ -45,7 +55,7 @@ func (m *Manager) RunJob(job *models.Job) *models.Job {
 			}
 		}()
 
-		NotifyAllThatJobWasUpdated(&job)
+		m.BroadcastJobUpdate(&job, nil)
 		m.clearJob(&job)
 
 		if err := worker(&job); err != nil {
@@ -64,7 +74,7 @@ func (m *Manager) completeJob(job *models.Job) {
 	if err := repository.SaveJob(job); err != nil {
 		log.Fatal(err)
 	}
-	NotifyAllThatJobWasUpdated(job)
+	m.BroadcastJobUpdate(job, nil)
 }
 
 // completeJob is called when job has failed
@@ -76,7 +86,7 @@ func (m *Manager) failJob(job *models.Job, err error) {
 
 	log.Print(fmt.Sprintf("[JOB] [%v] %v", job.Type, err.Error()))
 	m.Log(job, fmt.Sprintf("[ERROR] %v. Stack: %v", err.Error(), string(debug.Stack())))
-	NotifyAllThatJobWasUpdated(job)
+	m.BroadcastJobUpdate(job, err)
 }
 
 func (m *Manager) clearJob(job *models.Job) {
@@ -123,4 +133,13 @@ func (m *Manager) RegisterWorker(jobType string, worker Worker) {
 // UnregisterAllWorkers unregisters all workers
 func (m *Manager) UnregisterAllWorkers() {
 	m.workers = make(map[string]Worker)
+}
+
+func (m *Manager) BroadcastJobUpdate(job *models.Job, err error) {
+	BroadcastJobUpdateViaWS(job)
+	pubSubMessage := models.PubSubMessage{
+		Job:   *job,
+		Error: err,
+	}
+	m.JobsPubSub.Publish(pubSubMessage)
 }
