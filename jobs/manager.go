@@ -44,8 +44,7 @@ func (m *Manager) RunJob(job *models.Job) *models.Job {
 			var err error
 
 			if r := recover(); r != nil {
-				// errors.New(fmt.Sprintf("Recovered panic: %v", r))
-				err = fmt.Errorf("Recovered panic: %v (from job#%v)", r, job.ID)
+				err = fmt.Errorf("%v", r)
 			}
 
 			if err == nil {
