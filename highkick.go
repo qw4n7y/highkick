@@ -34,5 +34,8 @@ var Log = jobs.ManagerSingleton.Log
 // Input keeps job parameters as JSON-serializable disctionary
 type Input = models.JSONDictionary
 
+// Keeps reference to jobs update pubSub
+var JobsPubSub = jobs.ManagerSingleton.JobsPubSub
+
 // Job is job instance
 type Job = models.Job
