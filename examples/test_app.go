@@ -24,16 +24,22 @@ func init() {
 }
 
 func main() {
-	highkick.Setup("root:root@tcp(127.0.0.1:3307)/highkick?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true")
+	dsn := highkick.TestDataSourceName // "root:root@tcp(127.0.0.1:3307)/highkick?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
+	highkick.Setup(dsn)
 
-	// go func() {
-	// 	for {
-	// 		job := highkick.NewJob(HELLO_WORLD, highkick.Input{}, nil)
-	// 		highkick.Run(job)
-	// 		fmt.Println("[JOB] Run", job)
-	// 		time.Sleep(5 * time.Second)
-	// 	}
-	// }()
+	highkick.JobsPubSub.Subscribe(func(iMessage interface{}) {
+		message := iMessage.(highkick.PubSubMessage)
+		fmt.Printf("Job %v completed with %v error\n", message.Job.Type, message.Error)
+	})
+
+	go func() {
+		for {
+			job := highkick.NewJob(HELLO_WORLD, highkick.Input{}, nil)
+			highkick.Run(job)
+			fmt.Println("[JOB] Run", job)
+			time.Sleep(5 * time.Second)
+		}
+	}()
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()

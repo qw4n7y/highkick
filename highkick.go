@@ -12,6 +12,8 @@ const (
 	TestDataSourceName = "root:root@tcp(127.0.0.1:3307)/highkick_test?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
 )
 
+var manager = jobs.ManagerSingleton
+
 // Setup establishes database connection
 var Setup = database.Setup
 
@@ -20,22 +22,25 @@ var NewJob = models.BuildJob
 
 // Run registers intent to run a new job, validates it can be executed and executes
 // it in goroutine
-var Run = jobs.ManagerSingleton.RunJob
+var Run = manager.RunJob
 
 // Register registers a worker and associate it with provided string identificator
-var Register = jobs.ManagerSingleton.RegisterWorker
+var Register = manager.RegisterWorker
 
 // RegisterGuiBackendHandler setup GIN handlers for GUI backend to /highkick
 var RegisterGuiBackendHandler = server.Register
 
 // Log associates custom message with a jon and persists it to database
-var Log = jobs.ManagerSingleton.Log
+var Log = manager.Log
 
 // Input keeps job parameters as JSON-serializable disctionary
 type Input = models.JSONDictionary
 
 // Keeps reference to jobs update pubSub
-var JobsPubSub = jobs.ManagerSingleton.JobsPubSub
+var JobsPubSub = manager.JobsPubSub
+
+// PubSub Message
+type PubSubMessage = models.PubSubMessage
 
 // Job is job instance
 type Job = models.Job

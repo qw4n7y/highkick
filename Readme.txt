@@ -11,6 +11,9 @@ const (
 
 VARIABLES
 
+var JobsPubSub = jobs.ManagerSingleton.JobsPubSub
+    Keeps reference to jobs update pubSub
+
 var Log = jobs.ManagerSingleton.Log
     Log associates custom message with a jon and persists it to database
 

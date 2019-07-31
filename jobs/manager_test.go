@@ -16,7 +16,7 @@ func TestSimpleUsage(t *testing.T) {
 	database.Setup(highkick.TestDataSourceName)
 	database.Manager.TruncateDatabase()
 
-	m := &ManagerSingleton
+	m := ManagerSignleton
 	m.UnregisterAllWorkers()
 
 	counter := 0
