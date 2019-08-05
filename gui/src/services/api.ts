@@ -17,6 +17,7 @@ const URLS = {
     retry: (id: number) => `${API_BASE}/jobs/${id}/retry`,
     retryFailedChildren: (id: number) => `${API_BASE}/jobs/${id}/retry_failed_children`,
     subtree: (id: number) => `${API_BASE}/jobs/${id}/subtree`,
+    input: (id: number) => `${API_BASE}/jobs/${id}/input`,
   },
   jobRoots: {
     index: `${API_BASE}/job_roots`

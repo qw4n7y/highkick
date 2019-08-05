@@ -56,4 +56,10 @@ function treeStatus(job: Job): Status {
   return 'processing'
 }
 
-export default { loadRoots, updateJob, retry, retryFailedChildren, destroy, treeStatus }
+async function getInput(job: Job) {
+  const url = API.URLS.jobs.input(job.id)
+  const data = await HTTP.get(url)
+  return data
+}
+
+export default { loadRoots, updateJob, retry, retryFailedChildren, destroy, treeStatus, getInput }

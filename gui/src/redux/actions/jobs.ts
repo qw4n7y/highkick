@@ -49,4 +49,11 @@ function destroy(job: Job) {
   }
 }
 
-export default { index, update, destroy }
+function getInput(job: Job) {
+  return async (dispatch: any, getState: () => ReduxState) => {
+    const input = await Jobs.getInput(job)
+    return input
+  }
+}
+
+export default { index, update, destroy, getInput }

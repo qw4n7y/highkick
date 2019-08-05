@@ -19,12 +19,14 @@ type Props = {
   expandTreeLeaf: () => any
 
   update?: (job: Job) => Promise<any>
-  destroy?: (job: Job) => any
+  destroy?: () => any
+  getInput?: () => Promise<any>
 }
 
 type State = {
   showLogs: boolean
   jobLogs: JobLog[]
+  input: any
 }
 
 class JobComponent extends React.Component<Props, State> {
@@ -33,7 +35,8 @@ class JobComponent extends React.Component<Props, State> {
 
     this.state = {
       showLogs: false,
-      jobLogs: []
+      jobLogs: [],
+      input: null,
     }
 
     this.updateItem = this.updateItem.bind(this)
@@ -41,6 +44,7 @@ class JobComponent extends React.Component<Props, State> {
     this.retry = this.retry.bind(this)
     this.retryFailedChildren = this.retryFailedChildren.bind(this)
     this.destroy = this.destroy.bind(this)
+    this.showInput = this.showInput.bind(this)
   }
 
   render() {
@@ -59,20 +63,7 @@ class JobComponent extends React.Component<Props, State> {
           >{job.type}</div>
           <div className="flex-fill d-flex flex-column">
             <div className="text-muted" style={{ fontSize: 12 }}>Created at: {job.createdAt}</div>
-            <ReactJsonView
-              src={input}
-              collapsed={true}
-              displayDataTypes={false}
-              enableClipboard={false}
-              style={{fontSize: 10}}
-            />
-            <ReactJsonView
-              src={output}
-              collapsed={true}
-              displayDataTypes={false}
-              enableClipboard={false}
-              style={{fontSize: 10}}
-            />
+            {this.renderInput()}
           </div>
           <div className="mr-1">
             <StatusComponent status={job.status}/>
@@ -91,6 +82,37 @@ class JobComponent extends React.Component<Props, State> {
           </div>
         </div>
         { this.renderLogs() }
+      </>)
+  }
+
+  renderInput() {
+    const { job } = this.props
+    const { input } = this.state
+    const output = job.output !== "" ? JSON.parse(job.output) : {}
+
+    return (
+      <>
+        { !input && (
+          <Button
+            className="w-100"
+            onClick={this.showInput}
+          >Show input</Button>) }
+        { input && (
+          <ReactJsonView
+            src={input}
+            collapsed={true}
+            displayDataTypes={false}
+            enableClipboard={false}
+            style={{fontSize: 10}}
+          />
+        ) }
+        <ReactJsonView
+          src={output}
+          collapsed={true}
+          displayDataTypes={false}
+          enableClipboard={false}
+          style={{fontSize: 10}}
+        />
       </>)
   }
 
@@ -156,19 +178,27 @@ class JobComponent extends React.Component<Props, State> {
   }
 
   private destroy() {
-    const { job } = this.props;
     if (window.confirm('Do you wanna to destroy this job?') === false) {
       return
     }
+    this.props.destroy!()
+  }
 
-    this.props.destroy!(job)
+  private showInput() {
+    this.props.getInput!().then(input => {
+      this.setState({ input })
+    })
   }
 }
 
 const mapStateToProps = (state: ReduxState, ownProps: Props) => ({})
-const mapDispatchToProps = (dispatch: any, ownProps: Props) => ({
-  update: (job: Job) => dispatch(Actions.update(job)),
-  destroy: (job: Job) => dispatch(Actions.destroy(job)),
-})
+const mapDispatchToProps = (dispatch: any, ownProps: Props) => {
+  const { job } = ownProps
+  return {
+    update: (job: Job) => dispatch(Actions.update(job)),
+    destroy: () => dispatch(Actions.destroy(job)),
+    getInput: () => dispatch(Actions.getInput(job)),
+  }
+}
 
 export default ReactRedux.connect(mapStateToProps, mapDispatchToProps)(JobComponent)

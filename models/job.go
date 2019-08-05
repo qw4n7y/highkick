@@ -25,7 +25,7 @@ type Job struct {
 	Type        string    `reform:"type" json:"type"`
 	Path        string    `reform:"path" json:"path"`
 	Sid         *string   `reform:"sid" json:"sid"`
-	Input       *string   `reform:"input" json:"input"`
+	Input       *string   `reform:"input" json:"-"`
 	Output      *string   `reform:"output" json:"output"`
 	Status      string    `reform:"status" json:"status"`
 	TreeStatus  *string   `json:"treeStatus"`
