@@ -84,6 +84,7 @@ func (m *Manager) failJob(job *models.Job, err error) {
 	}
 
 	log.Print(fmt.Sprintf("[JOB] [%v] %v", job.Type, err.Error()))
+	log.Print(fmt.Sprintf("[JOB] [%v] Stacktrace: %v", job.Type, string(debug.Stack())))
 	m.Log(job, fmt.Sprintf("[ERROR] %v. Stack: %v", err.Error(), string(debug.Stack())))
 	m.BroadcastJobUpdate(job, err)
 }
