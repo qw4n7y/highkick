@@ -27,6 +27,7 @@ type State = {
   showLogs: boolean
   jobLogs: JobLog[]
   input: any
+  showOutput: boolean
 }
 
 class JobComponent extends React.Component<Props, State> {
@@ -37,6 +38,7 @@ class JobComponent extends React.Component<Props, State> {
       showLogs: false,
       jobLogs: [],
       input: null,
+      showOutput: false,
     }
 
     this.updateItem = this.updateItem.bind(this)
@@ -45,6 +47,7 @@ class JobComponent extends React.Component<Props, State> {
     this.retryFailedChildren = this.retryFailedChildren.bind(this)
     this.destroy = this.destroy.bind(this)
     this.showInput = this.showInput.bind(this)
+    this.showOutput = this.showOutput.bind(this)
   }
 
   render() {
@@ -87,16 +90,17 @@ class JobComponent extends React.Component<Props, State> {
 
   renderInput() {
     const { job } = this.props
-    const { input } = this.state
+    const { input, showOutput } = this.state
     const output = job.output !== "" ? JSON.parse(job.output) : {}
 
     return (
       <>
         { !input && (
-          <Button
-            className="w-100"
+          <Button size="sm" variant="light"
+            className="w-100 m-0 p-0"
             onClick={this.showInput}
-          >Show input</Button>) }
+            style={{fontSize: 10}}
+          >Input</Button>) }
         { input && (
           <ReactJsonView
             src={input}
@@ -106,13 +110,19 @@ class JobComponent extends React.Component<Props, State> {
             style={{fontSize: 10}}
           />
         ) }
-        <ReactJsonView
+        { !showOutput && (
+          <Button size="sm" variant="light"
+            className="w-100 m-0 p-0"
+            onClick={this.showOutput}
+            style={{fontSize: 10}}
+          >Output</Button>) }
+        { showOutput && <ReactJsonView
           src={output}
           collapsed={true}
           displayDataTypes={false}
           enableClipboard={false}
           style={{fontSize: 10}}
-        />
+        /> }
       </>)
   }
 
@@ -188,6 +198,10 @@ class JobComponent extends React.Component<Props, State> {
     this.props.getInput!().then(input => {
       this.setState({ input })
     })
+  }
+
+  private showOutput() {
+    this.setState({ showOutput: true })
   }
 }
 
