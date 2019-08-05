@@ -25,8 +25,8 @@ async function retry(job: Job) {
   await HTTP.post(API.URLS.jobs.retry(job.id))
 }
 
-async function retryFailedChildren(job: Job) {
-  await HTTP.post(API.URLS.jobs.retryFailedChildren(job.id))
+async function retryFailedLeaves(job: Job) {
+  await HTTP.post(API.URLS.jobs.retryFailedLeaves(job.id))
 }
 
 async function destroy(job: Job) {
@@ -62,4 +62,4 @@ async function getInput(job: Job) {
   return data
 }
 
-export default { loadRoots, updateJob, retry, retryFailedChildren, destroy, treeStatus, getInput }
+export default { loadRoots, updateJob, retry, retryFailedLeaves, destroy, treeStatus, getInput }

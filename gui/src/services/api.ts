@@ -15,7 +15,7 @@ const URLS = {
   jobs: {
     job: (id: number) => `${API_BASE}/jobs/${id}`,
     retry: (id: number) => `${API_BASE}/jobs/${id}/retry`,
-    retryFailedChildren: (id: number) => `${API_BASE}/jobs/${id}/retry_failed_children`,
+    retryFailedLeaves: (id: number) => `${API_BASE}/jobs/${id}/retry_failed_leaves`,
     subtree: (id: number) => `${API_BASE}/jobs/${id}/subtree`,
     input: (id: number) => `${API_BASE}/jobs/${id}/input`,
   },

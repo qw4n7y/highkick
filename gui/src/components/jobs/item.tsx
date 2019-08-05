@@ -44,7 +44,7 @@ class JobComponent extends React.Component<Props, State> {
     this.updateItem = this.updateItem.bind(this)
     this.showLogs = this.showLogs.bind(this)
     this.retry = this.retry.bind(this)
-    this.retryFailedChildren = this.retryFailedChildren.bind(this)
+    this.retryFailedLeaves = this.retryFailedLeaves.bind(this)
     this.destroy = this.destroy.bind(this)
     this.showInput = this.showInput.bind(this)
     this.showOutput = this.showOutput.bind(this)
@@ -79,7 +79,7 @@ class JobComponent extends React.Component<Props, State> {
               <Button variant="light" onClick={this.updateItem}>👁</Button>
               <Button variant="light" className="text-muted" onClick={this.showLogs}>Logs</Button>
               <Button variant="light" className="text-success" onClick={this.retry}>↻</Button>
-              { (treeStatus !== 'completed' && (job.childs.length > 0 || job.isRoot())) && <Button variant="light" className="text-success" onClick={this.retryFailedChildren}>↻ 🍂</Button> }
+              { (treeStatus !== 'completed' && (job.childs.length > 0 || job.isRoot())) && <Button variant="light" className="text-success" onClick={this.retryFailedLeaves}>↻ 🍂</Button> }
               <Button variant="light" onClick={this.destroy}>🗑</Button>
             </ButtonGroup>
           </div>
@@ -176,14 +176,14 @@ class JobComponent extends React.Component<Props, State> {
     })()
   }
 
-  private retryFailedChildren() {
+  private retryFailedLeaves() {
     const { job } = this.props;
     if (window.confirm('Do you wanna to retry failed children of this job?') === false) {
       return
     }
 
     (async () => {
-      await Jobs.retryFailedChildren(job)
+      await Jobs.retryFailedLeaves(job)
     })()
   }
 

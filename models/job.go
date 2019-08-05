@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -95,4 +96,14 @@ func BuildJob(jobType string, input JSONDictionary, parent *Job) *Job {
 	job.SetInput(input)
 	job.SetParent(parent)
 	return job
+}
+
+func (job *Job) IsParentOf(childJob *Job) bool {
+	pathWithParentID := strings.Trim(fmt.Sprintf("%v/%v", job.Path, job.ID), "/")
+	return strings.Contains(childJob.Path, pathWithParentID)
+}
+
+func (job *Job) IsChildOf(parentJob *Job) bool {
+	pathWithParentID := strings.Trim(fmt.Sprintf("%v/%v", parentJob.Path, parentJob.ID), "/")
+	return strings.Contains(job.Path, pathWithParentID)
 }
