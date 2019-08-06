@@ -51,7 +51,7 @@ func (job *Job) SetInput(dict JSONDictionary) string {
 
 // GetOutput is getter for Output
 func (job *Job) GetOutput() JSONDictionary {
-	var dict JSONDictionary
+	dict := JSONDictionary{}
 	_ = json.Unmarshal([]byte(*job.Output), &dict)
 	return dict
 }
