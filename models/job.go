@@ -49,6 +49,21 @@ func (job *Job) SetInput(dict JSONDictionary) string {
 	return value
 }
 
+// GetOutput is getter for Output
+func (job *Job) GetOutput() JSONDictionary {
+	var dict JSONDictionary
+	_ = json.Unmarshal([]byte(*job.Output), &dict)
+	return dict
+}
+
+// SetOutput is setter for Output
+func (job *Job) SetOutput(dict JSONDictionary) string {
+	valueAsBytes, _ := json.Marshal(dict)
+	value := string(valueAsBytes)
+	job.Input = &value
+	return value
+}
+
 // GetRootID returns root ID for this job's tree
 func (job *Job) GetRootID() (int32, bool) {
 	if job.Path == "" {
