@@ -26,10 +26,15 @@ func NewManager() *Manager {
 }
 
 // RunJob runs / restarts a new job
-func (m *Manager) RunJob(job *models.Job) *models.Job {
+func (m *Manager) RunJob(job *models.Job, parameters ...interface{}) *models.Job {
 	worker := m.workers[job.Type]
 	if worker == nil {
 		panic(fmt.Sprintf("No worker found for %v", job.Type))
+	}
+
+	runCoherently := false
+	if len(parameters) > 0 {
+		runCoherently = parameters[0].(bool)
 	}
 
 	job.Status = models.StatusProcessing
@@ -38,8 +43,7 @@ func (m *Manager) RunJob(job *models.Job) *models.Job {
 		panic(err.Error())
 	}
 
-	// NOTE: meditate about: share pointers or pass a copies
-	go func(worker Worker, job models.Job) {
+	actor := func(worker Worker, job models.Job) {
 		defer func() {
 			var err error
 
@@ -62,7 +66,17 @@ func (m *Manager) RunJob(job *models.Job) *models.Job {
 		}
 
 		return
-	}(worker, *job)
+	}
+	arguments := []interface{}{worker, *job}
+
+	if runCoherently {
+		fmt.Println("[JOB] Running coherently")
+		actor(arguments[0].(Worker), arguments[1].(models.Job))
+	} else {
+		go func(worker Worker, job models.Job) {
+			actor(worker, job)
+		}(arguments[0].(Worker), arguments[1].(models.Job))
+	}
 
 	return job
 }

@@ -35,7 +35,7 @@ func main() {
 	go func() {
 		for {
 			job := highkick.NewJob(HELLO_WORLD, highkick.Input{}, nil)
-			highkick.Run(job)
+			highkick.Run(job, false)
 			fmt.Println("[JOB] Run", job)
 			time.Sleep(5 * time.Second)
 		}
