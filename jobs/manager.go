@@ -164,6 +164,27 @@ func (m *Manager) Log(job *models.Job, message string) {
 	}
 }
 
+// Set preserves any string in job's dictionary
+func (m *Manager) Set(job *models.Job, key string, value string) {
+	output := job.GetOutput()
+	output[key] = value
+	job.SetOutput(output)
+	if err := repository.SaveJob(job); err != nil {
+		panic(err.Error())
+	}
+}
+
+// Get string from job's dictionary
+func (m *Manager) Get(job *models.Job, key string) *string {
+	output := job.GetOutput()
+	value, exists := output[key]
+	if exists == false {
+		return nil
+	}
+	valueStr := value.(string)
+	return &valueStr
+}
+
 // RegisterWorker registers worker for specified jobType
 func (m *Manager) RegisterWorker(jobType string, worker Worker) {
 	if m.workers == nil {
