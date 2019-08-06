@@ -63,7 +63,7 @@ func (job *Job) GetOutput() JSONDictionary {
 func (job *Job) SetOutput(dict JSONDictionary) string {
 	valueAsBytes, _ := json.Marshal(dict)
 	value := string(valueAsBytes)
-	job.Input = &value
+	job.Output = &value
 	return value
 }
 
