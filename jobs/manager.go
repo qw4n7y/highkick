@@ -11,6 +11,22 @@ import (
 	"github.com/qw4n7y/highkick/repository"
 )
 
+// Internal options
+
+type RunMode int
+
+const (
+	RunModeGoroutines RunMode = iota
+	RunModeCoherently
+)
+
+type ErrorMode int
+
+const (
+	ErrorModePanic ErrorMode = iota
+	ErrorModeReturn
+)
+
 // Manager is Manager
 type Manager struct {
 	workers    map[string]Worker
@@ -26,15 +42,20 @@ func NewManager() *Manager {
 }
 
 // RunJob runs / restarts a new job
-func (m *Manager) RunJob(job *models.Job, parameters ...interface{}) *models.Job {
+func (m *Manager) RunJob(job *models.Job) *models.Job {
+	newJob, _ := m.runJob(job, ErrorModePanic, RunModeGoroutines)
+	return newJob
+}
+
+func (m *Manager) RunJobCoherently(job *models.Job) (*models.Job, error) {
+	newJob, resultErr := m.runJob(job, ErrorModeReturn, RunModeCoherently)
+	return newJob, resultErr
+}
+
+func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) (*models.Job, error) {
 	worker := m.workers[job.Type]
 	if worker == nil {
 		panic(fmt.Sprintf("No worker found for %v", job.Type))
-	}
-
-	runCoherently := false
-	if len(parameters) > 0 {
-		runCoherently = parameters[0].(bool)
 	}
 
 	job.Status = models.StatusProcessing
@@ -43,7 +64,7 @@ func (m *Manager) RunJob(job *models.Job, parameters ...interface{}) *models.Job
 		panic(err.Error())
 	}
 
-	actor := func(worker Worker, job models.Job) {
+	actor := func(worker Worker, job models.Job, errorMode ErrorMode) error {
 		defer func() {
 			var err error
 
@@ -61,24 +82,31 @@ func (m *Manager) RunJob(job *models.Job, parameters ...interface{}) *models.Job
 		m.BroadcastJobUpdate(&job, nil)
 		m.clearJob(&job)
 
-		if err := worker(&job); err != nil {
-			panic(err.Error())
+		executionError := worker(&job)
+
+		if errorMode == ErrorModePanic {
+			if executionError != nil {
+				panic(executionError.Error())
+			}
 		}
 
-		return
+		return executionError
 	}
 	arguments := []interface{}{worker, *job}
 
-	if runCoherently {
-		fmt.Println("[JOB] Running coherently")
-		actor(arguments[0].(Worker), arguments[1].(models.Job))
-	} else {
+	if runMode == RunModeCoherently {
+		fmt.Printf("[HIGHKICK] Running job %v coherently\n", job.Type)
+		resultError := actor(arguments[0].(Worker), arguments[1].(models.Job), errorMode)
+		return job, resultError
+	}
+	if runMode == RunModeGoroutines {
+		fmt.Printf("[HIGHKICK] Running job %v in goroutine\n", job.Type)
 		go func(worker Worker, job models.Job) {
-			actor(worker, job)
+			actor(worker, job, errorMode)
 		}(arguments[0].(Worker), arguments[1].(models.Job))
 	}
 
-	return job
+	return job, nil
 }
 
 // completeJob is called on job's completion

@@ -24,6 +24,9 @@ var NewJob = models.BuildJob
 // it in goroutine
 var Run = manager.RunJob
 
+// RunJobCoherently executes job on the fly returning execution results
+var RunJobCoherently = manager.RunJobCoherently
+
 // Register registers a worker and associate it with provided string identificator
 var Register = manager.RegisterWorker
 
