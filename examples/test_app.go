@@ -15,7 +15,9 @@ const HELLO_WORLD = "HELLO_WORLD"
 
 func HelloWorldWorker(job *highkick.Job) error {
 	time.Sleep(5 * time.Second)
-	fmt.Printf("I am job %v. I'm done\n", job.ID)
+	msg := fmt.Sprintf("I am job %v. I'm done", job.ID)
+	highkick.SetOutput(job, "msg", msg)
+	fmt.Println(msg)
 	return nil
 }
 
@@ -32,16 +34,16 @@ func main() {
 		fmt.Printf("Job %v completed with %v error\n", message.Job.Type, message.Error)
 	})
 
-	go func() {
-		for {
-			job := highkick.NewJob(HELLO_WORLD, highkick.Input{}, nil)
+	// go func() {
+	// 	for {
+	// 		job := highkick.NewJob(HELLO_WORLD, highkick.Input{}, nil)
 
-			fmt.Println("[JOB] Run in goroutine", job)
-			highkick.Run(job)
+	// 		fmt.Println("[JOB] Run in goroutine", job)
+	// 		highkick.Run(job)
 
-			time.Sleep(5 * time.Second)
-		}
-	}()
+	// 		time.Sleep(5 * time.Second)
+	// 	}
+	// }()
 
 	go func() {
 		for {
@@ -49,6 +51,8 @@ func main() {
 
 			fmt.Println("[JOB] Run coherently", job)
 			highkick.RunJobCoherently(job)
+			msg := highkick.GetOutput(job, "msg")
+			fmt.Println("[JOB] Output", *msg)
 
 			time.Sleep(5 * time.Second)
 		}

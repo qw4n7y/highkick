@@ -36,11 +36,11 @@ var RegisterGuiBackendHandler = server.Register
 // Log associates custom message with a jon and persists it to database
 var Log = manager.Log
 
-// Get string from job's dictionary
-var Get = manager.Get
+// GetOutput gets string by key from job's dictionary
+var GetOutput = manager.GetOutput
 
-// Set preserves any string in job's dictionary
-var Set = manager.Set
+// SetOutput preserves string value by key in job's dictionary
+var SetOutput = manager.SetOutput
 
 // Input keeps job parameters as JSON-serializable disctionary
 type Input = models.JSONDictionary

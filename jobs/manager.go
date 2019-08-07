@@ -64,7 +64,7 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) 
 		panic(err.Error())
 	}
 
-	actor := func(worker Worker, job models.Job, errorMode ErrorMode) error {
+	actor := func(errorMode ErrorMode) error {
 		defer func() {
 			var err error
 
@@ -73,16 +73,16 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) 
 			}
 
 			if err == nil {
-				m.completeJob(&job)
+				m.completeJob(job)
 			} else {
-				m.failJob(&job, err)
+				m.failJob(job, err)
 			}
 		}()
 
-		m.BroadcastJobUpdate(&job, nil)
-		m.clearJob(&job)
+		m.BroadcastJobUpdate(job, nil)
+		m.clearJob(job)
 
-		executionError := worker(&job)
+		executionError := worker(job)
 
 		if errorMode == ErrorModePanic {
 			if executionError != nil {
@@ -92,18 +92,17 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) 
 
 		return executionError
 	}
-	arguments := []interface{}{worker, *job}
 
 	if runMode == RunModeCoherently {
 		fmt.Printf("[HIGHKICK] Running job %v coherently\n", job.Type)
-		resultError := actor(arguments[0].(Worker), arguments[1].(models.Job), errorMode)
+		resultError := actor(errorMode)
 		return job, resultError
 	}
 	if runMode == RunModeGoroutines {
 		fmt.Printf("[HIGHKICK] Running job %v in goroutine\n", job.Type)
-		go func(worker Worker, job models.Job) {
-			actor(worker, job, errorMode)
-		}(arguments[0].(Worker), arguments[1].(models.Job))
+		go func() {
+			actor(errorMode)
+		}()
 	}
 
 	return job, nil
@@ -164,8 +163,8 @@ func (m *Manager) Log(job *models.Job, message string) {
 	}
 }
 
-// Set preserves any string in job's dictionary
-func (m *Manager) Set(job *models.Job, key string, value string) {
+// SetOutput preserves string value by key in job's dictionary
+func (m *Manager) SetOutput(job *models.Job, key string, value string) {
 	output := job.GetOutput()
 	output[key] = value
 	job.SetOutput(output)
@@ -174,8 +173,8 @@ func (m *Manager) Set(job *models.Job, key string, value string) {
 	}
 }
 
-// Get string from job's dictionary
-func (m *Manager) Get(job *models.Job, key string) *string {
+// GetOutput gets string by key from job's dictionary
+func (m *Manager) GetOutput(job *models.Job, key string) *string {
 	output := job.GetOutput()
 	value, exists := output[key]
 	if exists == false {
