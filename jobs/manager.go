@@ -83,10 +83,12 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) 
 		m.clearJob(job)
 
 		executionError := worker(job)
-
-		if errorMode == ErrorModePanic {
-			if executionError != nil {
+		if executionError != nil {
+			if errorMode == ErrorModePanic {
 				panic(executionError.Error())
+			}
+			if errorMode == ErrorModeReturn {
+				m.failJob(job, executionError)
 			}
 		}
 
