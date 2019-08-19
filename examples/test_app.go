@@ -27,7 +27,7 @@ func init() {
 
 func main() {
 	dsn := highkick.TestDataSourceName // "root:root@tcp(127.0.0.1:3307)/highkick?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
-	highkick.Setup(dsn)
+	highkick.Setup(dsn, highkick.SetupOptions{RunMigrations: true})
 
 	highkick.JobsPubSub.Subscribe(func(iMessage interface{}) {
 		message := iMessage.(highkick.PubSubMessage)

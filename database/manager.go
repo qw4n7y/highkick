@@ -73,9 +73,11 @@ func (m *manager) initReform() {
 
 // Setup initializes database connection and runs migrations
 //
-func (m *manager) Setup(dataSourceName string) {
+func (m *manager) Setup(dataSourceName string, options SetupOptions) {
 	m.initDatabase(dataSourceName)
-	m.runMigrations()
+	if options.RunMigrations != false {
+		m.runMigrations()
+	}
 	m.initReform()
 }
 

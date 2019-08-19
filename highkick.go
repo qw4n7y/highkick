@@ -14,6 +14,9 @@ const (
 
 var manager = jobs.ManagerSingleton
 
+// SetupOptions is options for setup
+type SetupOptions = database.SetupOptions
+
 // Setup establishes database connection
 var Setup = database.Setup
 
