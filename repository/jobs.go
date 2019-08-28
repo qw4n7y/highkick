@@ -7,6 +7,10 @@ import (
 	"github.com/qw4n7y/highkick/models"
 )
 
+type Filters struct {
+	Periodical *bool
+}
+
 // GetJobByID is GetJobByID
 func GetJobByID(id int32) *models.Job {
 	dbr := database.Manager.DBR
@@ -103,9 +107,17 @@ func GetRootJob(job *models.Job) *models.Job {
 }
 
 // GetRootJobs is GetRootJobs
-func GetRootJobs(page int, limit int) []*models.Job {
+func GetRootJobs(filters Filters, page int, limit int) []*models.Job {
 	offset := (page - 1) * limit
-	tail := fmt.Sprintf("WHERE path = '' ORDER BY id DESC LIMIT %v OFFSET %v", limit, offset)
+	tail := "WHERE path = ''"
+	if filters.Periodical != nil {
+		if *filters.Periodical == true {
+			tail = fmt.Sprintf("%v AND cron IS NOT NULL", tail)
+		} else {
+			tail = fmt.Sprintf("%v AND cron IS NULL", tail)
+		}
+	}
+	tail = fmt.Sprintf("%v ORDER BY id DESC LIMIT %v OFFSET %v", tail, limit, offset)
 	roots := GetJobs(tail)
 	return roots
 }

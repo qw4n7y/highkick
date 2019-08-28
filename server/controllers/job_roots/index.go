@@ -14,7 +14,13 @@ func Index(c *gin.Context) {
 	page, _ := strconv.Atoi(c.Query("page"))
 	limit := 25
 
-	roots := repository.GetRootJobs(page, limit)
+	filters := repository.Filters{}
+	if err := json.Unmarshal([]byte(ctx.Query("filters")), &filters); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	roots := repository.GetRootJobs(filters, page, limit)
 	for _, root := range roots {
 		treeStatus := repository.GetJobTreeStatus(root)
 		root.TreeStatus = &treeStatus

@@ -9,6 +9,7 @@ import (
 	"github.com/qw4n7y/gopubsub"
 	"github.com/qw4n7y/highkick/models"
 	"github.com/qw4n7y/highkick/repository"
+	"github.com/robfig/cron"
 )
 
 // Internal options
@@ -31,13 +32,16 @@ const (
 type Manager struct {
 	workers    map[string]Worker
 	JobsPubSub *gopubsub.Hub
+	cron       *cron.Cron
 }
 
 // NewManager is a constructor
 func NewManager() *Manager {
 	manager := Manager{
 		JobsPubSub: gopubsub.NewHub(),
+		cron:       cron.New(),
 	}
+	manager.cron.Start()
 	return &manager
 }
 
@@ -95,12 +99,18 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) 
 		return executionError
 	}
 
-	if runMode == RunModeCoherently {
+	if job.Cron != nil { // PERIODICAL
+		fmt.Printf("[HIGHKICK] Starting periodical job %v\n", job.Type)
+		err := m.cron.AddFunc(*job.Cron, func() error {
+			err := actor(ErrorModeReturn)
+			return err
+		})
+		return job, err
+	} else if runMode == RunModeCoherently { // COHERENT
 		fmt.Printf("[HIGHKICK] Running job %v coherently\n", job.Type)
 		resultError := actor(errorMode)
 		return job, resultError
-	}
-	if runMode == RunModeGoroutines {
+	} else if runMode == RunModeGoroutines { // PARALLEL
 		fmt.Printf("[HIGHKICK] Running job %v in goroutine\n", job.Type)
 		go func() {
 			actor(errorMode)

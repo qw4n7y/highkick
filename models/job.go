@@ -31,6 +31,7 @@ type Job struct {
 	Status      string    `reform:"status" json:"status"`
 	TreeStatus  *string   `json:"treeStatus"`
 	RetriesLeft int32     `reform:"retries_left" json:"retriesLeft"`
+	Cron        *string   `reform:"cron" json:"cron"`
 	CreatedAt   time.Time `reform:"created_at" json:"createdAt"`
 }
 
@@ -108,6 +109,15 @@ func (job *Job) IsFailed() bool {
 
 // BuildJob is a builder helper
 func BuildJob(jobType string, input JSONDictionary, parent *Job) *Job {
+	job := &Job{
+		Type: jobType,
+	}
+	job.SetInput(input)
+	job.SetParent(parent)
+	return job
+}
+
+func NewPeriodicalJob(jobType string, input JSONDictionary, cron string) *Job {
 	job := &Job{
 		Type: jobType,
 	}

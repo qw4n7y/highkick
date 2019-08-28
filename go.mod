@@ -12,6 +12,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.0
 	github.com/qw4n7y/gopubsub v0.0.0-20190731135927-57ca0b200c55
+	github.com/robfig/cron v1.2.0
 	gopkg.in/reform.v1 v1.3.3
 	syreclabs.com/go/faker v1.0.1 // indirect
 )
