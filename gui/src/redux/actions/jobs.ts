@@ -1,5 +1,6 @@
 import ReduxState from '../state'
 import Job from '../../models/job'
+import Filters from '../../models/filters'
 
 import Jobs from '../../services/jobs'
 
@@ -28,9 +29,9 @@ export class Destroy {
 
 // Action creators
 
-function index(params: { page: number }) {
+function index(filters: Filters, params: { page: number }) {
   return async (dispatch: any, getState: () => ReduxState) => {
-    const jobs = await Jobs.loadRoots(params)
+    const jobs = await Jobs.loadRoots(filters, params)
     dispatch(new Index(jobs))
   }
 }

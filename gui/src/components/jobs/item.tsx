@@ -63,7 +63,10 @@ class JobComponent extends React.Component<Props, State> {
           <div
             className="mr-1 font-italic"
             style={{fontSize: '12px', width: '160px', overflow: 'scroll'}}
-          >{job.type}</div>
+          >
+            {job.type}<br/>
+            {job.cron}
+          </div>
           <div className="flex-fill d-flex flex-column">
             <div className="text-muted" style={{ fontSize: 12 }}>Created at: {job.createdAt}</div>
             {this.renderInput()}

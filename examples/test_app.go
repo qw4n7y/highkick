@@ -46,8 +46,13 @@ func main() {
 	// }()
 
 	go func() {
-		for {
-			job := highkick.NewJob(HELLO_WORLD, highkick.Input{}, nil)
+		highkick.Run(highkick.NewPeriodicalJob(HELLO_WORLD, highkick.Input{}, "0 * * * * *"))
+		return
+
+		for i := 0; i < 20; i++ {
+			job := highkick.NewJob(HELLO_WORLD, highkick.Input{
+				"i": i,
+			}, nil)
 
 			fmt.Println("[JOB] Run coherently", job)
 			highkick.RunJobCoherently(job)

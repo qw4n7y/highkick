@@ -8,10 +8,11 @@ import Actions from './redux/actions/jobs'
 import Layout from './components/layout'
 import StatusComponent from './components/jobs/status'
 import Job, { Status } from './models/job'
+import Filters from './models/filters'
 
 type Props = {
   roots?: Job[]
-  index?: (params: { page: number }) => any
+  index?: (filters: Filters, params: { page: number }) => any
 }
 
 type State  = {
@@ -30,7 +31,8 @@ class Widget extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    this.props.index!({ page: 1 })
+    const filters: Filters = { IsPeriodical: false }
+    this.props.index!(filters, { page: 1 })
   }
 
   static getDerivedStateFromProps(props: Props, state: State) {
@@ -102,7 +104,7 @@ const mapStateToProps = (state: ReduxState, ownProps: Props) => ({
   roots: state.jobs
 })
 const mapDispatchToProps = (dispatch: any, ownProps: Props) => ({
-  index: (params: { page: number }) => dispatch(Actions.index(params)),
+  index: (filters: Filters, params: { page: number }) => dispatch(Actions.index(filters, params)),
 })
 
 export default ReactRedux.connect(mapStateToProps, mapDispatchToProps)(Widget)

@@ -1,12 +1,15 @@
 import Job, { Status } from '../models/job'
+import Filters from '../models/filters'
 
 import API from './api'
 import HTTP from '../lib/http'
 
 import Tree from './tree'
 
-async function loadRoots(params: { page: number }) {
-  const rootJsons = await HTTP.get(API.URLS.jobRoots.index, params)
+async function loadRoots(filters: Filters, params: { page: number }) {
+  const data = Object.assign({}, params, { filters })
+  const url = API.URLS.jobRoots.index
+  const rootJsons = await HTTP.get(url, data)
   const roots = rootJsons.map(Job.deserialize)
   return roots
 }

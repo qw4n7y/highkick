@@ -120,9 +120,10 @@ func BuildJob(jobType string, input JSONDictionary, parent *Job) *Job {
 func NewPeriodicalJob(jobType string, input JSONDictionary, cron string) *Job {
 	job := &Job{
 		Type: jobType,
+		Cron: &cron,
 	}
 	job.SetInput(input)
-	job.SetParent(parent)
+	job.SetParent(nil)
 	return job
 }
 

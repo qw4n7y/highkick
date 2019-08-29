@@ -23,6 +23,9 @@ var Setup = database.Setup
 // NewJob builds new job instance
 var NewJob = models.BuildJob
 
+// NewJob builds new periodical job instance
+var NewPeriodicalJob = models.NewPeriodicalJob
+
 // Run registers intent to run a new job, validates it can be executed and executes
 // it in goroutine
 var Run = manager.RunJob

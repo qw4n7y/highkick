@@ -7,10 +7,6 @@ import (
 	"github.com/qw4n7y/highkick/models"
 )
 
-type Filters struct {
-	Periodical *bool
-}
-
 // GetJobByID is GetJobByID
 func GetJobByID(id int32) *models.Job {
 	dbr := database.Manager.DBR
@@ -25,10 +21,11 @@ func GetJobByID(id int32) *models.Job {
 }
 
 // GetJobs is SELECT for jobs
-func GetJobs(tail string) []*models.Job {
+func GetJobs(filters Filters, tail string) []*models.Job {
 	dbr := database.Manager.DBR
 
-	rows, err := dbr.SelectAllFrom(models.JobTable, tail)
+	sql := fmt.Sprintf("WHERE %v %v", filters.SQLWhereClauses(), tail)
+	rows, err := dbr.SelectAllFrom(models.JobTable, sql)
 	if err != nil {
 		panic(err)
 	}
@@ -43,19 +40,15 @@ func GetJobs(tail string) []*models.Job {
 
 // GetJobTree returns all jobs in the tree of specified job
 func GetJobTree(job *models.Job) []*models.Job {
-	tail := fmt.Sprintf(
-		`WHERE path LIKE "%v/%v/%%" OR path LIKE "%v/%%" OR path = "%v" OR id = %v`,
-		job.Path, job.ID, job.ID, job.ID, job.ID)
-	jobs := GetJobs(tail)
+	filters := Filters{Root: job}
+	jobs := GetJobs(filters, "")
 	return jobs
 }
 
 // SaveJob persists job to database
 func SaveJob(job *models.Job) error {
 	dbr := database.Manager.DBR
-
 	err := dbr.Save(job)
-
 	return err
 }
 
@@ -109,16 +102,10 @@ func GetRootJob(job *models.Job) *models.Job {
 // GetRootJobs is GetRootJobs
 func GetRootJobs(filters Filters, page int, limit int) []*models.Job {
 	offset := (page - 1) * limit
-	tail := "WHERE path = ''"
-	if filters.Periodical != nil {
-		if *filters.Periodical == true {
-			tail = fmt.Sprintf("%v AND cron IS NOT NULL", tail)
-		} else {
-			tail = fmt.Sprintf("%v AND cron IS NULL", tail)
-		}
-	}
-	tail = fmt.Sprintf("%v ORDER BY id DESC LIMIT %v OFFSET %v", tail, limit, offset)
-	roots := GetJobs(tail)
+	isRoot := true
+	filters.IsRoot = &isRoot
+	tail := fmt.Sprintf("ORDER BY id DESC LIMIT %v OFFSET %v", limit, offset)
+	roots := GetJobs(filters, tail)
 	return roots
 }
 

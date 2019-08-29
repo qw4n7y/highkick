@@ -12,6 +12,7 @@ type Props = {
   status: Status
   treeStatus?: Status
   createdAt: string
+  cron?: string
 
   childs: Job[]
 }
@@ -26,6 +27,7 @@ class Job implements Props, TreeLeaf {
   status: Status = 'initial'
   treeStatus?: Status = undefined
   createdAt: string = ''
+  cron?: string = undefined
 
   childs: Job[] = []
 
@@ -39,12 +41,17 @@ class Job implements Props, TreeLeaf {
     if(props.status) { this.status = props.status }
     if(props.treeStatus) { this.treeStatus = props.treeStatus }
     if(props.createdAt) { this.createdAt = props.createdAt }
+    if(props.cron) { this.cron = props.cron }
 
     if(props.childs) { this.childs = props.childs }
   }
 
   isRoot() {
     return this.path === ''
+  }
+
+  isPeriodical() {
+    return this.cron !== undefined
   }
 
   parentID() {

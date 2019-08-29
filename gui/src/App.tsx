@@ -9,7 +9,7 @@ const App: React.FC = () => {
   return (
     <Layout>
       <Row>
-        <Col md={12} className="pt-4">
+        <Col md={12} className="pt-2">
           <JobRootsList/>
         </Col>
       </Row>

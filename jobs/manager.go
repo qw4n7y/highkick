@@ -62,6 +62,18 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) 
 		panic(fmt.Sprintf("No worker found for %v", job.Type))
 	}
 
+	// Workaround for periodical jobs:
+	// We need to keep single instance of same TYPE / INPUT / SCHEDULE not to pollute DB
+	if job.Cron != nil {
+		existingJobs := repository.GetJobs(repository.Filters{
+			Cron: job.Cron,
+			Type: &job.Type,
+		}, "ORDER BY id DESC LIMIT 1")
+		if len(existingJobs) == 1 {
+			job = existingJobs[0]
+		}
+	}
+
 	job.Status = models.StatusProcessing
 	job.CreatedAt = time.Now()
 	if err := repository.SaveJob(job); err != nil {
@@ -101,9 +113,8 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) 
 
 	if job.Cron != nil { // PERIODICAL
 		fmt.Printf("[HIGHKICK] Starting periodical job %v\n", job.Type)
-		err := m.cron.AddFunc(*job.Cron, func() error {
-			err := actor(ErrorModeReturn)
-			return err
+		err := m.cron.AddFunc(*job.Cron, func() {
+			_ = actor(ErrorModeReturn)
 		})
 		return job, err
 	} else if runMode == RunModeCoherently { // COHERENT

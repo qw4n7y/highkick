@@ -6,12 +6,14 @@ import (
 
 	"github.com/qw4n7y/highkick/repository"
 
+	"encoding/json"
+
 	"github.com/gin-gonic/gin"
 )
 
 // Index is Index
-func Index(c *gin.Context) {
-	page, _ := strconv.Atoi(c.Query("page"))
+func Index(ctx *gin.Context) {
+	page, _ := strconv.Atoi(ctx.Query("page"))
 	limit := 25
 
 	filters := repository.Filters{}
@@ -26,5 +28,5 @@ func Index(c *gin.Context) {
 		root.TreeStatus = &treeStatus
 	}
 
-	c.JSON(http.StatusOK, roots)
+	ctx.JSON(http.StatusOK, roots)
 }
