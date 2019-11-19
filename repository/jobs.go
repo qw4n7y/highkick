@@ -82,6 +82,38 @@ func GetJobTreeStatus(job *models.Job) string {
 	}
 }
 
+func GetJobAndItsTreeStatus(job models.Job) string {
+	treeStatus := GetJobTreeStatus(&job)
+
+	if job.Status == models.StatusProcessing || treeStatus == models.StatusProcessing {
+		return models.StatusProcessing
+	}
+
+	if job.Status == models.StatusFailed || treeStatus == models.StatusFailed {
+		return models.StatusFailed
+	}
+
+	return job.Status
+}
+
+// GetSiblingsDetailedStatus .
+func GetSiblingsDetailedStatus(job *models.Job) map[string]int {
+	result := map[string]int{}
+
+	filters := Filters{SiblingsOf: job}
+	siblings := GetJobs(filters, "")
+
+	for _, sibling := range siblings {
+		status := GetJobAndItsTreeStatus(*sibling)
+		if _, exists := result[status]; exists == false {
+			result[status] = 0
+		}
+		result[status] += 1
+	}
+
+	return result
+}
+
 // GetRootJob gets the root job
 func GetRootJob(job *models.Job) *models.Job {
 	dbr := database.Manager.DBR

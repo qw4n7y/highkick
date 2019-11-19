@@ -13,6 +13,7 @@ type Filters struct {
 	Root         *models.Job
 	Cron         *string
 	Type         *string
+	SiblingsOf   *models.Job
 }
 
 func (f *Filters) SQLWhereClauses() string {
@@ -39,6 +40,14 @@ func (f *Filters) SQLWhereClauses() string {
 		clauses = append(clauses, fmt.Sprintf(
 			`(path LIKE "%v/%v/%%" OR path LIKE "%v/%%" OR path = "%v" OR id = %v)`,
 			root.Path, root.ID, root.ID, root.ID, root.ID,
+		))
+	}
+
+	if f.SiblingsOf != nil {
+		root := *f.SiblingsOf
+		clauses = append(clauses, fmt.Sprintf(
+			`(path = "%v/%v" OR path = "%v")`,
+			root.Path, root.ID, root.ID,
 		))
 	}
 
