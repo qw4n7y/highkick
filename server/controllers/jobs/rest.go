@@ -45,5 +45,7 @@ func Show(c *gin.Context) {
 	}
 
 	job := repository.GetJobByID(params.JobID)
+	treeStatus := repository.GetJobTreeStatus(job)
+	job.TreeStatus = &treeStatus
 	c.JSON(http.StatusOK, job)
 }
