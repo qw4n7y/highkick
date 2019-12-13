@@ -41,7 +41,7 @@ type Manager struct {
 	workers        map[string]Worker
 	JobsPubSub     *gopubsub.Hub
 	cron           *cron.Cron
-	locks          map[string]sync.Mutex
+	locks          map[string]*sync.Mutex
 	rwLockForLocks sync.RWMutex
 }
 
@@ -50,7 +50,7 @@ func NewManager() *Manager {
 	manager := Manager{
 		JobsPubSub: gopubsub.NewHub(),
 		cron:       cron.New(),
-		locks:      map[string]sync.Mutex{},
+		locks:      map[string]*sync.Mutex{},
 	}
 	manager.cron.Start()
 	return &manager
@@ -107,7 +107,7 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runChildJobMode R
 
 			if exists == false {
 				m.rwLockForLocks.Lock()
-				m.locks[job.Type] = sync.Mutex{}
+				m.locks[job.Type] = &sync.Mutex{}
 				m.rwLockForLocks.Unlock()
 			}
 
