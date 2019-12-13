@@ -69,8 +69,13 @@ func (m *Manager) RunJobCoherently(job *models.Job) (*models.Job, error) {
 }
 
 // RunWithOneWorkerAtOnce runs the job. With one worker at once.
-// NOTE: For simplicity only coherent mode is supported!
 func (m *Manager) RunWithOneWorkerAtOnce(job *models.Job) *models.Job {
+	newJob, _ := m.runJob(job, ErrorModePanic, RunChildJobModeSeparately, ExecutionModeOneWorkerAtOnce)
+	return newJob
+}
+
+// RunWithOneWorkerAtOnceCoherently runs the job coherently. With one worker at once.
+func (m *Manager) RunWithOneWorkerAtOnceCoherently(job *models.Job) *models.Job {
 	newJob, _ := m.runJob(job, ErrorModePanic, RunChildJobModeCoherently, ExecutionModeOneWorkerAtOnce)
 	return newJob
 }
