@@ -38,10 +38,11 @@ const (
 
 // Manager is Manager
 type Manager struct {
-	workers    map[string]Worker
-	JobsPubSub *gopubsub.Hub
-	cron       *cron.Cron
-	locks      map[string]sync.Mutex
+	workers        map[string]Worker
+	JobsPubSub     *gopubsub.Hub
+	cron           *cron.Cron
+	locks          map[string]sync.Mutex
+	rwLockForLocks sync.RWMutex
 }
 
 // NewManager is a constructor
@@ -100,17 +101,28 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runChildJobMode R
 
 	execute := func(errorMode ErrorMode) error {
 		if executionMode == ExecutionModeOneWorkerAtOnce {
-			if _, exists := m.locks[job.Type]; exists == false {
+			m.rwLockForLocks.RLock()
+			_, exists := m.locks[job.Type]
+			m.rwLockForLocks.RUnlock()
+
+			if exists == false {
+				m.rwLockForLocks.Lock()
 				m.locks[job.Type] = sync.Mutex{}
+				m.rwLockForLocks.Unlock()
 			}
+
+			m.rwLockForLocks.RLock()
 			lock, _ := m.locks[job.Type]
 			lock.Lock()
+			m.rwLockForLocks.RUnlock()
 		}
 
 		defer func() {
 			if executionMode == ExecutionModeOneWorkerAtOnce {
+				m.rwLockForLocks.RLock()
 				lock, _ := m.locks[job.Type]
 				lock.Unlock()
+				m.rwLockForLocks.RUnlock()
 			}
 
 			if r := recover(); r == nil {
