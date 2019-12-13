@@ -1,13 +1,3 @@
-package highkick // import "github.com/qw4n7y/highkick"
-
-CONSTANTS
-
-const (
-	TestDataSourceName = "root:root@tcp(127.0.0.1:3307)/highkick_test?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
-)
-    Data source names
-
-
 VARIABLES
 
 var GetOutput = manager.GetOutput
@@ -22,6 +12,9 @@ var Log = manager.Log
 var NewJob = models.BuildJob
     NewJob builds new job instance
 
+var NewPeriodicalJob = models.NewPeriodicalJob
+    NewJob builds new periodical job instance
+
 var Register = manager.RegisterWorker
     Register registers a worker and associate it with provided string
     identificator
@@ -35,6 +28,9 @@ var Run = manager.RunJob
 
 var RunJobCoherently = manager.RunJobCoherently
     RunJobCoherently executes job on the fly returning execution results
+
+var RunWithOneWorkerAtOnce = manager.RunWithOneWorkerAtOnce
+    RunWithOneWorkerAtOnce runs the job in coherent mode with one worker at once
 
 var SetOutput = manager.SetOutput
     SetOutput preserves string value by key in job's dictionary

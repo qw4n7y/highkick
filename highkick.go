@@ -33,6 +33,9 @@ var Run = manager.RunJob
 // RunJobCoherently executes job on the fly returning execution results
 var RunJobCoherently = manager.RunJobCoherently
 
+// RunWithOneWorkerAtOnce runs the job in coherent mode with one worker at once
+var RunWithOneWorkerAtOnce = manager.RunWithOneWorkerAtOnce
+
 // Register registers a worker and associate it with provided string identificator
 var Register = manager.RegisterWorker
 

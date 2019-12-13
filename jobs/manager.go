@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"runtime/debug"
+	"sync"
 	"time"
 
 	"github.com/qw4n7y/gopubsub"
@@ -14,11 +15,11 @@ import (
 
 // Internal options
 
-type RunMode int
+type RunChildJobMode int
 
 const (
-	RunModeGoroutines RunMode = iota
-	RunModeCoherently
+	RunChildJobModeSeparately RunChildJobMode = iota // run child jobs in new goroutines
+	RunChildJobModeCoherently                        // run child jobs in same goroutine. waits them to execute
 )
 
 type ErrorMode int
@@ -28,11 +29,19 @@ const (
 	ErrorModeReturn
 )
 
+type ExecutionMode int
+
+const (
+	ExecutionModeRegular         ExecutionMode = iota // any number of workers
+	ExecutionModeOneWorkerAtOnce                      // one worker at once
+)
+
 // Manager is Manager
 type Manager struct {
 	workers    map[string]Worker
 	JobsPubSub *gopubsub.Hub
 	cron       *cron.Cron
+	locks      map[string]sync.Mutex
 }
 
 // NewManager is a constructor
@@ -40,23 +49,32 @@ func NewManager() *Manager {
 	manager := Manager{
 		JobsPubSub: gopubsub.NewHub(),
 		cron:       cron.New(),
+		locks:      map[string]sync.Mutex{},
 	}
 	manager.cron.Start()
 	return &manager
 }
 
-// RunJob runs / restarts a new job
+// RunJob runs the job. Separately
 func (m *Manager) RunJob(job *models.Job) *models.Job {
-	newJob, _ := m.runJob(job, ErrorModePanic, RunModeGoroutines)
+	newJob, _ := m.runJob(job, ErrorModePanic, RunChildJobModeSeparately, ExecutionModeRegular)
 	return newJob
 }
 
+// RunJobCoherently runs the job. Coherently
 func (m *Manager) RunJobCoherently(job *models.Job) (*models.Job, error) {
-	newJob, resultErr := m.runJob(job, ErrorModeReturn, RunModeCoherently)
+	newJob, resultErr := m.runJob(job, ErrorModeReturn, RunChildJobModeCoherently, ExecutionModeRegular)
 	return newJob, resultErr
 }
 
-func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) (*models.Job, error) {
+// RunWithOneWorkerAtOnce runs the job. With one worker at once.
+// NOTE: For simplicity only coherent mode is supported!
+func (m *Manager) RunWithOneWorkerAtOnce(job *models.Job) *models.Job {
+	newJob, _ := m.runJob(job, ErrorModePanic, RunChildJobModeCoherently, ExecutionModeOneWorkerAtOnce)
+	return newJob
+}
+
+func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMode, executionMode ExecutionMode) (*models.Job, error) {
 	worker := m.workers[job.Type]
 	if worker == nil {
 		panic(fmt.Sprintf("No worker found for %v", job.Type))
@@ -80,18 +98,25 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) 
 		panic(err.Error())
 	}
 
-	actor := func(errorMode ErrorMode) error {
-		defer func() {
-			var err error
+	execute := func(errorMode ErrorMode) error {
+		if executionMode == ExecutionModeOneWorkerAtOnce {
+			if _, exists := m.locks[job.Type]; exists == false {
+				m.locks[job.Type] = sync.Mutex{}
+			}
+			lock, _ := m.locks[job.Type]
+			lock.Lock()
+		}
 
-			if r := recover(); r != nil {
-				err = fmt.Errorf("%v", r)
+		defer func() {
+			if executionMode == ExecutionModeOneWorkerAtOnce {
+				lock, _ := m.locks[job.Type]
+				lock.Unlock()
 			}
 
-			if err == nil {
+			if r := recover(); r == nil {
 				m.completeJob(job)
 			} else {
-				m.failJob(job, err)
+				m.failJob(job, fmt.Errorf("%v", r))
 			}
 		}()
 
@@ -114,17 +139,17 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runMode RunMode) 
 	if job.Cron != nil { // PERIODICAL
 		fmt.Printf("[HIGHKICK] Starting periodical job %v\n", job.Type)
 		err := m.cron.AddFunc(*job.Cron, func() {
-			_ = actor(ErrorModeReturn)
+			_ = execute(ErrorModeReturn)
 		})
 		return job, err
-	} else if runMode == RunModeCoherently { // COHERENT
+	} else if runChildJobMode == RunChildJobModeCoherently { // COHERENT
 		fmt.Printf("[HIGHKICK] Running job %v coherently\n", job.Type)
-		resultError := actor(errorMode)
+		resultError := execute(errorMode)
 		return job, resultError
-	} else if runMode == RunModeGoroutines { // PARALLEL
+	} else if runChildJobMode == RunChildJobModeSeparately { // PARALLEL
 		fmt.Printf("[HIGHKICK] Running job %v in goroutine\n", job.Type)
 		go func() {
-			actor(errorMode)
+			execute(errorMode)
 		}()
 	}
 
