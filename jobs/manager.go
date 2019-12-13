@@ -102,17 +102,17 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runChildJobMode R
 	execute := func(errorMode ErrorMode) error {
 		if executionMode == ExecutionModeOneWorkerAtOnce {
 			m.rwLockForLocks.RLock()
-			_, exists := m.locks[job.Type]
+			_, exists := m.locks[job.Identificator()]
 			m.rwLockForLocks.RUnlock()
 
 			if exists == false {
 				m.rwLockForLocks.Lock()
-				m.locks[job.Type] = &sync.Mutex{}
+				m.locks[job.Identificator()] = &sync.Mutex{}
 				m.rwLockForLocks.Unlock()
 			}
 
 			m.rwLockForLocks.RLock()
-			lock, _ := m.locks[job.Type]
+			lock, _ := m.locks[job.Identificator()]
 			lock.Lock()
 			m.rwLockForLocks.RUnlock()
 		}
@@ -120,7 +120,7 @@ func (m *Manager) runJob(job *models.Job, errorMode ErrorMode, runChildJobMode R
 		defer func() {
 			if executionMode == ExecutionModeOneWorkerAtOnce {
 				m.rwLockForLocks.RLock()
-				lock, _ := m.locks[job.Type]
+				lock, _ := m.locks[job.Identificator()]
 				lock.Unlock()
 				m.rwLockForLocks.RUnlock()
 			}

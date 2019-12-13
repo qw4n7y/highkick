@@ -136,3 +136,10 @@ func (job *Job) IsChildOf(parentJob *Job) bool {
 	pathWithParentID := strings.Trim(fmt.Sprintf("%v/%v", parentJob.Path, parentJob.ID), "/")
 	return strings.Contains(job.Path, pathWithParentID)
 }
+
+func (job *Job) Identificator() string {
+	if job.Input != nil {
+		return fmt.Sprintf("%s-%+v", job.Type, *job.Input)
+	}
+	return fmt.Sprintf("%s", job.Type)
+}
