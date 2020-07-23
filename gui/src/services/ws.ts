@@ -4,7 +4,7 @@ import { store } from '../redux/store'
 import API from './api'
 import Job from '../models/job'
 import * as JobActions from '../redux/actions/jobs'
-import EventEmitter from './event_emitter'
+// import EventEmitter from './event_emitter'
 
 function handle() {
   const socket = WSIO.Socket.connect(API.URLS.ws)
@@ -30,12 +30,12 @@ function handle() {
         store.dispatch(new JobActions.Update(job))
 
         // Notify via event emitter
-        const status = job.treeStatus || job.status
-        if (status === 'completed') {
-          EventEmitter.notifyJobCompleted(job)
-        } else if (status === 'failed') {
-          EventEmitter.notifyJobFailed(job)
-        }
+        // const status = job.treeStatus || job.status
+        // if (status === 'completed') {
+        //   EventEmitter.notifyJobCompleted(job)
+        // } else if (status === 'failed') {
+        //   EventEmitter.notifyJobFailed(job)
+        // }
       })
     })
   })
