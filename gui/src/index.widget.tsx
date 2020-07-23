@@ -12,8 +12,10 @@ import EventEmitter from './services/event_emitter'
 
 WS.handle()
 
-ReactDOM.render(
-  <Provider store={store}>
-    <Widget />
-  </Provider>,
-  document.getElementById('highkick-widget'));
+var rootEl = document.getElementById('highkick-widget');
+if (rootEl !== null) {
+  ReactDOM.render(
+    <Provider store={store}>
+      <Widget />
+    </Provider>, rootEl);
+}
