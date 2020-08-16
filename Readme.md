@@ -1,12 +1,8 @@
-### Development
+### Dev
 
-```PORT=8000 go run test_app.go```
-
-Navigate to ```http://localhost:8000/highkick/gui/``` to open Highkick GUI
-
-Navigate to ```http://localhost:8000/app/``` to see Highkick Widget integration
-
-```./build_gui.sh``` to rebuild GUI
+```docker-compose up && make run```
+```http://localhost:8000/highkick/gui/``` to open Highkick GUI
+```http://localhost:8000/app/``` to open sample page with Highkick Widget integration
 
 ### VARIABLES
 
@@ -29,8 +25,8 @@ var Register = manager.RegisterWorker
     Register registers a worker and associate it with provided string
     identificator
 
-var RegisterGuiBackendHandler = server.Register
-    RegisterGuiBackendHandler setup GIN handlers for GUI backend to /highkick
+var SetupServer = server.Register
+    SetupServer setup GIN handlers for GUI backend to /highkick
 
 var Run = manager.RunJob
     Run registers intent to run a new job, validates it can be executed and

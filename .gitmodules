@@ -1,3 +1,0 @@
-[submodule "gui/vendors/ws.io"]
-	path = gui/vendors/ws.io
-	url = git@github.com:qw4n7y/ws.io.git
