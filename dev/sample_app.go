@@ -9,15 +9,35 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/qw4n7y/highkick"
+
+	"github.com/tidwall/gjson"
 )
 
 const HELLO_WORLD = "HELLO_WORLD"
 
 func HelloWorldWorker(job *highkick.Job) error {
-	time.Sleep(5 * time.Second)
-	msg := fmt.Sprintf("I am job %v. I'm done", job.ID)
+	for _, key := range []string{"depth"} {
+		if !gjson.Get(*job.Input, key).Exists() {
+			return fmt.Errorf("%v is required", key)
+		}
+	}
+	depth := gjson.Get(*job.Input, "depth").Int()
+
+	if depth <= 0 {
+		return nil
+	}
+
+	time.Sleep(1 * time.Second)
+
+	msg := fmt.Sprintf("I am job %v. Depth = %v", job.ID, depth)
 	highkick.SetOutput(job, "msg", msg)
+	highkick.Log(job, msg)
 	fmt.Println(msg)
+
+	highkick.Run(highkick.NewJob(HELLO_WORLD, highkick.Input{
+		"depth": depth - 1,
+	}, job))
+
 	return nil
 }
 
@@ -31,7 +51,7 @@ func main() {
 
 	highkick.JobsPubSub.Subscribe(func(iMessage interface{}) {
 		message := iMessage.(highkick.PubSubMessage)
-		fmt.Printf("Job %v completed with %v error\n", message.Job.Type, message.Error)
+		fmt.Printf("Job %v (%+v) completed with %v error\n", message.Job.Type, message.Job.GetInput(), message.Error)
 	})
 
 	// go func() {
@@ -46,21 +66,28 @@ func main() {
 	// }()
 
 	go func() {
-		highkick.Run(highkick.NewPeriodicalJob(HELLO_WORLD, highkick.Input{}, "0 * * * * *"))
+		highkick.Run(highkick.NewJob(HELLO_WORLD, highkick.Input{
+			"depth": 5,
+		}, nil))
 		return
 
-		for i := 0; i < 20; i++ {
-			job := highkick.NewJob(HELLO_WORLD, highkick.Input{
-				"i": i,
-			}, nil)
+		// highkick.Run(highkick.NewPeriodicalJob(HELLO_WORLD, highkick.Input{
+		// 	"depth": 5,
+		// }, "0 * * * * *"))
+		// return
 
-			fmt.Println("[JOB] Run coherently", job)
-			highkick.RunJobCoherently(job)
-			msg := highkick.GetOutput(job, "msg")
-			fmt.Println("[JOB] Output", *msg)
+		// for i := 0; i < 20; i++ {
+		// 	job := highkick.NewJob(HELLO_WORLD, highkick.Input{
+		// 		"i": i,
+		// 	}, nil)
 
-			time.Sleep(5 * time.Second)
-		}
+		// 	fmt.Println("[JOB] Run coherently", job)
+		// 	highkick.RunJobCoherently(job)
+		// 	msg := highkick.GetOutput(job, "msg")
+		// 	fmt.Println("[JOB] Output", *msg)
+
+		// 	time.Sleep(5 * time.Second)
+		// }
 	}()
 
 	gin.SetMode(gin.ReleaseMode)

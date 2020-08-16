@@ -1,7 +1,7 @@
 ### Dev
 
 ```docker-compose up && make run```
-```http://localhost:8000/highkick/gui/``` to open Highkick GUI
+```http://localhost:8000/highkick/client/``` to open Highkick GUI
 ```http://localhost:8000/app/``` to open sample page with Highkick Widget integration
 
 ### VARIABLES
@@ -25,7 +25,7 @@ var Register = manager.RegisterWorker
     Register registers a worker and associate it with provided string
     identificator
 
-var SetupServer = server.Register
+var SetupServer = server.Setup
     SetupServer setup GIN handlers for GUI backend to /highkick
 
 var Run = manager.RunJob

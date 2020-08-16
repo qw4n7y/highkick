@@ -1,0 +1,3 @@
+[submodule "client/verdors/ws.io"]
+	path = client/verdors/ws.io
+	url = https://github.com/qw4n7y/ws.io.git
