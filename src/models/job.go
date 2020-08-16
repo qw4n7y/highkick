@@ -31,6 +31,7 @@ type Job struct {
 	Status      string    `reform:"status" json:"status"`
 	TreeStatus  *string   `json:"treeStatus"`
 	RetriesLeft int32     `reform:"retries_left" json:"retriesLeft"`
+	LogsCount   int       `reform:"logs_count" json:"logsCount"`
 	Cron        *string   `reform:"cron" json:"cron"`
 	CreatedAt   time.Time `reform:"created_at" json:"createdAt"`
 }

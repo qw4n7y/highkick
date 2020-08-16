@@ -27,7 +27,7 @@ func (v *jobTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *jobTableType) Columns() []string {
-	return []string{"id", "type", "path", "sid", "input", "output", "status", "retries_left", "cron", "created_at"}
+	return []string{"id", "type", "path", "sid", "input", "output", "status", "retries_left", "logs_count", "cron", "created_at"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,13 +47,13 @@ func (v *jobTableType) PKColumnIndex() uint {
 
 // JobTable represents jobs view or table in SQL database.
 var JobTable = &jobTableType{
-	s: parse.StructInfo{Type: "Job", SQLSchema: "", SQLName: "jobs", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "string", Column: "type"}, {Name: "Path", Type: "string", Column: "path"}, {Name: "Sid", Type: "*string", Column: "sid"}, {Name: "Input", Type: "*string", Column: "input"}, {Name: "Output", Type: "*string", Column: "output"}, {Name: "Status", Type: "string", Column: "status"}, {Name: "RetriesLeft", Type: "int32", Column: "retries_left"}, {Name: "Cron", Type: "*string", Column: "cron"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Job", SQLSchema: "", SQLName: "jobs", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "string", Column: "type"}, {Name: "Path", Type: "string", Column: "path"}, {Name: "Sid", Type: "*string", Column: "sid"}, {Name: "Input", Type: "*string", Column: "input"}, {Name: "Output", Type: "*string", Column: "output"}, {Name: "Status", Type: "string", Column: "status"}, {Name: "RetriesLeft", Type: "int32", Column: "retries_left"}, {Name: "LogsCount", Type: "int", Column: "logs_count"}, {Name: "Cron", Type: "*string", Column: "cron"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}}, PKFieldIndex: 0},
 	z: new(Job).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s Job) String() string {
-	res := make([]string, 10)
+	res := make([]string, 11)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "Path: " + reform.Inspect(s.Path, true)
@@ -62,8 +62,9 @@ func (s Job) String() string {
 	res[5] = "Output: " + reform.Inspect(s.Output, true)
 	res[6] = "Status: " + reform.Inspect(s.Status, true)
 	res[7] = "RetriesLeft: " + reform.Inspect(s.RetriesLeft, true)
-	res[8] = "Cron: " + reform.Inspect(s.Cron, true)
-	res[9] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[8] = "LogsCount: " + reform.Inspect(s.LogsCount, true)
+	res[9] = "Cron: " + reform.Inspect(s.Cron, true)
+	res[10] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -79,6 +80,7 @@ func (s *Job) Values() []interface{} {
 		s.Output,
 		s.Status,
 		s.RetriesLeft,
+		s.LogsCount,
 		s.Cron,
 		s.CreatedAt,
 	}
@@ -96,6 +98,7 @@ func (s *Job) Pointers() []interface{} {
 		&s.Output,
 		&s.Status,
 		&s.RetriesLeft,
+		&s.LogsCount,
 		&s.Cron,
 		&s.CreatedAt,
 	}

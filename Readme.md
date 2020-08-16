@@ -1,7 +1,7 @@
 ### Dev
 
-```docker-compose up && make run```
-```http://localhost:8000/highkick/client/``` to open Highkick GUI
+```docker-compose up && make run && make run_client_dev_server``` to run server
+```http://localhost:3000/``` to open Highkick GUI
 ```http://localhost:8000/app/``` to open sample page with Highkick Widget integration
 
 ### VARIABLES

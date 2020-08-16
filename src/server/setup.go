@@ -26,6 +26,6 @@ func Setup(engine *gin.Engine) {
 
 		routes.GET("/ws", ws.HttpUpgadeHandler)
 
-		routes.Static("/client", "../client/static")
+		routes.Static("/client", "../client/build")
 	}
 }

@@ -6,7 +6,7 @@ type Props = React.PropsWithChildren<{
   widget?: boolean
 }>
 
-const App: React.FC<Props> = (props: Props) => {
+const Layout: React.FC<Props> = (props: Props) => {
   const isWidget = props.widget || false
 
   return (
@@ -22,4 +22,4 @@ const App: React.FC<Props> = (props: Props) => {
     </>);
 }
 
-export default App;
+export default Layout;

@@ -1,3 +1,3 @@
-[submodule "client/verdors/ws.io"]
-	path = client/verdors/ws.io
+[submodule "client/vendors/ws.io"]
+	path = client/vendors/ws.io
 	url = https://github.com/qw4n7y/ws.io.git

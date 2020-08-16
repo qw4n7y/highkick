@@ -13,6 +13,7 @@ type Props = {
   treeStatus?: Status
   createdAt: string
   cron?: string
+  logsCount: number
 
   childs: Job[]
 }
@@ -28,22 +29,15 @@ class Job implements Props, TreeLeaf {
   treeStatus?: Status = undefined
   createdAt: string = ''
   cron?: string = undefined
+  logsCount: number = 0
 
   childs: Job[] = []
 
   constructor(props: Partial<Props>) {
-    if(props.id) { this.id = props.id }
-    if(props.type) { this.type = props.type }
-    if(props.path) { this.path = props.path }
-    if(props.sid) { this.sid = props.sid }
-    if(props.input) { this.input = props.input }
-    if(props.output) { this.output = props.output }
-    if(props.status) { this.status = props.status }
-    if(props.treeStatus) { this.treeStatus = props.treeStatus }
-    if(props.createdAt) { this.createdAt = props.createdAt }
-    if(props.cron) { this.cron = props.cron }
-
-    if(props.childs) { this.childs = props.childs }
+    // super()
+    for(const prop in props) {
+      (this as any)[prop] = (props as any)[prop]
+    }
   }
 
   isRoot() {

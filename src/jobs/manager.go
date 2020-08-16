@@ -226,6 +226,11 @@ func (m *Manager) Log(job *models.Job, message string) {
 	if err := repo.SaveJobLog(jobLog); err != nil {
 		panic(err)
 	}
+
+	job.LogsCount++
+	if err := repo.SaveJob(job); err != nil {
+		panic(err)
+	}
 }
 
 // SetOutput preserves string value by key in job's dictionary
