@@ -22,7 +22,7 @@ func Retry(c *gin.Context) {
 	}
 
 	job := repo.GetJobByID(params.JobID)
-	jobs.ManagerSingleton.RunJob(job)
+	jobs.RunJob(job)
 
 	c.JSON(http.StatusOK, struct{}{})
 }

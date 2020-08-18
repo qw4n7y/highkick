@@ -15,7 +15,7 @@ class TreeLeaves<Item extends TreeLeafInterface> extends React.Component<Props<I
     const { items, builder } = this.props
 
     return (
-      <ul className={classnames('list-group', 'p-0')}>
+      <ul className={classnames('list-group', 'list-group-flush', 'p-0')}>
         { items.map(item => {
           return (
             <Leaf

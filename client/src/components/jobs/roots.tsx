@@ -4,13 +4,15 @@ import ReduxState from './../../redux/state'
 import Actions from '../../redux/actions/jobs'
 
 import Job from '../../models/job'
+import JobMeta from '../../models/job_meta'
 import Filters from '../../models/filters'
-import Leaf from './leaf'
+import Item from './item'
 import TreeLeaves from '../tree/leaves'
 import Paginator from '../misc/paginator'
 import FiltersComponent from './filters'
 
 type Props = {
+  jobMetas?: JobMeta[]
   roots?: Job[]
   index?: (filters: Filters, params: { page: number }) => any
 }
@@ -62,7 +64,7 @@ class RootsList extends React.Component<Props, State> {
         />
         <TreeLeaves
           items={roots! || []}
-          builder={Leaf.builder}
+          builder={Item}
         />
         <Paginator page={page} maxPage={maxPage} onPageChange={this.onPageChange}/>
       </>)
@@ -92,7 +94,8 @@ class RootsList extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: ReduxState, ownProps: Props) => ({
-  roots: state.jobs
+  roots: state.jobs,
+  jobMetas: state.jobMetas,
 })
 const mapDispatchToProps = (dispatch: any, ownProps: Props) => ({
   index: (filters: Filters, params: { page: number }) => dispatch(Actions.index(filters, params)),

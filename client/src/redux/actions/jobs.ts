@@ -36,9 +36,9 @@ function index(filters: Filters, params: { page: number }) {
   }
 }
 
-function update(job: Job) {
+function loadSubtree(job: Job) {
   return async (dispatch: any, getState: () => ReduxState) => {
-    let updatedJob = await Jobs.updateJob(job)
+    let updatedJob = await Jobs.loadSubtree(job)
     dispatch(new Update(updatedJob))
   }
 }
@@ -57,4 +57,11 @@ function getInput(job: Job) {
   }
 }
 
-export default { index, update, destroy, getInput }
+function run(sid: string, input: any) {
+  return async (dispatch: any, getState: () => ReduxState) => {
+    const response = await Jobs.runJob(sid, input)
+    return response
+  }
+}
+
+export default { index, loadSubtree, destroy, getInput, run }

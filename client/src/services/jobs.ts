@@ -14,7 +14,7 @@ async function loadRoots(filters: Filters, params: { page: number }) {
   return roots
 }
 
-async function updateJob(job: Job) {
+async function loadSubtree(job: Job) {
   const jsons = await HTTP.get(API.URLS.jobs.subtree(job.id))
   const jobs = jsons.map(Job.deserialize)
   const updatedJob = Tree.compose<Job>({
@@ -65,4 +65,17 @@ async function getInput(job: Job) {
   return data
 }
 
-export default { loadRoots, updateJob, retry, retryFailedLeaves, destroy, treeStatus, getInput }
+async function runJob(sid: string, input: any) {
+  const url = API.URLS.jobs.run
+  const response = await HTTP.post(url, {
+    SID: sid,
+    Input: input,
+  })
+  return response
+}
+
+export default { 
+  loadRoots, loadSubtree, retry, retryFailedLeaves,
+  destroy, treeStatus, getInput,
+  runJob,
+}

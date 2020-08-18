@@ -1,10 +1,11 @@
 import React from 'react'
 
-type Props<Item> = {
+export type Props<Item> = {
   item: Item
-  expandTreeLeaf: () => any
+  onExpand: (expanded:  boolean) => any
+  expanded: boolean
 }
 
-type LeafBuilder<Item> = React.FC<Props<Item>>
+type LeafBuilder<Item> = React.FC<Props<Item>> | React.ComponentClass<Props<Item>>
 
 export default LeafBuilder

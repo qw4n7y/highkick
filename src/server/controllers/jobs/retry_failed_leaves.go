@@ -42,7 +42,7 @@ func RetryFailedLeaves(c *gin.Context) {
 		}
 
 		if treeJob.Status == models.StatusFailed {
-			jobs.ManagerSingleton.RunJob(treeJob)
+			jobs.RunJob(treeJob)
 		}
 	}
 

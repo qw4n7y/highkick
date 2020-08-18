@@ -17,7 +17,7 @@ class Paginator extends React.Component<Props> {
 
     return (
       <nav>
-        <ul className="pagination">
+        <ul className="pagination pagination-sm justify-content-center m-1">
           { Array.apply(null, Array(maxPage)).map((v, i) => {
             return this.renderPageLink(i + 1)
           }) }
@@ -30,16 +30,23 @@ class Paginator extends React.Component<Props> {
     const current = page === pageNumber
 
     return (
-      <li className="page-item" key={pageNumber}>
+      <li 
+        className="page-item" key={pageNumber}
+        style={{cursor: 'pointer'}}
+      >
         { current && (
-            <span className="page-link">
-              {pageNumber}
-            </span>) }
+            <span 
+              className="page-link text-muted"
+              style={{border: 'none'}}
+            >{pageNumber}</span>) }
       
         { !current && (
-            <a className="page-link" href="#" onClick={(event) => this.onPageLinkClick(event, pageNumber)}>
-              {pageNumber}
-            </a>) }
+            <a 
+              className="page-link"
+              style={{border: 'none'}}
+              href="#"
+              onClick={(event) => this.onPageLinkClick(event, pageNumber)}
+            >{pageNumber}</a>) }
       </li>)
   }
 

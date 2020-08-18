@@ -1,24 +1,33 @@
 import React from 'react'
 import * as ReactRedux from 'react-redux'
+import Moment from 'moment'
 
 import ReduxState from './../../redux/state'
 import Actions from '../../redux/actions/jobs'
 
 import ReactJsonView from 'react-json-view'
-import { ButtonGroup, Button, Card } from 'react-bootstrap'
+import { Button, Card } from 'react-bootstrap'
+import { 
+  ArrowRight, ArrowDown, ArrowClockwise, Trash,
+  ReceiptCutoff, BoxArrowInRight, BoxArrowRight,
+  ArrowLeftRight,
+} from 'react-bootstrap-icons'
 
 import StatusComponent from './status'
 
 import Job from '../../models/job'
+import JobMeta from '../../models/job_meta'
 import JobLog from '../../models/job_log'
 import Jobs from '../../services/jobs'
 import JobLogs from '../../services/job_logs'
 
 type Props = {
-  job: Job
-  expandTreeLeaf: () => any
+  item: Job
+  onExpand: (expanded: boolean) => any
+  expanded: boolean
 
-  update?: (job: Job) => Promise<any>
+  jobMetas?: JobMeta[]
+  loadSubtree?: (job: Job) => Promise<any>
   destroy?: () => any
   getInput?: () => Promise<any>
 }
@@ -27,7 +36,7 @@ type State = {
   showLogs: boolean
   jobLogs: JobLog[]
   input: any
-  showOutput: boolean
+  showInputOutput: boolean
 }
 
 class JobComponent extends React.Component<Props, State> {
@@ -38,155 +47,155 @@ class JobComponent extends React.Component<Props, State> {
       showLogs: false,
       jobLogs: [],
       input: null,
-      showOutput: false,
+      showInputOutput: false,
     }
 
-    this.updateItem = this.updateItem.bind(this)
+    this.loadItem = this.loadItem.bind(this)
     this.showLogs = this.showLogs.bind(this)
     this.retry = this.retry.bind(this)
     this.retryFailedLeaves = this.retryFailedLeaves.bind(this)
     this.destroy = this.destroy.bind(this)
-    this.showInput = this.showInput.bind(this)
-    this.showOutput = this.showOutput.bind(this)
+    this.showInputOutput = this.showInputOutput.bind(this)
   }
 
   render() {
-    const { job } = this.props
-    const treeStatus = job.treeStatus || Jobs.treeStatus(job)
-    const input = job.input !== "" ? JSON.parse(job.input) : {}
-    const output = job.output !== "" ? JSON.parse(job.output) : {}
+    const { item, expanded, jobMetas } = this.props
+    const { input, jobLogs } = this.state
+    const treeStatus = item.treeStatus || Jobs.treeStatus(item)
+    const output = item.output !== "" ? JSON.parse(item.output) : {}
+    const jobMeta = (jobMetas || []).find(candidate => candidate.SID === item.type)
 
     return (
-      <>
-        <div className="d-flex">
-          <div className="mr-1 text-muted" style={{ fontSize: 12 }}>{job.id}</div>
+      <div 
+        className="p-0 m-0"
+        style={{
+          display: "grid",
+          gridTemplateAreas: "'header actions' 'details details'",
+          gridTemplateColumns: "1fr 170px",
+          gridGap: "2px",
+          background: "#f8f9fa",
+        }}
+        key={JSON.stringify(jobMeta)}
+      >
+        <div 
+          style={{
+            gridArea: "header",
+            cursor: 'pointer'
+          }}
+          onClick={this.loadItem}
+          className="d-flex align-items-center"
+        >
+          <StatusComponent status={item.status}/>
+          <span className="ml-1 mr-1">
+            {jobMeta?.Title || item.sid}
+          </span>
+          <small className="text-muted ml-2 mr-2">
+            {item.id}
+          </small>
+          <span className="flex-fill">
+            { expanded ? <ArrowDown/> : <ArrowRight/> }
+          </span>
+          <small className="text-muted">
+            {Moment(item.createdAt).fromNow()}
+          </small>
+        </div>
+
+        <div style={{ gridArea: "actions" }}
+          className="btn-group btn-group-sm"
+        >
+          <Button variant="light" 
+            className={this.state.showInputOutput ? undefined : "text-muted"}
+            onClick={() => this.showInputOutput(!this.state.showInputOutput)}
+          ><ArrowLeftRight/></Button>
+          <Button variant="light" 
+            className={this.state.showLogs ? undefined : "text-muted"}
+            onClick={() => this.showLogs(!this.state.showLogs)}
+          ><ReceiptCutoff/></Button>
+          <Button variant="light"
+            onClick={this.retry}
+          ><ArrowClockwise/></Button>
+          <Button variant="light" onClick={this.destroy}
+          ><Trash/></Button>
+        </div>
+
+        <div
+          style={{ 
+            gridArea: "details",
+          }}
+          className="d-flex flex-column"
+        >
           <div
-            className="mr-1 font-italic"
-            style={{fontSize: '12px', width: '160px', overflow: 'scroll'}}
+            style={{
+              display: this.state.showInputOutput ? 'flex' : 'none'
+            }}
           >
-            {job.type}<br/>
-            {job.cron}
+            <div className="d-flex align-items-center">
+              <BoxArrowInRight className="m-2" style={{zoom: 1.5}}/>
+              <ReactJsonView src={input} collapsed={false} style={{fontSize: 10}} displayDataTypes={false}/>
+            </div>
+            <div className="d-flex align-items-center">
+              <BoxArrowRight className="m-2" style={{zoom: 1.5}}/>
+              <ReactJsonView src={output} collapsed={false} style={{fontSize: 10}} displayDataTypes={false}/>
+            </div>
           </div>
-          <div className="flex-fill d-flex flex-column">
-            <div className="text-muted" style={{ fontSize: 12 }}>Created at: {job.createdAt}</div>
-            {this.renderInput()}
-          </div>
-          <div className="mr-1">
-            <StatusComponent status={job.status}/>
-          </div>
-          <div className="mr-1">
-            {(job.childs.length > 0 || job.isRoot()) && <StatusComponent status={treeStatus} title="🌳"/>}
-          </div>
-          <div>
-            <ButtonGroup size="sm">
-              <Button variant="light" onClick={this.updateItem}>👁</Button>
-              <Button variant="light" className="text-muted" onClick={this.showLogs}>Logs</Button>
-              <Button variant="light" className="text-success" onClick={this.retry}>↻</Button>
-              { (treeStatus !== 'completed' && (job.childs.length > 0 || job.isRoot())) && <Button variant="light" className="text-success" onClick={this.retryFailedLeaves}>↻ 🍂</Button> }
-              <Button variant="light" onClick={this.destroy}>🗑</Button>
-            </ButtonGroup>
+          
+          <div
+            style={{
+              display: this.state.showLogs ? 'block' : 'none'
+            }}
+          >
+            { jobLogs.map(jobLog => {
+              return (
+                <div className="alert alert-primary p-0" key={jobLog.id}>
+                  <small className="text-muted">{jobLog.createdAt}</small>
+                  <br/>
+                  <code>{jobLog.content}</code>
+                </div>)
+            }) }
           </div>
         </div>
-        { this.renderLogs() }
-      </>)
+      </div>)
   }
 
-  renderInput() {
-    const { job } = this.props
-    const { input, showOutput } = this.state
-    const output = job.output !== "" ? JSON.parse(job.output) : {}
-
-    return (
-      <>
-        { !input && (
-          <Button size="sm" variant="light"
-            className="w-100 m-0 p-0"
-            onClick={this.showInput}
-            style={{fontSize: 10}}
-          >Input</Button>) }
-        { input && (
-          <ReactJsonView
-            src={input}
-            collapsed={true}
-            displayDataTypes={false}
-            enableClipboard={false}
-            style={{fontSize: 10}}
-          />
-        ) }
-        { !showOutput && (
-          <Button size="sm" variant="light"
-            className="w-100 m-0 p-0"
-            onClick={this.showOutput}
-            style={{fontSize: 10}}
-          >Output</Button>) }
-        { showOutput && <ReactJsonView
-          src={output}
-          collapsed={true}
-          displayDataTypes={false}
-          enableClipboard={false}
-          style={{fontSize: 10}}
-        /> }
-      </>)
-  }
-
-  renderLogs() {
-    const { showLogs, jobLogs } = this.state
-
-    if (!showLogs) { return null }
-    return (
-      <Card className="mt-2 mb-2 bg-light" style={{ fontSize: '12px', overflowY: 'scroll' }}>
-        { jobLogs.map(jobLog => {
-          return (
-            <div className="d-flex" key={jobLog.id}>
-              <div style={{width: 150}}>{jobLog.createdAt}</div>
-              <div className="flex-fill">{jobLog.content}</div>
-            </div>)
-        }) }
-      </Card>
-    )
-  }
-
-  private updateItem() {
-    const { job } = this.props
-    this.props.update!(job).then(() => {
-      this.props.expandTreeLeaf()
-    })
-  }
-
-  private showLogs() {
-    const { job } = this.props
-    const { showLogs } = this.state
-
-    if (showLogs) {
-      this.setState({ showLogs: false })
-      return
+  private async loadItem() {
+    const { item, expanded } = this.props
+    if (!expanded) {
+      await this.props.loadSubtree!(item)
+      this.props.onExpand(true)
+    } else {
+      this.props.onExpand(false)
     }
+  }
 
-    (async () => {
-      let jobLogs = await JobLogs.loadLogs(job)
-      this.setState({ showLogs: true, jobLogs })
-    })()
+  private async showLogs(showLogs: boolean) {
+    const { item } = this.props
+    if (showLogs) {
+      let jobLogs = await JobLogs.loadLogs(item)
+      this.setState({ showLogs, jobLogs })
+    } else {
+      this.setState({ showLogs })
+    }
   }
 
   private retry() {
-    const { job } = this.props;
+    const { item } = this.props;
     if (window.confirm('Do you wanna to retry this job?') === false) {
       return
     }
 
     (async () => {
-      await Jobs.retry(job)
+      await Jobs.retry(item)
     })()
   }
 
   private retryFailedLeaves() {
-    const { job } = this.props;
+    const { item } = this.props;
     if (window.confirm('Do you wanna to retry failed children of this job?') === false) {
       return
     }
 
     (async () => {
-      await Jobs.retryFailedLeaves(job)
+      await Jobs.retryFailedLeaves(item)
     })()
   }
 
@@ -197,24 +206,24 @@ class JobComponent extends React.Component<Props, State> {
     this.props.destroy!()
   }
 
-  private showInput() {
-    this.props.getInput!().then(input => {
+  private async showInputOutput(showInputOutput: boolean) {
+    if (showInputOutput === true) {
+      const input = await this.props.getInput!()
       this.setState({ input })
-    })
-  }
-
-  private showOutput() {
-    this.setState({ showOutput: true })
+    }
+    this.setState({ showInputOutput })
   }
 }
 
-const mapStateToProps = (state: ReduxState, ownProps: Props) => ({})
+const mapStateToProps = (state: ReduxState, ownProps: Props) => ({
+  jobMetas: state.jobMetas,
+})
 const mapDispatchToProps = (dispatch: any, ownProps: Props) => {
-  const { job } = ownProps
+  const { item } = ownProps
   return {
-    update: (job: Job) => dispatch(Actions.update(job)),
-    destroy: () => dispatch(Actions.destroy(job)),
-    getInput: () => dispatch(Actions.getInput(job)),
+    loadSubtree: (job: Job) => dispatch(Actions.loadSubtree(job)),
+    destroy: () => dispatch(Actions.destroy(item)),
+    getInput: () => dispatch(Actions.getInput(item)),
   }
 }
 

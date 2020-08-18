@@ -4,7 +4,7 @@ hello:
 run: hello
 	cd dev && PORT=8000 go run sample_app.go
 
-run_client_dev_server: hello
+run_client: hello
 	cd client && PORT=3000 yarn run start
 
 run_with_hotreloading: hello

@@ -1,6 +1,8 @@
 import React from 'react'
+import { Link as RouterLink } from 'react-router-dom'
 
 import Filters from '../../models/filters'
+import { Funnel, PlusCircle } from 'react-bootstrap-icons'
 
 type Props = {
   value: Filters
@@ -16,9 +18,12 @@ class FiltersComponent extends React.Component<Props> {
   render() {
     const { value } = this.props
     return (
-      <form onChange={this.onChange} className="alert alert-info">
+      <form onChange={this.onChange} className="jumbotron p-2 m-1">
         <div className="form-row">
-          <div className="col-7">
+          <div className="col-1">
+            <Funnel/>
+          </div>
+          <div className="col-6">
             <div className="form-check form-check-inline">
               <input 
                 className="form-check-input"
@@ -46,7 +51,7 @@ class FiltersComponent extends React.Component<Props> {
               </label>
             </div>
           </div>
-          <div className="col-5">
+          <div className="col-4">
             <input
               type="text"
               className="form-control"
@@ -54,6 +59,11 @@ class FiltersComponent extends React.Component<Props> {
               placeholder="Job"
               value={value.Type}
             />
+          </div>
+          <div className="col-1">
+            <RouterLink to={"/new"} className="btn btn-light btn-sm">
+              <PlusCircle/>
+            </RouterLink>
           </div>
         </div>
       </form>

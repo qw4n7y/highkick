@@ -13,11 +13,12 @@ import (
 )
 
 func TestSimpleUsage(t *testing.T) {
-	database.Setup(highkick.DevDatabaseDSN)
+	database.Setup(highkick.DevDatabaseDSN, database.SetupOptions{
+		RunMigrations: false,
+	})
 	database.Manager.TruncateDatabase()
 
-	m := ManagerSignleton
-	m.UnregisterAllWorkers()
+	UnregisterAll()
 
 	counter := 0
 	workersCount := 0
@@ -27,7 +28,7 @@ func TestSimpleUsage(t *testing.T) {
 		counter += int(input["value"].(float64)) // Why float64?
 
 		if workersCount < 10 {
-			m.RunJob(models.BuildJob("increment", models.JSONDictionary{
+			RunJob(models.BuildJob("increment", models.JSONDictionary{
 				"value": 10,
 			}, job))
 
@@ -37,9 +38,12 @@ func TestSimpleUsage(t *testing.T) {
 
 		return errors.New("Oops")
 	}
-	m.RegisterWorker("increment", worker)
+	Register("increment", Job{
+		Title:   "Increment",
+		Perform: worker,
+	})
 
-	rootJob := m.RunJob(models.BuildJob("increment", models.JSONDictionary{
+	rootJob := RunJob(models.BuildJob("increment", models.JSONDictionary{
 		"value": 10,
 	}, nil))
 
@@ -50,7 +54,7 @@ func TestSimpleUsage(t *testing.T) {
 		t.Errorf("Want %v Got %v", want, counter)
 	}
 
-	jobs := repo.GetJobs("ORDER BY path ASC")
+	jobs := repo.GetJobs(repo.Filters{}, "ORDER BY path ASC")
 	if len(jobs) != 11 {
 		t.Errorf("Total jobs created: Want %v Got %v", 11, len(jobs))
 	}

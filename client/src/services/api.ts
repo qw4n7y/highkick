@@ -13,17 +13,21 @@ const API_BASE = `${BASE}/highkick`
 const URLS = {
   ws: `ws${window.location.protocol === 'https:' ? 's' : ''}://${API_BASE.split("//")[1]}/ws`,
   jobs: {
-    job: (id: number) => `${API_BASE}/jobs/${id}`,
-    retry: (id: number) => `${API_BASE}/jobs/${id}/retry`,
-    retryFailedLeaves: (id: number) => `${API_BASE}/jobs/${id}/retry_failed_leaves`,
-    subtree: (id: number) => `${API_BASE}/jobs/${id}/subtree`,
-    input: (id: number) => `${API_BASE}/jobs/${id}/input`,
+    job: (id: number) => `${API_BASE}/jobs/show/${id}`,
+    retry: (id: number) => `${API_BASE}/jobs/retry/${id}`,
+    retryFailedLeaves: (id: number) => `${API_BASE}/jobs/retry_failed_leaves/${id}`,
+    subtree: (id: number) => `${API_BASE}/jobs/subtree/${id}`,
+    input: (id: number) => `${API_BASE}/jobs/input/${id}`,
+    run: `${API_BASE}/jobs/run`,
   },
   jobRoots: {
-    index: `${API_BASE}/job_roots`
+    index: `${API_BASE}/job_roots/index`
   },
   jobLogs: {
-    index: (jobId: number) => `${API_BASE}/jobs/${jobId}/logs`,
+    index: (jobId: number) => `${API_BASE}/job_logs/index/${jobId}`,
+  },
+  jobMetas: {
+    index: `${API_BASE}/job_metas/index`,
   }
 }
 

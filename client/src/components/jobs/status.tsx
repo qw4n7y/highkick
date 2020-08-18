@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge } from 'react-bootstrap'
+import { XCircle, Play, Check2, Hexagon } from 'react-bootstrap-icons'
 
 import { Status } from '../../models/job'
 
@@ -9,14 +9,18 @@ type Props = {
 }
 
 const StatusComponent: React.FC<Props> = (props: Props) => {
-  const { title, status } = props
+  const { status } = props
 
-  const variant = (status === 'completed') ? 'success' : ((status === 'failed') ? 'danger' : 'info' )
-  const sign = (status === 'completed') ? '✌' : ((status === 'failed') ? '✘' : '༗' )
-  return (
-    <h5 className="m-0 p-0">
-      <Badge variant={variant}>{title}{sign}</Badge>
-    </h5>)
+  switch(status) {
+    case 'initial':
+      return <Hexagon/>
+    case 'processing':
+      return <Play/>
+    case 'failed':
+      return <XCircle/>
+    case 'completed':
+      return <Check2/>
+  }
 }
 
 export default StatusComponent

@@ -1,8 +1,6 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import { Button } from 'react-bootstrap'
-
 import TreeLeaf from '../../models/tree_leaf'
 import Builder from './builder'
 import Leaves from './leaves'
@@ -13,7 +11,7 @@ type Props<Item> = {
 }
 
 type State = {
-  opened: boolean
+  expanded: boolean
 }
 
 class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Item>, State> {
@@ -21,48 +19,34 @@ class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Ite
     super(props)
 
     this.state = {
-      opened: props.item.isRoot() ? false : true
+      expanded: false
     }
 
-    this.toggle = this.toggle.bind(this)
-    this.expand = this.expand.bind(this)
+    this.onExpand = this.onExpand.bind(this)
   }
 
   render() {
     const { item, builder } = this.props
-    const { opened } = this.state
+    const { expanded } = this.state
 
     return (
-      <li className="list-group-item p-0">
-        <div className="d-flex">
-          <div style={{width: 40}}>
-            <Button variant="light" size="sm" onClick={this.toggle}>
-              { opened ? '↘' : '↗'}
-            </Button>
-          </div>
-          <div className="flex-fill" key={item.digest()}>
-            {builder({ item, expandTreeLeaf: this.expand })}
-            <div className={classnames({'d-none': !opened})}>
-              <Leaves
-                items={item.childs as Item[]}
-                builder={builder}
-              />
-            </div>
-          </div> 
+      <li className="list-group-item pr-0" key={item.digest()}>
+        {React.createElement(builder, {
+          item,
+          onExpand: this.onExpand,
+          expanded
+        })}
+        <div className={classnames({'d-none': !expanded})}>
+          <Leaves
+            items={item.childs as Item[]}
+            builder={builder}
+          />
         </div>
       </li>)
   }
 
-  private toggle() {
-    this.setState({
-      opened: !this.state.opened
-    })
-  }
-
-  private expand() {
-    this.setState({
-      opened: true
-    })
+  private onExpand(expanded: boolean) {
+    this.setState({ expanded })
   }
 }
 

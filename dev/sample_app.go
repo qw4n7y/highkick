@@ -14,14 +14,15 @@ import (
 )
 
 const HELLO_WORLD = "HELLO_WORLD"
+const HELLO_WORLD_2 = "HELLO_WORLD_2"
 
 func HelloWorldWorker(job *highkick.Job) error {
-	for _, key := range []string{"depth"} {
+	for _, key := range []string{"Depth"} {
 		if !gjson.Get(*job.Input, key).Exists() {
 			return fmt.Errorf("%v is required", key)
 		}
 	}
-	depth := gjson.Get(*job.Input, "depth").Int()
+	depth := gjson.Get(*job.Input, "Depth").Int()
 
 	if depth <= 0 {
 		return nil
@@ -35,14 +36,31 @@ func HelloWorldWorker(job *highkick.Job) error {
 	fmt.Println(msg)
 
 	highkick.Run(highkick.NewJob(HELLO_WORLD, highkick.Input{
-		"depth": depth - 1,
+		"Depth": depth - 1,
 	}, job))
 
 	return nil
 }
 
 func init() {
-	highkick.Register(HELLO_WORLD, HelloWorldWorker)
+	helloWorldInputJSONSchema := `{
+		"type": "object",
+		"properties": {
+			"Depth": { "type": "number" }
+		}
+	}`
+	highkick.Register(highkick.JobMeta{
+		SID:             HELLO_WORLD,
+		Title:           "Hello, world!",
+		Perform:         HelloWorldWorker,
+		InputJSONSchema: &helloWorldInputJSONSchema,
+	})
+
+	highkick.Register(highkick.JobMeta{
+		SID:     HELLO_WORLD_2,
+		Title:   "Hello, world 2!",
+		Perform: HelloWorldWorker,
+	})
 }
 
 func main() {
@@ -54,20 +72,9 @@ func main() {
 		fmt.Printf("Job %v (%+v) completed with %v error\n", message.Job.Type, message.Job.GetInput(), message.Error)
 	})
 
-	// go func() {
-	// 	for {
-	// 		job := highkick.NewJob(HELLO_WORLD, highkick.Input{}, nil)
-
-	// 		fmt.Println("[JOB] Run in goroutine", job)
-	// 		highkick.Run(job)
-
-	// 		time.Sleep(5 * time.Second)
-	// 	}
-	// }()
-
 	go func() {
 		highkick.Run(highkick.NewJob(HELLO_WORLD, highkick.Input{
-			"depth": 5,
+			"Depth": 5,
 		}, nil))
 		return
 
