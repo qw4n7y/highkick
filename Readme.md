@@ -6,13 +6,13 @@
 
 ### VARIABLES
 
-var GetOutput = manager.GetOutput
+var GetOutput = jobs.GetOutput
     GetOutput gets string by key from job's dictionary
 
-var JobsPubSub = manager.JobsPubSub
+var JobsPubSub = jobs.JobsPubSub
     Keeps reference to jobs update pubSub
 
-var Log = manager.Log
+var Log = jobs.Log
     Log associates custom message with a jon and persists it to database
 
 var NewJob = models.BuildJob
@@ -21,28 +21,32 @@ var NewJob = models.BuildJob
 var NewPeriodicalJob = models.NewPeriodicalJob
     NewJob builds new periodical job instance
 
-var Register = manager.RegisterWorker
+var Register = jobs.Register
     Register registers a worker and associate it with provided string
     identificator
 
-var SetupServer = server.Setup
-    SetupServer setup GIN handlers for GUI backend to /highkick
-
-var Run = manager.RunJob
+var Run = jobs.RunJob
     Run registers intent to run a new job, validates it can be executed and
     executes it in goroutine
 
-var RunJobCoherently = manager.RunJobCoherently
+var RunJobCoherently = jobs.RunJobCoherently
     RunJobCoherently executes job on the fly returning execution results
 
-var RunWithOneWorkerAtOnce = manager.RunWithOneWorkerAtOnce
-    RunWithOneWorkerAtOnce runs the job in coherent mode with one worker at once
+var RunWithOneWorkerAtOnce = jobs.RunWithOneWorkerAtOnce
+    RunWithOneWorkerAtOnce runs the job with one worker at once
 
-var SetOutput = manager.SetOutput
+var RunWithOneWorkerAtOnceCoherently = jobs.RunWithOneWorkerAtOnceCoherently
+    RunWithOneWorkerAtOnceCoherently runs the job in coherent mode with one
+    worker at once
+
+var SetOutput = jobs.SetOutput
     SetOutput preserves string value by key in job's dictionary
 
 var Setup = database.Setup
     Setup establishes database connection
+
+var SetupServer = server.Setup
+    SetupServer setup GIN engine for GUI backend
 
 
 ### TYPES
@@ -52,6 +56,8 @@ type Input = models.JSONDictionary
 
 type Job = models.Job
     Job is job instance
+
+type JobMeta = jobs.Job
 
 type PubSubMessage = models.PubSubMessage
     PubSub Message

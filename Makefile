@@ -17,3 +17,6 @@ build_client: hello
 	cd client && REACT_APP_PUBLIC_URL=/highkick/client yarn run build && cd ..
 	# rm -rf server/static/* && cp -R gui/build/ server/static/
 	# sed -i -e 's/src=\"\/static/src=\"\/highkick\/gui\/static/g' server/static/index.html
+
+generate_docs: hello
+	go doc -a
