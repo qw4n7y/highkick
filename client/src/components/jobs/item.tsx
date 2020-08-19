@@ -73,7 +73,7 @@ class JobComponent extends React.Component<Props, State> {
           gridTemplateAreas: "'header actions' 'details details'",
           gridTemplateColumns: "1fr 170px",
           gridGap: "2px",
-          background: "#f8f9fa",
+          background: item.status === "failed" ? "#fcede8" : item.status === "processing" ? "#e8f4fc" : "#f8f9fa",
         }}
         key={JSON.stringify(jobMeta)}
       >

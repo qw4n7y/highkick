@@ -31,7 +31,7 @@ class FiltersComponent extends React.Component<Props> {
                 name="IsPeriodical"
                 id="IsPeriodicalTrue"
                 value="1"
-                checked={value.IsPeriodical === true}
+                defaultChecked={value.IsPeriodical === true}
               />
               <label className="form-check-label" htmlFor="IsPeriodicalTrue">
                 Periodical
@@ -44,7 +44,7 @@ class FiltersComponent extends React.Component<Props> {
                 name="IsPeriodical"
                 id="IsPeriodicalFalse"
                 value="0"
-                checked={value.IsPeriodical === false}
+                defaultChecked={value.IsPeriodical === false}
               />
               <label className="form-check-label" htmlFor="IsPeriodicalFalse">
                 Non periodical
@@ -54,14 +54,14 @@ class FiltersComponent extends React.Component<Props> {
           <div className="col-4">
             <input
               type="text"
-              className="form-control"
+              className="form-control form-control-sm"
               name="Type"
               placeholder="Job"
               value={value.Type}
             />
           </div>
           <div className="col-1">
-            <RouterLink to={"/new"} className="btn btn-light btn-sm">
+            <RouterLink to={"/new"} className="btn btn-light">
               <PlusCircle/>
             </RouterLink>
           </div>

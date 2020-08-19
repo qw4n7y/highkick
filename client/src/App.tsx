@@ -10,9 +10,8 @@ import { Row, Col } from 'react-bootstrap'
 import Layout from './components/layout'
 import Router from './router'
 
-import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'connected-react-router'
-import { store, history } from './redux/store'
+import { history } from './redux/store'
 
 type Props = {
   jobMetas?: JobMeta[]
@@ -25,17 +24,15 @@ class App extends React.Component<Props> {
 
   render() {
     return (
-      <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <Layout>
-            <Row>
-              <Col md={12} className="pt-2">
-                <Router/>
-              </Col>
-            </Row>
-          </Layout>
-        </ConnectedRouter>
-      </Provider>
+      <ConnectedRouter history={history}>
+        <Layout>
+          <Row>
+            <Col md={12} className="pt-2">
+              <Router/>
+            </Col>
+          </Row>
+        </Layout>
+      </ConnectedRouter>
     );
   }
 }

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/qw4n7y/highkick"
 
@@ -101,6 +102,7 @@ func main() {
 	engine := gin.Default()
 	engine.Use(cors.Default())
 	engine.Static("/app", ".")
+	engine.Use(static.Serve("/highkick/client", static.LocalFile("../client/build", true)))
 	highkick.SetupServer(engine)
 	log.Fatalln(engine.Run())
 

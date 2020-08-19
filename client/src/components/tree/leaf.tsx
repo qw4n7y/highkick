@@ -30,13 +30,13 @@ class TreeLeafComponent<Item extends TreeLeaf> extends React.Component<Props<Ite
     const { expanded } = this.state
 
     return (
-      <li className="list-group-item pr-0" key={item.digest()}>
+      <li className="list-group-item p-0 border-0 m-0 mb-1" key={item.digest()}>
         {React.createElement(builder, {
           item,
           onExpand: this.onExpand,
           expanded
         })}
-        <div className={classnames({'d-none': !expanded})}>
+        <div className={classnames({'d-none': !expanded, 'mt-1 ml-4': true})}>
           <Leaves
             items={item.childs as Item[]}
             builder={builder}

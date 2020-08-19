@@ -6,7 +6,7 @@ import { routerMiddleware } from 'connected-react-router'
 
 import createRootReducer from './reducers'
 
-import actionToPlainObjectMiddleware from './plain_object_middleware'
+import actionToPlainObjectMiddleware from './middlewares/plain_object_middleware'
 
 declare var window: {
   __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: any,
