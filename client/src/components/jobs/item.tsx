@@ -61,9 +61,10 @@ class JobComponent extends React.Component<Props, State> {
   render() {
     const { item, expanded, jobMetas } = this.props
     const { input, jobLogs } = this.state
-    const treeStatus = item.treeStatus || Jobs.treeStatus(item)
     const output = item.output !== "" ? JSON.parse(item.output) : {}
     const jobMeta = (jobMetas || []).find(candidate => candidate.SID === item.type)
+
+    const treeStatus = Jobs.treeStatus(item)
 
     return (
       <div 
@@ -73,7 +74,7 @@ class JobComponent extends React.Component<Props, State> {
           gridTemplateAreas: "'header actions' 'details details'",
           gridTemplateColumns: "1fr 170px",
           gridGap: "2px",
-          background: item.status === "failed" ? "#fcede8" : item.status === "processing" ? "#e8f4fc" : "#f8f9fa",
+          background: treeStatus === "failed" ? "#fcede8" : treeStatus === "processing" ? "#e8f4fc" : "#f8f9fa",
         }}
         key={JSON.stringify(jobMeta)}
       >
@@ -85,7 +86,7 @@ class JobComponent extends React.Component<Props, State> {
           onClick={this.loadItem}
           className="d-flex align-items-center"
         >
-          <StatusComponent status={item.status}/>
+          {this.renderStatus()}
           <span className="ml-1 mr-1">
             {jobMeta?.Title || item.sid}
           </span>
@@ -107,10 +108,11 @@ class JobComponent extends React.Component<Props, State> {
             className={this.state.showInputOutput ? undefined : "text-muted"}
             onClick={() => this.showInputOutput(!this.state.showInputOutput)}
           ><ArrowLeftRight/></Button>
-          <Button variant="light" 
-            className={this.state.showLogs ? undefined : "text-muted"}
-            onClick={() => this.showLogs(!this.state.showLogs)}
-          ><ReceiptCutoff/></Button>
+          { (item.logsCount > 0) && (
+            <Button variant="light" 
+              className={this.state.showLogs ? undefined : "text-muted"}
+              onClick={() => this.showLogs(!this.state.showLogs)}
+            ><ReceiptCutoff/></Button>) }
           <Button variant="light"
             onClick={this.retry}
           ><ArrowClockwise/></Button>
@@ -146,15 +148,28 @@ class JobComponent extends React.Component<Props, State> {
           >
             { jobLogs.map(jobLog => {
               return (
-                <div className="alert alert-primary p-0" key={jobLog.id}>
-                  <small className="text-muted">{jobLog.createdAt}</small>
-                  <br/>
-                  <code>{jobLog.content}</code>
+                <div className="alert alert-primary p-0 d-flex" key={jobLog.id}>
+                  <small className="text-muted mr-2">{jobLog.createdAt}</small>
+                  <code className="flex-fill">{jobLog.content}</code>
                 </div>)
             }) }
           </div>
         </div>
       </div>)
+  }
+
+  private renderStatus() {
+    const { item } = this.props
+    const treeStatus = Jobs.treeStatus(item)
+
+    if (item.status === treeStatus) {
+      return <StatusComponent status={item.status}/>
+    }
+
+    return [
+      <StatusComponent status={treeStatus}/>,
+      <StatusComponent status={item.status}/>
+    ]
   }
 
   private async loadItem() {

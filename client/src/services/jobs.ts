@@ -39,6 +39,7 @@ async function destroy(job: Job) {
 function treeStatus(job: Job): Status {
   const statuses = job.childs.map(treeStatus)
   statuses.push(job.status)
+  if (!!job.treeStatus) { statuses.push(job.treeStatus) }
 
   if (statuses.some(s => s === 'processing')) {
     return 'processing'
