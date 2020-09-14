@@ -33,7 +33,8 @@ async function retryFailedLeaves(job: Job) {
 }
 
 async function destroy(job: Job) {
-  await HTTP.del(API.URLS.jobs.job(job.id))
+  const url = API.URLS.jobs.destroy(job.id)
+  await HTTP.del(url)
 }
 
 function treeStatus(job: Job): Status {

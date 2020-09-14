@@ -19,6 +19,7 @@ const URLS = {
     subtree: (id: number) => `${API_BASE}/jobs/subtree/${id}`,
     input: (id: number) => `${API_BASE}/jobs/input/${id}`,
     run: `${API_BASE}/jobs/run`,
+    destroy: (id: number) => `${API_BASE}/jobs/delete/${id}`,
   },
   jobRoots: {
     index: `${API_BASE}/job_roots/index`
