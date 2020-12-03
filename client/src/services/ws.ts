@@ -1,4 +1,6 @@
-import * as WSIO from 'ws.io'
+// import * as WSIO from 'ws.io'
+const WSIO = require('ws.io')
+
 import { store } from '../redux/store'
 
 import API from './api'
@@ -13,16 +15,16 @@ function handle() {
 
     const subscriptionManager = new WSIO.SubscriptionManager(socket)
     
-    subscriptionManager.subscribe('time').then(subscription => {
+    subscriptionManager.subscribe('time').then((subscription: any) => {
       console.log('[WS] Subscribed on `time`')
-      subscription.on('message', message => {
+      subscription.on('message', (message: any) => {
         console.log('[WS] [time]', message)
       })
     })
 
-    subscriptionManager.subscribe('jobs').then(subscription => {
+    subscriptionManager.subscribe('jobs').then((subscription: any) => {
       console.log('[WS] Subscribed on `jobs`: ', subscription)
-      subscription.on('message', (message: WSIO.Message) => {
+      subscription.on('message', (message: any) => {
         console.log('[WS] [jobs]', message)
         const job = Job.deserialize(message.payload.job)
 
@@ -40,7 +42,7 @@ function handle() {
     })
   })
 
-  socket.on('error', (error) => {
+  socket.on('error', (error: any) => {
     console.error(`Socket error ${error && error.message ? error.message : error}`)
   })
 
@@ -48,11 +50,11 @@ function handle() {
     console.error(`[WS] Socket become dead`)
   })
 
-  socket.on('close', (code, reason) => {
+  socket.on('close', (code: any, reason: any) => {
     console.error(`[WS] Socket closed ${code} ${reason}`)
   })
 
-  socket.on('message', (message) => {
+  socket.on('message', (message: any) => {
     console.log(`[WS] Got message ${JSON.stringify(message)}`)
   })
 }

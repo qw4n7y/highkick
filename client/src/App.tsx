@@ -14,7 +14,6 @@ import { ConnectedRouter } from 'connected-react-router'
 import { history } from './redux/store'
 
 type Props = {
-  jobMetas?: JobMeta[]
   indexJobMetas?: () => any
 }
 class App extends React.Component<Props> {

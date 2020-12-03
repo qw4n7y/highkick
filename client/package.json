@@ -29,7 +29,7 @@
     "react-scripts": "3.4.3",
     "redux-thunk": "^2.3.0",
     "typescript": "~3.9.7",
-    "ws.io": "file:./vendors/ws.io"
+    "ws.io": "^0.0.2"
   },
   "scripts": {
     "start": "react-scripts start",

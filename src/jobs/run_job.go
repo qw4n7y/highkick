@@ -74,15 +74,7 @@ func RunWithOneWorkerAtOnceCoherently(job *models.Job) *models.Job {
 }
 
 func runJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMode, executionMode ExecutionMode) (*models.Job, error) {
-	var jobMeta *Job
-	if w, exists := jobs[job.Type]; exists == true {
-		jobMeta = &w
-	} else {
-		panic(fmt.Sprintf("No worker found for %v", job.Type))
-	}
-
-	// Workaround for periodical jobs:
-	// We need to keep single instance of same TYPE / INPUT / SCHEDULE not to pollute DB
+	// CRON case
 	if job.Cron != nil {
 		existingJobs := repo.GetJobs(repo.Filters{
 			Cron: job.Cron,
@@ -91,6 +83,27 @@ func runJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMod
 		if len(existingJobs) == 1 {
 			job = existingJobs[0]
 		}
+
+		fmt.Printf("[HIGHKICK] Starting periodical job %v\n", job.Type)
+		err := cronManager.AddFunc(*job.Cron, func() {
+			childJob := models.BuildJob(job.Type, job.GetInput(), job)
+			_, err := executeJob(childJob, errorMode, runChildJobMode, executionMode)
+			if err != nil {
+				fmt.Printf("[HIGHKICK] [Periodiabl job %+v] [Error] %+v", job.Type, err)
+			}
+		})
+		return job, err
+	}
+
+	return executeJob(job, errorMode, runChildJobMode, executionMode)
+}
+
+func executeJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMode, executionMode ExecutionMode) (*models.Job, error) {
+	var jobMeta *Job
+	if w, exists := jobs[job.Type]; exists == true {
+		jobMeta = &w
+	} else {
+		panic(fmt.Sprintf("No worker found for %v", job.Type))
 	}
 
 	job.Status = models.StatusProcessing
@@ -148,13 +161,7 @@ func runJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMod
 		return executionError
 	}
 
-	if job.Cron != nil { // PERIODICAL
-		fmt.Printf("[HIGHKICK] Starting periodical job %v\n", job.Type)
-		err := cronManager.AddFunc(*job.Cron, func() {
-			_ = execute(ErrorModeReturn)
-		})
-		return job, err
-	} else if runChildJobMode == RunChildJobModeCoherently { // COHERENT
+	if runChildJobMode == RunChildJobModeCoherently { // COHERENT
 		fmt.Printf("[HIGHKICK] Running job %v coherently\n", job.Type)
 		resultError := execute(errorMode)
 		return job, resultError
