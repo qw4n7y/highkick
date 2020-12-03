@@ -5,8 +5,8 @@ import Moment from 'moment'
 import ReduxState from './../../redux/state'
 import Actions from '../../redux/actions/jobs'
 
-import ReactJsonView from 'react-json-view'
-import { Button, Card } from 'react-bootstrap'
+// import ReactJsonView from 'react-json-view'
+import { Button } from 'react-bootstrap'
 import { 
   ArrowRight, ArrowDown, ArrowClockwise, Trash,
   ReceiptCutoff, BoxArrowInRight, BoxArrowRight,
@@ -133,11 +133,13 @@ class JobComponent extends React.Component<Props, State> {
           >
             <div className="d-flex align-items-center">
               <BoxArrowInRight className="m-2" style={{zoom: 1.5}}/>
-              <ReactJsonView src={input} collapsed={false} style={{fontSize: 10}} displayDataTypes={false}/>
+              <code style={{fontSize: 10}}>{JSON.stringify(input, null, 2)}</code>
+              {/* <ReactJsonView src={input} collapsed={false} style={{fontSize: 10}} displayDataTypes={false}/> */}
             </div>
             <div className="d-flex align-items-center">
               <BoxArrowRight className="m-2" style={{zoom: 1.5}}/>
-              <ReactJsonView src={output} collapsed={false} style={{fontSize: 10}} displayDataTypes={false}/>
+              <code style={{fontSize: 10}}>{JSON.stringify(output, null, 2)}</code>
+              {/* <ReactJsonView src={output} collapsed={false} style={{fontSize: 10}} displayDataTypes={false}/> */}
             </div>
           </div>
           
