@@ -76,12 +76,14 @@ func RunWithOneWorkerAtOnceCoherently(job *models.Job) *models.Job {
 func runJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMode, executionMode ExecutionMode) (*models.Job, error) {
 	// CRON case
 	if job.Cron != nil {
-		existingJobs := repo.GetJobs(repo.Filters{
-			Cron: job.Cron,
-			Type: &job.Type,
-		}, "ORDER BY id DESC LIMIT 1")
+		existingJobs := repo.GetJobs(repo.Filters{ Cron: job.Cron, Type: &job.Type }, "ORDER BY id DESC LIMIT 1")
 		if len(existingJobs) == 1 {
 			job = existingJobs[0]
+		}
+		job.Status = models.StatusProcessing
+		job.CreatedAt = time.Now()
+		if err := repo.SaveJob(job); err != nil {
+			panic(err.Error())
 		}
 
 		fmt.Printf("[HIGHKICK] Starting periodical job %v\n", job.Type)
