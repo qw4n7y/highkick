@@ -22,13 +22,6 @@ const (
 	RunChildJobModeCoherently                        // run child jobs in same goroutine. waits them to execute
 )
 
-type ErrorMode int
-
-const (
-	ErrorModePanic ErrorMode = iota
-	ErrorModeReturn
-)
-
 type ExecutionMode int
 
 const (
@@ -51,29 +44,29 @@ func init() {
 
 // RunJob runs the job. Separately
 func RunJob(job *models.Job) *models.Job {
-	newJob, _ := runJob(job, ErrorModePanic, RunChildJobModeSeparately, ExecutionModeRegular)
+	newJob, _ := runJob(job, RunChildJobModeSeparately, ExecutionModeRegular)
 	return newJob
 }
 
 // RunJobCoherently runs the job. Coherently
 func RunJobCoherently(job *models.Job) (*models.Job, error) {
-	newJob, resultErr := runJob(job, ErrorModeReturn, RunChildJobModeCoherently, ExecutionModeRegular)
+	newJob, resultErr := runJob(job, RunChildJobModeCoherently, ExecutionModeRegular)
 	return newJob, resultErr
 }
 
 // RunWithOneWorkerAtOnce runs the job. With one worker at once.
 func RunWithOneWorkerAtOnce(job *models.Job) *models.Job {
-	newJob, _ := runJob(job, ErrorModePanic, RunChildJobModeSeparately, ExecutionModeOneWorkerAtOnce)
+	newJob, _ := runJob(job, RunChildJobModeSeparately, ExecutionModeOneWorkerAtOnce)
 	return newJob
 }
 
 // RunWithOneWorkerAtOnceCoherently runs the job coherently. With one worker at once.
 func RunWithOneWorkerAtOnceCoherently(job *models.Job) *models.Job {
-	newJob, _ := runJob(job, ErrorModePanic, RunChildJobModeCoherently, ExecutionModeOneWorkerAtOnce)
+	newJob, _ := runJob(job, RunChildJobModeCoherently, ExecutionModeOneWorkerAtOnce)
 	return newJob
 }
 
-func runJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMode, executionMode ExecutionMode) (*models.Job, error) {
+func runJob(job *models.Job, runChildJobMode RunChildJobMode, executionMode ExecutionMode) (*models.Job, error) {
 	// CRON case
 	if job.Cron != nil {
 		existingJobs := repo.GetJobs(repo.Filters{ Cron: job.Cron, Type: &job.Type }, "ORDER BY id DESC LIMIT 1")
@@ -89,7 +82,7 @@ func runJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMod
 		fmt.Printf("[HIGHKICK] Starting periodical job %v\n", job.Type)
 		err := cronManager.AddFunc(*job.Cron, func() {
 			childJob := models.BuildJob(job.Type, job.GetInput(), job)
-			_, err := executeJob(childJob, errorMode, runChildJobMode, executionMode)
+			_, err := executeJob(childJob, runChildJobMode, executionMode)
 			if err != nil {
 				fmt.Printf("[HIGHKICK] [Periodiabl job %+v] [Error] %+v", job.Type, err)
 			}
@@ -97,10 +90,10 @@ func runJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMod
 		return job, err
 	}
 
-	return executeJob(job, errorMode, runChildJobMode, executionMode)
+	return executeJob(job, runChildJobMode, executionMode)
 }
 
-func executeJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJobMode, executionMode ExecutionMode) (*models.Job, error) {
+func executeJob(job *models.Job, runChildJobMode RunChildJobMode, executionMode ExecutionMode) (*models.Job, error) {
 	var jobMeta *Job
 	if w, exists := jobs[job.Type]; exists == true {
 		jobMeta = &w
@@ -114,7 +107,7 @@ func executeJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJo
 		panic(err.Error())
 	}
 
-	execute := func(errorMode ErrorMode) error {
+	execute := func() error {
 		if executionMode == ExecutionModeOneWorkerAtOnce {
 			rwLockForLocks.RLock()
 			_, exists := locks[job.Identificator()]
@@ -152,12 +145,7 @@ func executeJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJo
 
 		executionError := jobMeta.Perform(job)
 		if executionError != nil {
-			if errorMode == ErrorModePanic {
-				panic(executionError.Error())
-			}
-			if errorMode == ErrorModeReturn {
-				failJob(job, executionError)
-			}
+			panic(executionError.Error())
 		}
 
 		return executionError
@@ -165,12 +153,12 @@ func executeJob(job *models.Job, errorMode ErrorMode, runChildJobMode RunChildJo
 
 	if runChildJobMode == RunChildJobModeCoherently { // COHERENT
 		fmt.Printf("[HIGHKICK] Running job %v coherently\n", job.Type)
-		resultError := execute(errorMode)
+		resultError := execute()
 		return job, resultError
 	} else if runChildJobMode == RunChildJobModeSeparately { // PARALLEL
 		fmt.Printf("[HIGHKICK] Running job %v in goroutine\n", job.Type)
 		go func() {
-			execute(errorMode)
+			execute()
 		}()
 	}
 
