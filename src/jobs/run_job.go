@@ -10,7 +10,7 @@ import (
 	"github.com/qw4n7y/gopubsub"
 	"github.com/qw4n7y/highkick/src/models"
 	"github.com/qw4n7y/highkick/src/repo"
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 )
 
 // Internal options
@@ -69,7 +69,7 @@ func RunWithOneWorkerAtOnceCoherently(job *models.Job) *models.Job {
 func runJob(job *models.Job, runChildJobMode RunChildJobMode, executionMode ExecutionMode) (*models.Job, error) {
 	// CRON case
 	if job.Cron != nil {
-		existingJobs := repo.GetJobs(repo.Filters{ Cron: job.Cron, Type: &job.Type }, "ORDER BY id DESC LIMIT 1")
+		existingJobs := repo.GetJobs(repo.Filters{Cron: job.Cron, Type: &job.Type}, "ORDER BY id DESC LIMIT 1")
 		if len(existingJobs) == 1 {
 			job = existingJobs[0]
 		}
@@ -80,7 +80,7 @@ func runJob(job *models.Job, runChildJobMode RunChildJobMode, executionMode Exec
 		}
 
 		fmt.Printf("[HIGHKICK] Starting periodical job %v\n", job.Type)
-		err := cronManager.AddFunc(*job.Cron, func() {
+		_, err := cronManager.AddFunc(*job.Cron, func() {
 			childJob := models.BuildJob(job.Type, job.GetInput(), job)
 			_, err := executeJob(childJob, runChildJobMode, executionMode)
 			if err != nil {

@@ -38,7 +38,7 @@ func TestSimpleUsage(t *testing.T) {
 
 		return errors.New("Oops")
 	}
-	Register("increment", Job{
+	Register(Job{
 		Title:   "Increment",
 		Perform: worker,
 	})
