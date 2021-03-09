@@ -27,6 +27,10 @@ class App extends React.Component<Props, State> {
   }
 
   render() {
+    const sortedJobMetas = (this.props.jobMetas || []).sort(function (a, b) {
+      return a.Title.localeCompare(b.Title);
+    })
+
     return (
       <>
         <h3>Run new job</h3>
@@ -37,7 +41,7 @@ class App extends React.Component<Props, State> {
               onChange={this.onJobSIDChange}
             >
               <option className="text-muted" value="">Choose job to create</option>
-              {(this.props.jobMetas || []).map(jobMeta => {
+              {sortedJobMetas.map(jobMeta => {
                 return (<option value={jobMeta.SID}>{jobMeta.Title}</option>)
               })}
             </Form.Control>
