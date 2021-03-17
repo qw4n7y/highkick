@@ -84,7 +84,7 @@ func runJob(job *models.Job, runChildJobMode RunChildJobMode, executionMode Exec
 			childJob := models.BuildJob(job.Type, job.GetInput(), job)
 			_, err := executeJob(childJob, runChildJobMode, executionMode)
 			if err != nil {
-				fmt.Printf("[HIGHKICK] [Periodiabl job %+v] [Error] %+v", job.Type, err)
+				fmt.Printf("[HIGHKICK] [Periodical job %+v] [Error] %+v", job.Type, err)
 			}
 		})
 		return job, err
@@ -125,27 +125,22 @@ func executeJob(job *models.Job, runChildJobMode RunChildJobMode, executionMode 
 			rwLockForLocks.RUnlock()
 		}
 
-		defer func() {
-			if executionMode == ExecutionModeOneWorkerAtOnce {
-				rwLockForLocks.RLock()
-				lock, _ := locks[job.Identificator()]
-				lock.Unlock()
-				rwLockForLocks.RUnlock()
-			}
-
-			if r := recover(); r == nil {
-				completeJob(job)
-			} else {
-				failJob(job, fmt.Errorf("%v", r))
-			}
-		}()
-
 		BroadcastJobUpdate(job, nil)
 		clearJob(job)
 
 		executionError := jobMeta.Perform(job)
-		if executionError != nil {
-			panic(executionError.Error())
+
+		if executionMode == ExecutionModeOneWorkerAtOnce {
+			rwLockForLocks.RLock()
+			lock, _ := locks[job.Identificator()]
+			lock.Unlock()
+			rwLockForLocks.RUnlock()
+		}
+
+		if executionError == nil {
+			completeJob(job)
+		} else {
+			failJob(job, executionError)
 		}
 
 		return executionError
