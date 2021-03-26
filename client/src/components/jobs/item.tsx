@@ -5,7 +5,7 @@ import Moment from 'moment'
 import ReduxState from './../../redux/state'
 import Actions from '../../redux/actions/jobs'
 
-// import ReactJsonView from 'react-json-view'
+import ReactJsonView from 'react-json-view'
 import { Button } from 'react-bootstrap'
 import { 
   ArrowRight, ArrowDown, ArrowClockwise, Trash,
@@ -26,6 +26,7 @@ type Props = {
   onExpand: (expanded: boolean) => any
   expanded: boolean
 
+  viewJSONlikeAPro?: boolean
   jobMetas?: JobMeta[]
   loadSubtree?: (job: Job) => Promise<any>
   destroy?: () => any
@@ -133,13 +134,21 @@ class JobComponent extends React.Component<Props, State> {
           >
             <div className="d-flex align-items-center">
               <BoxArrowInRight className="m-2" style={{zoom: 1.5}}/>
-              <code style={{fontSize: 10}}>{JSON.stringify(input, null, 2)}</code>
-              {/* <ReactJsonView src={input} collapsed={false} style={{fontSize: 10}} displayDataTypes={false}/> */}
+              { this.props.viewJSONlikeAPro && (
+                <ReactJsonView src={input} collapsed={true} style={{fontSize: 10}} displayDataTypes={false}/>
+              ) }
+              { !this.props.viewJSONlikeAPro && (
+                <code style={{fontSize: 10}}>{JSON.stringify(input, null, 2)}</code>
+              ) }
             </div>
             <div className="d-flex align-items-center">
               <BoxArrowRight className="m-2" style={{zoom: 1.5}}/>
-              <code style={{fontSize: 10}}>{JSON.stringify(output, null, 2)}</code>
-              {/* <ReactJsonView src={output} collapsed={false} style={{fontSize: 10}} displayDataTypes={false}/> */}
+              { this.props.viewJSONlikeAPro && (
+                <ReactJsonView src={output} collapsed={true} style={{fontSize: 10}} displayDataTypes={false}/>
+              ) }
+              { !this.props.viewJSONlikeAPro && (
+                <code style={{fontSize: 10}}>{JSON.stringify(output, null, 2)}</code>
+              ) }
             </div>
           </div>
           
@@ -234,6 +243,7 @@ class JobComponent extends React.Component<Props, State> {
 
 const mapStateToProps = (state: ReduxState, ownProps: Props) => ({
   jobMetas: state.jobMetas,
+  viewJSONlikeAPro: state.app.viewJSONlikeAPro,
 })
 const mapDispatchToProps = (dispatch: any, ownProps: Props) => {
   const { item } = ownProps

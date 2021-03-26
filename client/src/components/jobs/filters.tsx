@@ -18,7 +18,7 @@ class FiltersComponent extends React.Component<Props> {
   render() {
     const { value } = this.props
     return (
-      <form onChange={this.onChange} className="jumbotron p-2 m-1">
+      <form onChange={this.onChange}>
         <div className="form-row">
           <div className="col-1">
             <Funnel/>

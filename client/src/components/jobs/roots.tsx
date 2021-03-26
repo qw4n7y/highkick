@@ -2,6 +2,7 @@ import React from 'react'
 import * as ReactRedux from 'react-redux'
 import ReduxState from './../../redux/state'
 import Actions from '../../redux/actions/jobs'
+import AppActions from '../../redux/actions/app'
 
 import Job from '../../models/job'
 import JobMeta from '../../models/job_meta'
@@ -12,9 +13,11 @@ import Paginator from '../misc/paginator'
 import FiltersComponent from './filters'
 
 type Props = {
+  viewJSONlikeAPro?: boolean
   jobMetas?: JobMeta[]
   roots?: Job[]
   index?: (filters: Filters, params: { page: number }) => any
+  changeViewJSONlikeAPro?: (newValue: boolean) => any
 }
 type State = {
   filters: Filters
@@ -58,10 +61,27 @@ class RootsList extends React.Component<Props, State> {
 
     return (
       <>
-        <FiltersComponent
-          value={this.state.filters}
-          onChange={this.onFiltersChange}
-        />
+        <div  className="jumbotron p-2 m-1 d-flex">
+          <div className="form-check form-check-inline">
+            <input 
+              className="form-check-input"
+              type="checkbox"
+              defaultChecked={this.props.viewJSONlikeAPro}
+              id="viewJSONlikeAPro"
+              onChange={event => {
+                this.props.changeViewJSONlikeAPro!(event.currentTarget.checked)
+              }}
+            />
+            <label className="form-check-label" htmlFor="viewJSONlikeAPro">
+              View JSON like a pro
+            </label>
+          </div>
+          <FiltersComponent
+            value={this.state.filters}
+            onChange={this.onFiltersChange}
+          /> 
+        </div>
+        
         <TreeLeaves
           items={roots! || []}
           builder={Item}
@@ -96,9 +116,11 @@ class RootsList extends React.Component<Props, State> {
 const mapStateToProps = (state: ReduxState, ownProps: Props) => ({
   roots: state.jobs,
   jobMetas: state.jobMetas,
+  viewJSONlikeAPro: state.app.viewJSONlikeAPro,
 })
 const mapDispatchToProps = (dispatch: any, ownProps: Props) => ({
   index: (filters: Filters, params: { page: number }) => dispatch(Actions.index(filters, params)),
+  changeViewJSONlikeAPro: (newValue: boolean) => dispatch(AppActions.changeViewJSONlikeAPro(newValue))
 })
 
 export default ReactRedux.connect(mapStateToProps, mapDispatchToProps)(RootsList)
