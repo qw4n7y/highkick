@@ -9,7 +9,6 @@ import Jobs from '../../services/jobs'
 export const INDEX = 'JOBS/INDEX'
 export const UPDATE = 'JOBS/UPDATE'
 export const DESTROY = 'JOBS/DESTROY'
-export const CHANGE_VIEWJSONLIKEAPRO = 'CHANGE_VIEWJSONLIKEAPRO'
 
 // Actions
 
@@ -26,11 +25,6 @@ export class Index {
 export class Destroy {
   type = DESTROY
   constructor(public job: Job) { }
-}
-
-export class CHANGE_viewJSONlikeAPro {
-  type = CHANGE_VIEWJSONLIKEAPRO
-  constructor(public newValue: boolean) { }
 }
 
 // Action creators
@@ -70,10 +64,4 @@ function run(sid: string, input: any) {
   }
 }
 
-function changeViewJSONlikeAPro(newValue: boolean) {
-  return async (dispatch: any, getState: () => ReduxState) => {
-    dispatch(new CHANGE_viewJSONlikeAPro(newValue))
-  }
-}
-
-export default { index, loadSubtree, destroy, getInput, run, changeViewJSONlikeAPro }
+export default { index, loadSubtree, destroy, getInput, run }

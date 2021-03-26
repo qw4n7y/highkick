@@ -33,10 +33,6 @@ export default function reducer(state: State = defaultState, action: Action) {
       
       return state
     }
-    case Actions.DESTROY: {
-      const a = action as Actions.Destroy
-      return state.filter(j => j.id !== a.job.id)
-    }
   }
 
   return state
