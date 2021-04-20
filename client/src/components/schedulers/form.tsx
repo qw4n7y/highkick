@@ -5,6 +5,7 @@ import ReduxState from './../../redux/state'
 import JobMeta from '../../models/job_meta'
 import { Form, Button } from 'react-bootstrap'
 import JsonEditor from '../misc/json_editor'
+import HumanDuration from '../../components/misc/human_duration'
 
 import Scheduler from "../../models/scheduler";
 
@@ -64,6 +65,10 @@ class SchedulerForm extends React.Component<Props, State> {
                                       this.onChange(value)
                                   }}
                     />
+
+                    <blockquote className="blockquote">
+                        <HumanDuration seconds={value.RunEverySeconds}/>
+                    </blockquote>
                 </Form.Group>
                 <Form.Group>
                     <Form.Check type="checkbox" label="Stopped"

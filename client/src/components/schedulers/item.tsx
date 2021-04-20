@@ -8,6 +8,7 @@ import Actions from '../../redux/actions/schedulers'
 import ReactJsonView from 'react-json-view'
 import { Button } from 'react-bootstrap'
 import { Trash, PauseCircle, PencilSquare } from 'react-bootstrap-icons'
+import HumanDuration from '../../components/misc/human_duration'
 
 import Scheduler from '../../models/scheduler'
 
@@ -34,7 +35,7 @@ class JobComponent extends React.Component<Props, State> {
         return (
             <div className="card w-100">
                 <div className="card-body d-flex align-items-center">
-                    <span>{item.JobType} every {item.RunEverySeconds}</span>
+                    <span>{item.JobType} every <HumanDuration seconds={item.RunEverySeconds}/></span>
                     <div className="flex-fill">
                         <ReactJsonView src={input} collapsed={true} style={{fontSize: 10}} displayDataTypes={false}/>
                     </div>
