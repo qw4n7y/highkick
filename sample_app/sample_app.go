@@ -77,7 +77,7 @@ func main() {
 	engine.Use(static.Serve("/highkick/client", static.LocalFile("../client/build", true)))
 
 	highkick.RunServer(engine, highkick.RunServerParams{
-		BasicAuthUser: "root",
+		BasicAuthUser:     "root",
 		BasicAuthPassword: "root",
 	})
 	log.Fatalln(engine.Run())

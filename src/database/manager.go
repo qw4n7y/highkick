@@ -3,9 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	sqlDriverMySQL "github.com/go-sql-driver/mysql"
 	"io/ioutil"
 	"log"
+
+	sqlDriverMySQL "github.com/go-sql-driver/mysql"
 
 	"github.com/golang-migrate/migrate/v4"
 	migrateMySQL "github.com/golang-migrate/migrate/v4/database/mysql"

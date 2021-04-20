@@ -101,7 +101,7 @@ class SchedulerForm extends React.Component<Props, State> {
         const jsonSchema = JSON.parse(jobMeta.InputJSONSchema!)
         return (
             <JsonEditor
-                key={value.ID}
+                key={`${value.ID}-${value.JobType}`}
                 label="Input"
                 jsonSchema={jsonSchema}
                 defaultValue={JSON.parse(value.JobInput || "{}")}
