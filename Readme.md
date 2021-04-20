@@ -4,63 +4,32 @@
 ```http://localhost:3000/``` to open Highkick GUI
 ```http://localhost:8000/app/``` to open sample page with Highkick Widget integration
 
-### VARIABLES
-
-var GetOutput = jobs.GetOutput
-    GetOutput gets string by key from job's dictionary
-
-var JobsPubSub = jobs.JobsPubSub
-    Keeps reference to jobs update pubSub
-
-var Log = jobs.Log
-    Log associates custom message with a jon and persists it to database
-
-var NewJob = models.BuildJob
-    NewJob builds new job instance
-
-var NewPeriodicalJob = models.NewPeriodicalJob
-    NewJob builds new periodical job instance
-
-var Register = jobs.Register
-    Register registers a worker and associate it with provided string
-    identificator
-
-var Run = jobs.RunJob
-    Run registers intent to run a new job, validates it can be executed and
-    executes it in goroutine
-
-var RunJobCoherently = jobs.RunJobCoherently
-    RunJobCoherently executes job on the fly returning execution results
-
-var RunWithOneWorkerAtOnce = jobs.RunWithOneWorkerAtOnce
-    RunWithOneWorkerAtOnce runs the job with one worker at once
-
-var RunWithOneWorkerAtOnceCoherently = jobs.RunWithOneWorkerAtOnceCoherently
-    RunWithOneWorkerAtOnceCoherently runs the job in coherent mode with one
-    worker at once
-
-var SetOutput = jobs.SetOutput
-    SetOutput preserves string value by key in job's dictionary
-
-var Setup = database.Setup
-    Setup establishes database connection
-
-var SetupServer = server.Setup
-    SetupServer setup GIN engine for GUI backend
-
-
-### TYPES
+package highkick // import "github.com/qw4n7y/highkick"
 
 type Input = models.JSONDictionary
-    Input keeps job parameters as JSON-serializable disctionary
-
 type Job = models.Job
-    Job is job instance
+type JobMeta = models.JobMeta
 
-type JobMeta = jobs.Job
+var SetOutput = usecases.SetOutput
+var GetOutput = usecases.GetOutput
+
+type SetupDatabaseOptions = database.SetupOptions
+var SetupDatabase = database.Setup
+
+type RunServerParams = server.RunServerParams
+var RunServer = server.RunServer
+
+var NewJob = models.BuildJob
+var Register = usecases.Register
+var RunSync = usecases.RunSync
+var RunAsync = usecases.RunAsync
+var RunSchedulers = usecases.RunScheduler
+var RunWorkerLauncher = usecases.RunWorkerLauncher
+
+var Lock = usecases.Lock
+var Unlock = usecases.Unlock
+
+var Log = usecases.Log
 
 type PubSubMessage = models.PubSubMessage
-    PubSub Message
-
-type SetupOptions = database.SetupOptions
-    SetupOptions is options for setup
+var JobsPubSub = usecases.JobsPubSub

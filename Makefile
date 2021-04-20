@@ -18,4 +18,4 @@ build_client: hello
 	cd client && REACT_APP_PUBLIC_URL=/highkick/client yarn run build && cd ..
 
 generate_docs: hello
-	go doc -a
+	go doc -all
