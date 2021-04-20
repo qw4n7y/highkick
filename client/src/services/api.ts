@@ -29,6 +29,13 @@ const URLS = {
   },
   jobMetas: {
     index: `${API_BASE}/job_metas/index`,
+  },
+  schedulers: {
+    index: `${API_BASE}/schedulers/index`,
+    create: `${API_BASE}/schedulers/create`,
+    update: (id: number) => `${API_BASE}/schedulers/update/${id}`,
+    destroy: (id: number) => `${API_BASE}/schedulers/destroy/${id}`,
+    show: (id: number) => `${API_BASE}/schedulers/show/${id}`,
   }
 }
 

@@ -8,12 +8,11 @@ import (
 )
 
 type Filters struct {
-	IsRoot       *bool
-	IsPeriodical *bool
-	Root         *models.Job
-	Cron         *string
-	Type         *string
-	SiblingsOf   *models.Job
+	IsRoot     *bool
+	Root       *models.Job
+	Type       *string
+	SiblingsOf *models.Job
+	Status     *models.JobStatus
 }
 
 func (f *Filters) SQLWhereClauses() string {
@@ -24,14 +23,6 @@ func (f *Filters) SQLWhereClauses() string {
 			clauses = append(clauses, "(path = '')")
 		} else {
 			clauses = append(clauses, "(path != '')")
-		}
-	}
-
-	if f.IsPeriodical != nil {
-		if *f.IsPeriodical == true {
-			clauses = append(clauses, "(cron IS NOT NULL)")
-		} else {
-			clauses = append(clauses, "(cron IS NULL)")
 		}
 	}
 
@@ -51,12 +42,12 @@ func (f *Filters) SQLWhereClauses() string {
 		))
 	}
 
-	if f.Cron != nil {
-		clauses = append(clauses, fmt.Sprintf("(cron = '%v')", *f.Cron))
-	}
-
 	if f.Type != nil {
 		clauses = append(clauses, fmt.Sprintf("(type = '%v')", *f.Type))
+	}
+
+	if f.Status != nil {
+		clauses = append(clauses, fmt.Sprintf("(status = '%v')", *f.Status))
 	}
 
 	return strings.Join(clauses, " AND ")

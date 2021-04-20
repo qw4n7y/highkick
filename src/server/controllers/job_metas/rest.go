@@ -1,15 +1,14 @@
 package job_metas
 
 import (
+	"github.com/qw4n7y/highkick/src/usecases"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/qw4n7y/highkick/src/jobs"
 )
 
 func Index(c *gin.Context) {
-	jobs := jobs.GetJobs()
+	jobs := usecases.GetJobs()
 
 	contracts := []map[string]string{}
 	for _, job := range jobs {

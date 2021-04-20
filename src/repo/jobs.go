@@ -53,52 +53,52 @@ func SaveJob(job *models.Job) error {
 }
 
 // GetJobTreeStatus .
-func GetJobTreeStatus(job *models.Job) string {
+func GetJobTreeStatus(job *models.Job) models.JobStatus {
 	jobs := GetJobTree(job)
 	anyProcessing := false
 	anyFailed := false
 	allCompleted := true
 	for _, j := range jobs {
 		switch j.Status {
-		case models.StatusProcessing:
+		case models.JobStatuses.Processing:
 			anyProcessing = true
 			allCompleted = false
-		case models.StatusFailed:
+		case models.JobStatuses.Failed:
 			anyFailed = true
 			allCompleted = false
-		case models.StatusInitial:
+		case models.JobStatuses.Initial:
 			allCompleted = false
 		}
 	}
 	switch {
 	case anyProcessing:
-		return models.StatusProcessing
+		return models.JobStatuses.Processing
 	case anyFailed:
-		return models.StatusFailed
+		return models.JobStatuses.Failed
 	case allCompleted:
-		return models.StatusCompleted
+		return models.JobStatuses.Completed
 	default:
-		return models.StatusInitial
+		return models.JobStatuses.Initial
 	}
 }
 
-func GetJobAndItsTreeStatus(job models.Job) string {
+func GetJobAndItsTreeStatus(job models.Job) models.JobStatus {
 	treeStatus := GetJobTreeStatus(&job)
 
-	if job.Status == models.StatusProcessing || treeStatus == models.StatusProcessing {
-		return models.StatusProcessing
+	if job.Status == models.JobStatuses.Processing || treeStatus == models.JobStatuses.Processing {
+		return models.JobStatuses.Processing
 	}
 
-	if job.Status == models.StatusFailed || treeStatus == models.StatusFailed {
-		return models.StatusFailed
+	if job.Status == models.JobStatuses.Failed || treeStatus == models.JobStatuses.Failed {
+		return models.JobStatuses.Failed
 	}
 
 	return job.Status
 }
 
 // GetSiblingsDetailedStatus .
-func GetSiblingsDetailedStatus(job *models.Job) map[string]int {
-	result := map[string]int{}
+func GetSiblingsDetailedStatus(job *models.Job) map[models.JobStatus]int {
+	result := map[models.JobStatus]int{}
 
 	filters := Filters{SiblingsOf: job}
 	siblings := GetJobs(filters, "")

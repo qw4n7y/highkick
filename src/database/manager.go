@@ -3,10 +3,9 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	sqlDriverMySQL "github.com/go-sql-driver/mysql"
 	"io/ioutil"
 	"log"
-
-	sqlDriverMySQL "github.com/go-sql-driver/mysql"
 
 	"github.com/golang-migrate/migrate/v4"
 	migrateMySQL "github.com/golang-migrate/migrate/v4/database/mysql"
@@ -66,7 +65,7 @@ func (m *manager) runMigrations() {
 
 func (m *manager) initReform() {
 	logger := log.New(ioutil.Discard, "SQL: ", log.Flags()) // /dev/null
-	// logger := log.New(os.Stderr, "SQL: ", log.Flags())
+	//logger := log.New(os.Stderr, "SQL: ", log.Flags())
 	reformLogger := reform.NewPrintfLogger(logger.Printf)
 	m.DBR = reform.NewDB(m.DB, reformMySQL.Dialect, reformLogger)
 }

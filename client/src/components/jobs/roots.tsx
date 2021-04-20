@@ -34,9 +34,7 @@ class RootsList extends React.Component<Props, State> {
       loading: true,
       page: 1,
       maxPage: 1,
-      filters: {
-        IsPeriodical: false
-      }
+      filters: {}
     }
     
     this.onPageChange = this.onPageChange.bind(this)
@@ -61,8 +59,8 @@ class RootsList extends React.Component<Props, State> {
 
     return (
       <>
-        <div  className="jumbotron p-2 m-1 d-flex">
-          <div className="form-check form-check-inline">
+        <div  className="jumbotron p-2 m-1 d-flex align-items-center">
+          <div className="form-check form-check-inline flex-fill">
             <input 
               className="form-check-input"
               type="checkbox"

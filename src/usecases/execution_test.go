@@ -1,4 +1,4 @@
-package jobs
+package usecases
 
 import (
 	"errors"
@@ -6,14 +6,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/qw4n7y/highkick"
 	"github.com/qw4n7y/highkick/src/database"
 	"github.com/qw4n7y/highkick/src/models"
 	"github.com/qw4n7y/highkick/src/repo"
 )
 
+const DB = "root:root@tcp(127.0.0.1:3306)/highkick_dev?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
+
 func TestSimpleUsage(t *testing.T) {
-	database.Setup(highkick.DevDatabaseDSN, database.SetupOptions{
+	database.Setup(DB, database.SetupOptions{
 		RunMigrations: false,
 	})
 	database.Manager.TruncateDatabase()
@@ -28,7 +29,7 @@ func TestSimpleUsage(t *testing.T) {
 		counter += int(input["value"].(float64)) // Why float64?
 
 		if workersCount < 10 {
-			RunJob(models.BuildJob("increment", models.JSONDictionary{
+			RunSync(models.BuildJob("increment", models.JSONDictionary{
 				"value": 10,
 			}, job))
 
@@ -38,14 +39,15 @@ func TestSimpleUsage(t *testing.T) {
 
 		return errors.New("Oops")
 	}
-	Register(Job{
+	Register(models.JobMeta{
 		Title:   "Increment",
 		Perform: worker,
 	})
 
-	rootJob := RunJob(models.BuildJob("increment", models.JSONDictionary{
+	rootJob := models.BuildJob("increment", models.JSONDictionary{
 		"value": 10,
-	}, nil))
+	}, nil)
+	RunSync(rootJob)
 
 	time.Sleep(100 * time.Millisecond)
 
@@ -60,7 +62,7 @@ func TestSimpleUsage(t *testing.T) {
 	}
 
 	rootJob = repo.GetJobByID(rootJob.ID)
-	if rootJob.Status != "failed" {
+	if rootJob.Status != models.JobStatuses.Failed {
 		t.Errorf("Root job: Want %v Got %v", "failed", rootJob.Status)
 	}
 

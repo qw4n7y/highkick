@@ -84,7 +84,6 @@ class JobComponent extends React.Component<Props, State> {
             gridArea: "header",
             cursor: 'pointer'
           }}
-          onClick={this.loadItem}
           className="d-flex align-items-center"
         >
           {this.renderStatus()}
@@ -94,26 +93,27 @@ class JobComponent extends React.Component<Props, State> {
           <small className="text-muted ml-2 mr-2">
             {item.id}
           </small>
-          <span className="flex-fill">
+          <Button variant="light"
+            className={this.state.showInputOutput ? undefined : "text-muted"}
+            onClick={() => this.showInputOutput(!this.state.showInputOutput)}
+          ><ArrowLeftRight/></Button>
+          { (item.logsCount > 0) && (
+              <Button variant="light"
+                      className={this.state.showLogs ? undefined : "text-muted"}
+                      onClick={() => this.showLogs(!this.state.showLogs)}
+              ><ReceiptCutoff/></Button>) }
+          <span className="flex-fill" onClick={this.loadItem} style={{cursor: 'pointer'}}>
             { expanded ? <ArrowDown/> : <ArrowRight/> }
           </span>
           <small className="text-muted">
             {Moment(item.createdAt).fromNow()}
+            { item.durationSeconds() > 0 && <span className="badge">{item.durationSeconds()} seconds</span> }
           </small>
         </div>
 
         <div style={{ gridArea: "actions" }}
           className="btn-group btn-group-sm"
         >
-          <Button variant="light" 
-            className={this.state.showInputOutput ? undefined : "text-muted"}
-            onClick={() => this.showInputOutput(!this.state.showInputOutput)}
-          ><ArrowLeftRight/></Button>
-          { (item.logsCount > 0) && (
-            <Button variant="light" 
-              className={this.state.showLogs ? undefined : "text-muted"}
-              onClick={() => this.showLogs(!this.state.showLogs)}
-            ><ReceiptCutoff/></Button>) }
           <Button variant="light"
             onClick={this.retry}
           ><ArrowClockwise/></Button>

@@ -1,0 +1,1 @@
+DROP TABLE `highkick_schedulers`;

@@ -1,4 +1,5 @@
 import TreeLeaf from './tree_leaf'
+import Moment from 'moment'
 
 export type Status = 'initial' | 'processing' | 'failed' | 'completed'
 
@@ -14,6 +15,8 @@ type Props = {
   createdAt: string
   cron?: string
   logsCount: number
+  StartedAt: string
+  FinishedAt: string
 
   childs: Job[]
 }
@@ -30,6 +33,8 @@ class Job implements Props, TreeLeaf {
   createdAt: string = ''
   cron?: string = undefined
   logsCount: number = 0
+  StartedAt: string = ''
+  FinishedAt: string = ''
 
   childs: Job[] = []
 
@@ -65,6 +70,12 @@ class Job implements Props, TreeLeaf {
   static deserialize(json: any): Job {
     const job = new Job(json as Partial<Props>)
     return job
+  }
+
+  durationSeconds() {
+    if (!this.StartedAt || !this.FinishedAt) { return 0 }
+    var durMilisecs = Moment(this.FinishedAt).diff(Moment(this.StartedAt))
+    return durMilisecs / 1000
   }
 }
 

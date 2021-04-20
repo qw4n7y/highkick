@@ -23,35 +23,7 @@ class FiltersComponent extends React.Component<Props> {
           <div className="col-1">
             <Funnel/>
           </div>
-          <div className="col-6">
-            <div className="form-check form-check-inline">
-              <input 
-                className="form-check-input"
-                type="radio"
-                name="IsPeriodical"
-                id="IsPeriodicalTrue"
-                value="1"
-                defaultChecked={value.IsPeriodical === true}
-              />
-              <label className="form-check-label" htmlFor="IsPeriodicalTrue">
-                Periodical
-              </label>
-            </div>
-            <div className="form-check form-check-inline">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="IsPeriodical"
-                id="IsPeriodicalFalse"
-                value="0"
-                defaultChecked={value.IsPeriodical === false}
-              />
-              <label className="form-check-label" htmlFor="IsPeriodicalFalse">
-                Non periodical
-              </label>
-            </div>
-          </div>
-          <div className="col-4">
+          <div className="col-10">
             <input
               type="text"
               className="form-control form-control-sm"
@@ -73,8 +45,6 @@ class FiltersComponent extends React.Component<Props> {
   private onChange(event: React.FormEvent<HTMLFormElement>) {
     const formData = new FormData(event.currentTarget)
     const value: Filters = {}
-    if (formData.get("IsPeriodical") === "1") { value.IsPeriodical = true }
-    if (formData.get("IsPeriodical") === "0") { value.IsPeriodical = false }
     if (formData.get("Type") !== "") { value.Type = formData.get("Type") as string }
     this.props.onChange(value)
   }

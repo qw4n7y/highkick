@@ -8,32 +8,38 @@ import (
 	"time"
 )
 
-// Is there better way to support enums?
-const (
-	StatusInitial    = "initial"
-	StatusProcessing = "processing"
-	StatusFailed     = "failed"
-	StatusCompleted  = "completed"
-)
+type JobStatus string
 
-// Job is Job
-// I've found this interesting: https://golang.org/pkg/database/sql/#Rows.Scan
-//
+var JobStatuses = struct {
+	Scheduled  JobStatus
+	Initial    JobStatus
+	Processing JobStatus
+	Failed     JobStatus
+	Completed  JobStatus
+}{
+	Scheduled:  "scheduled",
+	Initial:    "initial",
+	Processing: "processing",
+	Failed:     "failed",
+	Completed:  "completed",
+}
+
 //go:generate reform
 //reform:jobs
 type Job struct {
-	ID          int32     `reform:"id,pk" json:"id"`
-	Type        string    `reform:"type" json:"type"`
-	Path        string    `reform:"path" json:"path"`
-	Sid         *string   `reform:"sid" json:"sid"`
-	Input       *string   `reform:"input" json:"-"`
-	Output      *string   `reform:"output" json:"output"`
-	Status      string    `reform:"status" json:"status"`
-	TreeStatus  *string   `json:"treeStatus"`
-	RetriesLeft int32     `reform:"retries_left" json:"retriesLeft"`
-	LogsCount   int       `reform:"logs_count" json:"logsCount"`
-	Cron        *string   `reform:"cron" json:"cron"`
-	CreatedAt   time.Time `reform:"created_at" json:"createdAt"`
+	ID          int32      `reform:"id,pk" json:"id"`
+	Type        string     `reform:"type" json:"type"`
+	Path        string     `reform:"path" json:"path"`
+	Sid         *string    `reform:"sid" json:"sid"`
+	Input       *string    `reform:"input" json:"-"`
+	Output      *string    `reform:"output" json:"output"`
+	Status      JobStatus  `reform:"status" json:"status"`
+	TreeStatus  *JobStatus `json:"treeStatus"`
+	RetriesLeft int32      `reform:"retries_left" json:"retriesLeft"`
+	LogsCount   int        `reform:"logs_count" json:"logsCount"`
+	StartedAt   *time.Time `reform:"started_at"`
+	FinishedAt  *time.Time `reform:"finished_at"`
+	CreatedAt   time.Time  `reform:"created_at" json:"createdAt"`
 }
 
 // GetInput is getter for Input
@@ -100,12 +106,12 @@ func (job *Job) IsRoot() bool {
 
 // IsCompleted returns if job is completed
 func (job *Job) IsCompleted() bool {
-	return job.Status == StatusCompleted || job.Status == StatusFailed
+	return job.Status == JobStatuses.Completed || job.Status == JobStatuses.Failed
 }
 
 // IsFailed returns if job is failed
 func (job *Job) IsFailed() bool {
-	return job.Status == StatusFailed
+	return job.Status == JobStatuses.Failed
 }
 
 // BuildJob is a builder helper
@@ -115,16 +121,6 @@ func BuildJob(jobType string, input JSONDictionary, parent *Job) *Job {
 	}
 	job.SetInput(input)
 	job.SetParent(parent)
-	return job
-}
-
-func NewPeriodicalJob(jobType string, input JSONDictionary, cron string) *Job {
-	job := &Job{
-		Type: jobType,
-		Cron: &cron,
-	}
-	job.SetInput(input)
-	job.SetParent(nil)
 	return job
 }
 

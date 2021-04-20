@@ -10,14 +10,13 @@ import (
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/qw4n7y/highkick"
-
 	"github.com/tidwall/gjson"
 )
 
 const HELLO_WORLD = "HELLO_WORLD"
-const HELLO_WORLD_2 = "HELLO_WORLD_2"
+const DB = "root:root@tcp(127.0.0.1:3306)/highkick_dev?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
 
-func HelloWorldWorker(job *highkick.Job) error {
+func HelloWorld(job *highkick.Job) error {
 	for _, key := range []string{"Depth"} {
 		if !gjson.Get(*job.Input, key).Exists() {
 			return fmt.Errorf("%v is required", key)
@@ -36,7 +35,7 @@ func HelloWorldWorker(job *highkick.Job) error {
 	highkick.Log(job, msg)
 	fmt.Println(msg)
 
-	highkick.Run(highkick.NewJob(HELLO_WORLD, highkick.Input{
+	highkick.RunSync(highkick.NewJob(HELLO_WORLD, highkick.Input{
 		"Depth": depth - 1,
 	}, job))
 
@@ -44,67 +43,53 @@ func HelloWorldWorker(job *highkick.Job) error {
 }
 
 func init() {
-	helloWorldInputJSONSchema := `{
+	inputJSONSchema := `{
 		"type": "object",
 		"properties": {
-			"Depth": { "type": "number" }
-		}
+			"Depth": { "type": "number" },
+			"Message": { "type": "string" }
+		},
+		"required": ["Depth", "Message"]
 	}`
 	highkick.Register(highkick.JobMeta{
 		SID:             HELLO_WORLD,
 		Title:           "Hello, world!",
-		Perform:         HelloWorldWorker,
-		InputJSONSchema: &helloWorldInputJSONSchema,
-	})
-
-	highkick.Register(highkick.JobMeta{
-		SID:     HELLO_WORLD_2,
-		Title:   "Hello, world 2!",
-		Perform: HelloWorldWorker,
+		Perform:         HelloWorld,
+		InputJSONSchema: &inputJSONSchema,
 	})
 }
 
 func main() {
-	dsn := highkick.DevDatabaseDSN // "root:root@tcp(127.0.0.1:3307)/highkick?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
-	highkick.Setup(dsn, highkick.SetupOptions{RunMigrations: true})
+	highkick.SetupDatabase(DB, highkick.SetupDatabaseOptions{RunMigrations: true})
+	highkick.RunWorkerLauncher()
+	highkick.RunSchedulers()
 
 	highkick.JobsPubSub.Subscribe(func(iMessage interface{}) {
 		message := iMessage.(highkick.PubSubMessage)
 		fmt.Printf("Job %v (%+v) completed with %v error\n", message.Job.Type, message.Job.GetInput(), message.Error)
 	})
 
-	go func() {
-		highkick.Run(highkick.NewJob(HELLO_WORLD, highkick.Input{
-			"Depth": 5,
-		}, nil))
-		return
-
-		// highkick.Run(highkick.NewPeriodicalJob(HELLO_WORLD, highkick.Input{
-		// 	"depth": 5,
-		// }, "0 * * * * *"))
-		// return
-
-		// for i := 0; i < 20; i++ {
-		// 	job := highkick.NewJob(HELLO_WORLD, highkick.Input{
-		// 		"i": i,
-		// 	}, nil)
-
-		// 	fmt.Println("[JOB] Run coherently", job)
-		// 	highkick.RunJobCoherently(job)
-		// 	msg := highkick.GetOutput(job, "msg")
-		// 	fmt.Println("[JOB] Output", *msg)
-
-		// 	time.Sleep(5 * time.Second)
-		// }
-	}()
-
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.Default()
 	engine.Use(cors.Default())
+
 	engine.Static("/app", ".")
 	engine.Use(static.Serve("/highkick/client", static.LocalFile("../client/build", true)))
-	highkick.SetupServer(engine)
+
+	highkick.RunServer(engine, highkick.RunServerParams{
+		BasicAuthUser: "root",
+		BasicAuthPassword: "root",
+	})
 	log.Fatalln(engine.Run())
+
+	// USAGE
+
+	// Case 1. Run in async way. Will be runned by worker launcher
+	highkick.RunAsync(highkick.NewJob(HELLO_WORLD, highkick.Input{
+		"Depth": 1,
+	}, nil))
+
+	// Case 2. Run scheduler
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)

@@ -14,7 +14,7 @@ import (
 // Index is Index
 func Index(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.Query("page"))
-	limit := 25
+	limit := 50
 
 	filters := repo.Filters{}
 	if err := json.Unmarshal([]byte(ctx.Query("filters")), &filters); err != nil {

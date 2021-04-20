@@ -1,10 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './app';
+
 import * as serviceWorker from './serviceWorker';
+
+import "@fontsource/montserrat"
+import "./styles.css"
 
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
+
+import App from './app';
 
 ReactDOM.render(
   <React.StrictMode>

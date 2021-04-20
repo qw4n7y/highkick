@@ -1,9 +1,9 @@
 package jobs
 
 import (
+	"github.com/qw4n7y/highkick/src/usecases"
 	"net/http"
 
-	"github.com/qw4n7y/highkick/src/jobs"
 	"github.com/qw4n7y/highkick/src/models"
 	"github.com/qw4n7y/highkick/src/repo"
 
@@ -41,8 +41,8 @@ func RetryFailedLeaves(c *gin.Context) {
 			continue
 		}
 
-		if treeJob.Status == models.StatusFailed {
-			jobs.RunJob(treeJob)
+		if treeJob.Status == models.JobStatuses.Failed {
+			go usecases.RunSync(treeJob)
 		}
 	}
 

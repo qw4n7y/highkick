@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/qw4n7y/highkick/src/server/controllers/schedulers"
 
 	"github.com/qw4n7y/highkick/src/server/controllers/job_logs"
 	"github.com/qw4n7y/highkick/src/server/controllers/job_metas"
@@ -10,10 +11,18 @@ import (
 	"github.com/qw4n7y/highkick/src/server/ws"
 )
 
-// Setup injects highkick engine to
-func Setup(engine *gin.Engine) {
+type RunServerParams struct {
+	BasicAuthUser string
+	BasicAuthPassword string
+}
+
+func RunServer(engine *gin.Engine, params RunServerParams) {
 	urlPrefix := "highkick"
-	routes := engine.Group(urlPrefix)
+
+	routes := engine.Group(urlPrefix, gin.BasicAuth(gin.Accounts{
+		params.BasicAuthUser: params.BasicAuthPassword,
+	}))
+
 	{
 		routes.GET("/job_roots/index", job_roots.Index)
 
@@ -28,6 +37,15 @@ func Setup(engine *gin.Engine) {
 		routes.GET("/jobs/show/:job_id", jobs.Show)
 
 		routes.GET("/job_logs/index/:job_id", job_logs.Index)
+
+		{
+			g := routes.Group("/schedulers")
+			g.GET("/index", schedulers.Index)
+			g.GET("/show/:id", schedulers.Show)
+			g.POST("/create", schedulers.CreateUpdate)
+			g.POST("/update/:id", schedulers.CreateUpdate)
+			g.DELETE("/destroy/:id", schedulers.Destroy)
+		}
 
 		routes.GET("/ws", ws.HttpUpgadeHandler)
 

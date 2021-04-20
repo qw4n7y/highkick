@@ -27,7 +27,13 @@ func (v *jobLogTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *jobLogTableType) Columns() []string {
-	return []string{"id", "job_id", "job_path", "content", "created_at"}
+	return []string{
+		"id",
+		"job_id",
+		"job_path",
+		"content",
+		"created_at",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +53,18 @@ func (v *jobLogTableType) PKColumnIndex() uint {
 
 // JobLogTable represents job_logs view or table in SQL database.
 var JobLogTable = &jobLogTableType{
-	s: parse.StructInfo{Type: "JobLog", SQLSchema: "", SQLName: "job_logs", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "JobID", Type: "int32", Column: "job_id"}, {Name: "JobPath", Type: "string", Column: "job_path"}, {Name: "Content", Type: "string", Column: "content"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "JobLog",
+		SQLName: "job_logs",
+		Fields: []parse.FieldInfo{
+			{Name: "ID", Type: "int32", Column: "id"},
+			{Name: "JobID", Type: "int32", Column: "job_id"},
+			{Name: "JobPath", Type: "string", Column: "job_path"},
+			{Name: "Content", Type: "string", Column: "content"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(JobLog).Values(),
 }
 
@@ -113,13 +130,11 @@ func (s *JobLog) HasPK() bool {
 	return s.ID != JobLogTable.z[JobLogTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.ID = pk.
 func (s *JobLog) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
-	} else {
-		s.ID = pk.(int32)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

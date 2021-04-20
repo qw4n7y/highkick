@@ -1,9 +1,9 @@
 package jobs
 
 import (
+	"github.com/qw4n7y/highkick/src/usecases"
 	"net/http"
 
-	"github.com/qw4n7y/highkick/src/jobs"
 	"github.com/qw4n7y/highkick/src/repo"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +22,7 @@ func Retry(c *gin.Context) {
 	}
 
 	job := repo.GetJobByID(params.JobID)
-	jobs.RunJob(job)
+	go usecases.RunSync(job)
 
 	c.JSON(http.StatusOK, struct{}{})
 }

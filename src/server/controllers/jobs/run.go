@@ -1,10 +1,9 @@
 package jobs
 
 import (
-	"fmt"
+	"github.com/qw4n7y/highkick/src/usecases"
 	"net/http"
 
-	"github.com/qw4n7y/highkick/src/jobs"
 	"github.com/qw4n7y/highkick/src/models"
 
 	"github.com/gin-gonic/gin"
@@ -24,10 +23,8 @@ func Run(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf(">>> %+v\n\n\n", input)
-
 	job := models.BuildJob(input.SID, input.Input, nil)
-	job = jobs.RunJob(job)
+	go usecases.RunSync(job)
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"job": job,
