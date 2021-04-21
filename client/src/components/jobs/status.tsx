@@ -1,5 +1,5 @@
 import React from 'react'
-import { XCircle, Play, Check2, Hexagon } from 'react-bootstrap-icons'
+import { XCircle, Play, Check2, Hexagon, HourglassSplit } from 'react-bootstrap-icons'
 
 import { Status } from '../../models/job'
 
@@ -12,6 +12,8 @@ const StatusComponent: React.FC<Props> = (props: Props) => {
   const { status } = props
 
   switch(status) {
+    case 'scheduled':
+      return <HourglassSplit/>
     case 'initial':
       return <Hexagon/>
     case 'processing':
@@ -21,6 +23,8 @@ const StatusComponent: React.FC<Props> = (props: Props) => {
     case 'completed':
       return <Check2/>
   }
+
+  return null
 }
 
 export default StatusComponent

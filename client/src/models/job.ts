@@ -1,7 +1,7 @@
 import TreeLeaf from './tree_leaf'
 import Moment from 'moment'
 
-export type Status = 'initial' | 'processing' | 'failed' | 'completed'
+export type Status = 'scheduled' | 'initial' | 'processing' | 'failed' | 'completed'
 
 type Props = {
   id: number

@@ -1,0 +1,1 @@
+ALTER TABLE jobs MODIFY COLUMN status ENUM('initial', 'processing', 'failed', 'completed') NOT NULL DEFAULT 'initial';
