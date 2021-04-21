@@ -12,14 +12,15 @@ import (
 
 func RunWorkerLauncher() {
 	fmt.Printf("[HIGHKICK] Workers launcher started\n")
-	go func(){
+	go func() {
 		every := 30 * time.Second
 		for {
-			jobs := repo.GetJobs(repo.Filters{
+			scheduledJobs := repo.GetJobs(repo.Filters{
 				Status: &models.JobStatuses.Scheduled,
 			}, "")
-			for _, job := range jobs {
-				go func(){
+			for _, scheduledJob := range scheduledJobs {
+				job := scheduledJob // need to copy
+				go func() {
 					err := RunSync(job)
 					if err != nil {
 						fmt.Printf("[HIGHKICK] Job failed %v: %+v\n", job.Type, err)
