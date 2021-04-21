@@ -12,6 +12,7 @@ import {
   ReceiptCutoff, BoxArrowInRight, BoxArrowRight,
   ArrowLeftRight,
 } from 'react-bootstrap-icons'
+import HumanDuration from '../misc/human_duration'
 
 import StatusComponent from './status'
 
@@ -107,7 +108,7 @@ class JobComponent extends React.Component<Props, State> {
           </span>
           <small className="text-muted">
             {Moment(item.createdAt).fromNow()}
-            { item.durationSeconds() > 0 && <span className="badge">{item.durationSeconds()} seconds</span> }
+            { item.durationSeconds() > 0 && <HumanDuration seconds={item.durationSeconds()}/> }
           </small>
         </div>
 
