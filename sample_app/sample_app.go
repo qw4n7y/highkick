@@ -17,6 +17,9 @@ const HELLO_WORLD = "HELLO_WORLD"
 const DB = "root:root@tcp(127.0.0.1:3306)/highkick_dev?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
 
 func HelloWorld(job *highkick.Job) error {
+	highkick.Lock(*job)
+	defer highkick.Unlock(*job)
+
 	for _, key := range []string{"Depth"} {
 		if !gjson.Get(*job.Input, key).Exists() {
 			return fmt.Errorf("%v is required", key)
@@ -35,9 +38,10 @@ func HelloWorld(job *highkick.Job) error {
 	highkick.Log(job, msg)
 	fmt.Println(msg)
 
-	highkick.RunSync(highkick.NewJob(HELLO_WORLD, highkick.Input{
-		"Depth": depth - 1,
-	}, job))
+	time.Sleep(10 * time.Second)
+	// highkick.RunSync(highkick.NewJob(HELLO_WORLD, highkick.Input{
+	// 	"Depth": depth - 1,
+	// }, job))
 
 	return nil
 }
@@ -60,7 +64,7 @@ func init() {
 }
 
 func main() {
-	highkick.SetupDatabase(DB, highkick.SetupDatabaseOptions{RunMigrations: true})
+	highkick.SetupDatabase(DB, highkick.SetupDatabaseOptions{RunMigrations: false})
 	highkick.RunWorkerLauncher()
 	highkick.RunSchedulers()
 

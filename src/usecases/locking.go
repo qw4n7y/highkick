@@ -1,25 +1,23 @@
 package usecases
 
 import (
-	"fmt"
+	"sync"
 
 	"github.com/qw4n7y/highkick/src/models"
 )
 
+var mus = sync.Map{}
+
 // Allows to lock job's type so only one worker is running at each moment
 //
 func Lock(job models.Job) {
-	jobMeta, ok := jobMetas[job.Type]
-	if !ok {
-		panic(fmt.Errorf("[Highkick] [Locking] No Job meta found: %+v", job.Type))
-	}
-	jobMeta.MU.Lock()
+	muInt, _ := mus.LoadOrStore(job.Type, &sync.Mutex{})
+	mu := muInt.(*sync.Mutex)
+	mu.Lock()
 }
 
 func Unlock(job models.Job) {
-	jobMeta, ok := jobMetas[job.Type]
-	if !ok {
-		panic(fmt.Errorf("[Highkick] [Locking] No Job meta found: %+v", job.Type))
-	}
-	jobMeta.MU.Unlock()
+	muInt, _ := mus.LoadOrStore(job.Type, &sync.Mutex{})
+	mu := muInt.(*sync.Mutex)
+	mu.Unlock()
 }

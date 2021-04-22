@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"strings"
-	"sync"
 
 	"github.com/qw4n7y/highkick/src/models"
 )
@@ -19,7 +18,6 @@ func Register(jobMeta models.JobMeta) {
 		sanitized := strings.ReplaceAll(strings.ReplaceAll(*jobMeta.InputJSONSchema, "\t", ""), "\n", "")
 		jobMeta.InputJSONSchema = &sanitized
 	}
-	jobMeta.MU = sync.Mutex{}
 
 	jobMetas[jobMeta.SID] = jobMeta
 }
