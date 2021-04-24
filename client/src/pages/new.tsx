@@ -95,7 +95,7 @@ class App extends React.Component<Props, State> {
     event.preventDefault()
 
     const response = await this.props.runJob!(this.state.jobSID!, this.state.input)
-    alert(JSON.stringify(response))
+    alert(`Job has started`)
     window.location.reload()
     
     return false

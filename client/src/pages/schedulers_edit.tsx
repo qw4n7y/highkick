@@ -66,6 +66,7 @@ class App extends React.Component<Props, State> {
     private async onSubmit() {
         await this.props.update!(this.state.model)
         alert("Done, sir!")
+        this.props.history.push(`/schedulers/index`)
     }
 }
 

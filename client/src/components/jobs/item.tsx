@@ -10,7 +10,7 @@ import { Button } from 'react-bootstrap'
 import { 
   ArrowRight, ArrowDown, ArrowClockwise, Trash,
   ReceiptCutoff, BoxArrowInRight, BoxArrowRight,
-  ArrowLeftRight,
+  ArrowLeftRight, Clock,
 } from 'react-bootstrap-icons'
 import HumanDuration from '../misc/human_duration'
 
@@ -107,8 +107,11 @@ class JobComponent extends React.Component<Props, State> {
             { expanded ? <ArrowDown/> : <ArrowRight/> }
           </span>
           <small className="text-muted">
-            {Moment(item.createdAt).fromNow()}
-            { item.durationSeconds() > 0 && <HumanDuration seconds={item.durationSeconds()}/> }
+            {Moment(item.createdAt).format("MM-DD HH:mm")}
+            { item.durationSeconds() > 0 && <>
+              <Clock/>
+              <HumanDuration seconds={item.durationSeconds()}/>
+            </> }
           </small>
         </div>
 
@@ -135,18 +138,20 @@ class JobComponent extends React.Component<Props, State> {
           >
             <div className="d-flex align-items-center">
               <BoxArrowInRight className="m-2" style={{zoom: 1.5}}/>
-              { this.props.viewJSONlikeAPro && (
-                <ReactJsonView src={input} collapsed={true} style={{fontSize: 10}} displayDataTypes={false}/>
-              ) }
+              { this.props.viewJSONlikeAPro && (<>
+                { !!input && <ReactJsonView src={input} collapsed={true} style={{fontSize: 10}} displayDataTypes={false}/> }
+                { !input && <>&mdash;</> }
+              </>) }
               { !this.props.viewJSONlikeAPro && (
                 <code style={{fontSize: 10}}>{JSON.stringify(input, null, 2)}</code>
               ) }
             </div>
             <div className="d-flex align-items-center">
               <BoxArrowRight className="m-2" style={{zoom: 1.5}}/>
-              { this.props.viewJSONlikeAPro && (
-                <ReactJsonView src={output} collapsed={true} style={{fontSize: 10}} displayDataTypes={false}/>
-              ) }
+              { this.props.viewJSONlikeAPro && (<>
+                { !!output && <ReactJsonView src={output} collapsed={true} style={{fontSize: 10}} displayDataTypes={false}/> }
+                { !output && <>&mdash;</> }
+              </>) }
               { !this.props.viewJSONlikeAPro && (
                 <code style={{fontSize: 10}}>{JSON.stringify(output, null, 2)}</code>
               ) }

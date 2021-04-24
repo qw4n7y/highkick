@@ -1,10 +1,13 @@
 import React from 'react'
-import { Link as RouterLink } from 'react-router-dom'
+import * as ReactRedux from 'react-redux'
+import ReduxState from './../../redux/state'
 
 import Filters from '../../models/filters'
-import { Funnel, PlusCircle } from 'react-bootstrap-icons'
+import { Funnel } from 'react-bootstrap-icons'
+import JobMeta from '../../models/job_meta'
 
 type Props = {
+  jobMetas?: JobMeta[]
   value: Filters
   onChange: (value: Filters) => any
 }
@@ -16,27 +19,21 @@ class FiltersComponent extends React.Component<Props> {
   }
 
   render() {
-    const { value } = this.props
+    const { jobMetas, value } = this.props
     return (
       <form onChange={this.onChange}>
-        <div className="form-row">
-          <div className="col-1">
-            <Funnel/>
-          </div>
-          <div className="col-10">
-            <input
-              type="text"
-              className="form-control form-control-sm"
-              name="Type"
-              placeholder="Job"
-              value={value.Type}
-            />
-          </div>
-          <div className="col-1">
-            <RouterLink to={"/new"} className="btn btn-light">
-              <PlusCircle/>
-            </RouterLink>
-          </div>
+        <div className="d-flex align-items-center">
+          <Funnel/>
+          <select 
+            className="form-control form-control-sm"
+            name="Type"
+            value={value.Type}
+          >
+            <option></option>
+            { (jobMetas || []).map(jobMeta => (
+              <option value={jobMeta.SID}>{jobMeta.SID}</option>
+            ))}
+          </select>
         </div>
       </form>
     )
@@ -50,4 +47,8 @@ class FiltersComponent extends React.Component<Props> {
   }
 }
 
-export default FiltersComponent
+const mapStateToProps = (state: ReduxState, ownProps: Props) => ({
+  jobMetas: state.jobMetas,
+})
+const mapDispatchToProps = (dispatch: any, ownProps: Props) => ({})
+export default ReactRedux.connect(mapStateToProps, mapDispatchToProps)(FiltersComponent)

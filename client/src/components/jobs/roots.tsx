@@ -3,6 +3,8 @@ import * as ReactRedux from 'react-redux'
 import ReduxState from './../../redux/state'
 import Actions from '../../redux/actions/jobs'
 import AppActions from '../../redux/actions/app'
+import { Link as RouterLink } from 'react-router-dom'
+import { PlusCircle } from 'react-bootstrap-icons'
 
 import Job from '../../models/job'
 import JobMeta from '../../models/job_meta'
@@ -78,6 +80,9 @@ class RootsList extends React.Component<Props, State> {
             value={this.state.filters}
             onChange={this.onFiltersChange}
           /> 
+          <RouterLink to={"/new"} className="btn btn-light">
+            <PlusCircle/>
+          </RouterLink>
         </div>
         
         <TreeLeaves

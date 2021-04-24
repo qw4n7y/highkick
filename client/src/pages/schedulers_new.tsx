@@ -1,6 +1,7 @@
 import React from 'react'
 import * as ReactRedux from 'react-redux'
 import ReduxState from './../redux/state'
+import * as ReactRouter from 'react-router'
 
 import { Button } from 'react-bootstrap'
 
@@ -11,7 +12,7 @@ import Scheduler from "../models/scheduler";
 
 type Props = {
   create?: (scheduler: Scheduler) => Promise<any>
-}
+} & ReactRouter.RouteComponentProps<{}>
 
 type State = {
   model: Scheduler
@@ -57,6 +58,7 @@ class App extends React.Component<Props, State> {
   private async onSubmit() {
     await this.props.create!(this.state.model)
     alert("Done, sir!")
+    this.props.history.push(`/schedulers/index`)
   }
 }
 

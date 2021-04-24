@@ -1,9 +1,3 @@
-### Dev
-
-```docker-compose up && make run && make run_client_dev_server``` to run server
-```http://localhost:3000/``` to open Highkick GUI
-```http://localhost:8000/app/``` to open sample page with Highkick Widget integration
-
 package highkick // import "github.com/qw4n7y/highkick"
 
 type Input = models.JSONDictionary
