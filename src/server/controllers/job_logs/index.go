@@ -3,25 +3,27 @@ package job_logs
 import (
 	"net/http"
 
-	"github.com/qw4n7y/highkick/src/repo"
+	jobLogsRepo "github.com/qw4n7y/highkick/src/repo/job_logs"
 
 	"github.com/gin-gonic/gin"
 )
 
-type indexURIParams struct {
-	JobID int32 `uri:"job_id" binding:"required"`
-}
-
 // Index is Index
 func Index(c *gin.Context) {
-	var params indexURIParams
+	params := struct {
+		JobID int `uri:"job_id" binding:"required"`
+	}{}
 	if err := c.ShouldBindUri(&params); err != nil {
 		c.JSON(422, gin.H{"msg": err})
 		return
 	}
 
-	job := repo.GetJobByID(params.JobID)
-	logs := repo.GetJobLogs(job)
+	logs, err := jobLogsRepo.Repo.Get(jobLogsRepo.QueryBuilder{
+		JobID: &params.JobID,
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	c.JSON(http.StatusOK, logs)
 }

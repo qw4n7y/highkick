@@ -2,23 +2,27 @@ package usecases
 
 import (
 	"fmt"
-	"github.com/qw4n7y/highkick/src/models"
-	"github.com/qw4n7y/highkick/src/repo"
+	"log"
 	"sync"
 	"time"
+
+	"github.com/qw4n7y/highkick/src/models"
+	schedulersRepo "github.com/qw4n7y/highkick/src/repo/schedulers"
 )
 
 type SchedulerMeta struct {
-	StopChan chan bool
+	StopChan  chan bool
 	UpdatedAt time.Time
-	ID int
+	ID        int
 }
 
 var schedulerMetas = sync.Map{}
 
 func loadSchedulerMeta(schedulerID int) *SchedulerMeta {
 	p, ok := schedulerMetas.Load(schedulerID)
-	if (!ok) { return nil }
+	if !ok {
+		return nil
+	}
 	schedulerMeta, ok := p.(SchedulerMeta)
 	if !ok {
 		panic("[HIGHKICK] Weird, should never happen: Can not convert to SchedulerMeta\n")
@@ -28,7 +32,7 @@ func loadSchedulerMeta(schedulerID int) *SchedulerMeta {
 
 func RunSchedulers() {
 	fmt.Printf("[HIGHKICK] Schedulers started\n")
-	go func(){
+	go func() {
 		every := 30 * time.Second
 		for {
 			prevSchedulerIDs := []int{}
@@ -38,7 +42,7 @@ func RunSchedulers() {
 				return true
 			})
 
-			schedulers, err := repo.GetSchedulers()
+			schedulers, err := schedulersRepo.Repo.Get(schedulersRepo.QueryBuilder{})
 			if err != nil {
 				fmt.Printf("[HIGHKICK] Loading schedulers: %+v\n", err)
 				return
@@ -89,9 +93,9 @@ func runScheduler(scheduler models.Scheduler) {
 	stopChan := make(chan bool)
 
 	schedulerMeta := SchedulerMeta{
-		StopChan: stopChan,
+		StopChan:  stopChan,
 		UpdatedAt: scheduler.UpdatedAt,
-		ID: scheduler.ID,
+		ID:        scheduler.ID,
 	}
 	schedulerMetas.Store(scheduler.ID, schedulerMeta)
 
@@ -113,12 +117,14 @@ func runScheduler(scheduler models.Scheduler) {
 					} else {
 						scheduler.LastError = ""
 					}
-					repo.UpdateScheduler(&scheduler, []string{"last_run_at", "last_error"})
+
+					if err := schedulersRepo.Repo.UpdateAll(&scheduler, []string{"last_run_at", "last_error"}, schedulersRepo.QueryBuilder{
+						ID: &scheduler.ID,
+					}); err != nil {
+						log.Fatalln(err)
+					}
 				}
 			}
 		}
 	}()
 }
-
-
-

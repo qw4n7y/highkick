@@ -78,11 +78,11 @@ func main() {
 
 	engine.Static("/app", ".")
 
-	highkickAuth := gin.BasicAuth(gin.Accounts{"foo": "bar"})
+	// highkickAuth := gin.BasicAuth(gin.Accounts{"foo": "bar"})
 
 	highkick.RunServer(engine, highkick.RunServerParams{
-		AuthMiddleware: &highkickAuth,
-		ClientURL:      "/highkick_app",
+		// AuthMiddleware: &highkickAuth,
+		ClientURL: "/highkick_app",
 	})
 	go func() {
 		if err := engine.Run("0.0.0.0:8000"); err != nil {

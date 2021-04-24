@@ -4,7 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/qw4n7y/highkick/src/repo"
+	"github.com/qw4n7y/highkick/src/usecases"
+
+	jobsRepo "github.com/qw4n7y/highkick/src/repo/jobs"
 
 	"encoding/json"
 
@@ -16,16 +18,24 @@ func Index(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	limit := 50
 
-	filters := repo.Filters{}
-	if err := json.Unmarshal([]byte(ctx.Query("filters")), &filters); err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, err)
-		return
+	qb := jobsRepo.QueryBuilder{}
+	if err := json.Unmarshal([]byte(ctx.Query("filters")), &qb); err != nil {
+		panic(err)
+	}
+	qb.Page = &page
+	qb.PerPage = &limit
+
+	roots, err := jobsRepo.Repo.Get(qb)
+	if err != nil {
+		panic(err)
 	}
 
-	roots := repo.GetRootJobs(filters, page, limit)
-	for _, root := range roots {
-		treeStatus := repo.GetJobTreeStatus(root)
-		root.TreeStatus = &treeStatus
+	for _, root := range *roots {
+		treeStatus, err := usecases.GetJobTreeStatus(root)
+		if err != nil {
+			panic(err)
+		}
+		root.TreeStatus = treeStatus
 	}
 
 	ctx.JSON(http.StatusOK, roots)

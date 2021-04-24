@@ -27,7 +27,7 @@ var JobStatuses = struct {
 //go:generate reform
 //reform:jobs
 type Job struct {
-	ID          int32      `reform:"id,pk" json:"id"`
+	ID          int        `reform:"id,pk" json:"id"`
 	Type        string     `reform:"type" json:"type"`
 	Path        string     `reform:"path" json:"path"`
 	Sid         *string    `reform:"sid" json:"sid"`
@@ -35,7 +35,7 @@ type Job struct {
 	Output      *string    `reform:"output" json:"output"`
 	Status      JobStatus  `reform:"status" json:"status"`
 	TreeStatus  *JobStatus `json:"treeStatus"`
-	RetriesLeft int32      `reform:"retries_left" json:"retriesLeft"`
+	RetriesLeft int        `reform:"retries_left" json:"retriesLeft"`
 	LogsCount   int        `reform:"logs_count" json:"logsCount"`
 	StartedAt   *time.Time `reform:"started_at"`
 	FinishedAt  *time.Time `reform:"finished_at"`
@@ -76,13 +76,13 @@ func (job *Job) SetOutput(dict JSONDictionary) string {
 }
 
 // GetRootID returns root ID for this job's tree
-func (job *Job) GetRootID() (int32, bool) {
+func (job *Job) GetRootID() int {
 	if job.Path == "" {
-		return 0, false
+		return job.ID
 	}
 	ids := strings.Split(job.Path, "/")
 	rootID, _ := strconv.Atoi(ids[0])
-	return int32(rootID), true
+	return rootID
 }
 
 // SetParent initialize job's path by it's parent
@@ -100,8 +100,8 @@ func (job *Job) SetParent(parent *Job) {
 
 // IsRoot returns whether the job is root or not
 func (job *Job) IsRoot() bool {
-	_, hasRoot := job.GetRootID()
-	return !hasRoot
+	rootJobID := job.GetRootID()
+	return rootJobID == job.ID
 }
 
 // IsCompleted returns if job is completed
@@ -124,12 +124,12 @@ func BuildJob(jobType string, input JSONDictionary, parent *Job) *Job {
 	return job
 }
 
-func (job *Job) IsParentOf(childJob *Job) bool {
+func (job *Job) IsParentOf(childJob Job) bool {
 	pathWithParentID := strings.Trim(fmt.Sprintf("%v/%v", job.Path, job.ID), "/")
 	return strings.Contains(childJob.Path, pathWithParentID)
 }
 
-func (job *Job) IsChildOf(parentJob *Job) bool {
+func (job *Job) IsChildOf(parentJob Job) bool {
 	pathWithParentID := strings.Trim(fmt.Sprintf("%v/%v", parentJob.Path, parentJob.ID), "/")
 	return strings.Contains(job.Path, pathWithParentID)
 }

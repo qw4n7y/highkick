@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/qw4n7y/highkick/src/models"
-	"github.com/qw4n7y/highkick/src/repo"
+	jobLogsRepo "github.com/qw4n7y/highkick/src/repo/job_logs"
+	jobsRepo "github.com/qw4n7y/highkick/src/repo/jobs"
 )
 
 func RunWorkerLauncher() {
@@ -15,13 +16,16 @@ func RunWorkerLauncher() {
 	go func() {
 		every := 30 * time.Second
 		for {
-			scheduledJobs := repo.GetJobs(repo.Filters{
+			scheduledJobs, err := jobsRepo.Repo.Get(jobsRepo.QueryBuilder{
 				Status: &models.JobStatuses.Scheduled,
-			}, "")
-			for _, scheduledJob := range scheduledJobs {
+			})
+			if err != nil {
+				fmt.Println("[ERROR]", err)
+			}
+			for _, scheduledJob := range *scheduledJobs {
 				job := scheduledJob // need to copy
 				go func() {
-					err := RunSync(job)
+					err := RunSync(&job)
 					if err != nil {
 						fmt.Printf("[HIGHKICK] Job failed %v: %+v\n", job.Type, err)
 					}
@@ -36,7 +40,7 @@ func RunWorkerLauncher() {
 func RunAsync(job *models.Job) error {
 	job.Status = models.JobStatuses.Scheduled
 	job.CreatedAt = time.Now()
-	if err := repo.SaveJob(job); err != nil {
+	if err := jobsRepo.Repo.Save(job); err != nil {
 		return err
 	}
 	return nil
@@ -45,7 +49,7 @@ func RunAsync(job *models.Job) error {
 func RunSync(job *models.Job) error {
 	job.Status = models.JobStatuses.Initial
 	job.CreatedAt = time.Now()
-	if err := repo.SaveJob(job); err != nil {
+	if err := jobsRepo.Repo.Save(job); err != nil {
 		return err
 	}
 	_, err := runJob(job)
@@ -63,7 +67,7 @@ func runJob(job *models.Job) (*models.Job, error) {
 	job.Status = models.JobStatuses.Processing
 	now := time.Now()
 	job.StartedAt = &now
-	if err := repo.SaveJob(job); err != nil {
+	if err := jobsRepo.Repo.Save(job); err != nil {
 		return nil, err
 	}
 
@@ -100,7 +104,7 @@ func completeJob(job *models.Job) {
 	job.Status = models.JobStatuses.Completed
 	now := time.Now()
 	job.FinishedAt = &now
-	if err := repo.SaveJob(job); err != nil {
+	if err := jobsRepo.Repo.Save(job); err != nil {
 		log.Fatal(err)
 	}
 	BroadcastJobUpdate(job, nil)
@@ -111,7 +115,7 @@ func failJob(job *models.Job, err error) {
 	job.Status = models.JobStatuses.Failed
 	now := time.Now()
 	job.FinishedAt = &now
-	if err := repo.SaveJob(job); err != nil {
+	if err := jobsRepo.Repo.Save(job); err != nil {
 		log.Fatal(err)
 	}
 
@@ -122,15 +126,23 @@ func failJob(job *models.Job, err error) {
 }
 
 func clearJob(job *models.Job) {
-	jobs := repo.GetJobTree(job)
-	for _, j := range jobs {
-		if err := repo.DestroyJobLogsFor(j); err != nil {
+	jobs, err := jobsRepo.Repo.Get(jobsRepo.QueryBuilder{
+		Root: job,
+	})
+	if err != nil {
+		panic(err.Error())
+	}
+
+	for _, j := range *jobs {
+		if err := jobLogsRepo.Repo.DestroyAll(jobLogsRepo.QueryBuilder{
+			JobID: &j.ID,
+		}); err != nil {
 			panic(err.Error())
 		}
 		if j.ID == job.ID {
 			continue
 		}
-		if err := repo.DestroyJob(j); err != nil {
+		if err := jobsRepo.Repo.Destroy(&j); err != nil {
 			panic(err.Error())
 		}
 	}

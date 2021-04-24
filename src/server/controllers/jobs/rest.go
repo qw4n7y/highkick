@@ -4,31 +4,41 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/qw4n7y/highkick/src/repo"
-)
 
-type instanceURIParams struct {
-	JobID int32 `uri:"job_id" binding:"required"`
-}
+	jobLogsRepo "github.com/qw4n7y/highkick/src/repo/job_logs"
+	repo "github.com/qw4n7y/highkick/src/repo/jobs"
+	"github.com/qw4n7y/highkick/src/usecases"
+)
 
 // Destroy .
 func Destroy(c *gin.Context) {
-	var params instanceURIParams
+	params := struct {
+		JobID int `uri:"job_id" binding:"required"`
+	}{}
 	if err := c.ShouldBindUri(&params); err != nil {
-		c.JSON(422, gin.H{"msg": err})
-		return
+		panic(err)
 	}
 
-	job := repo.GetJobByID(params.JobID)
-	jobs := repo.GetJobTree(job)
-	for _, j := range jobs {
-		if err := repo.DestroyJobLogsFor(j); err != nil {
-			c.JSON(422, gin.H{"msg": err})
-			return
+	job, err := repo.GetOne(params.JobID)
+	if err != nil {
+		panic(err)
+	}
+
+	jobs, err := repo.Repo.Get(repo.QueryBuilder{
+		Root: job,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, j := range *jobs {
+		if err := jobLogsRepo.Repo.DestroyAll(jobLogsRepo.QueryBuilder{
+			JobID: &j.ID,
+		}); err != nil {
+			panic(err)
 		}
-		if err := repo.DestroyJob(j); err != nil {
-			c.JSON(422, gin.H{"msg": err})
-			return
+		if err := repo.Repo.Destroy(&j); err != nil {
+			panic(err)
 		}
 	}
 
@@ -37,16 +47,25 @@ func Destroy(c *gin.Context) {
 
 // Show .
 func Show(c *gin.Context) {
-	var params instanceURIParams
+	params := struct {
+		JobID int `uri:"job_id" binding:"required"`
+	}{}
 	if err := c.ShouldBindUri(&params); err != nil {
-		c.JSON(422, gin.H{"msg": err})
-		return
+		panic(err)
 	}
 
-	job := repo.GetJobByID(params.JobID)
-	siblingsStatus := repo.GetSiblingsDetailedStatus(job)
+	job, err := repo.GetOne(params.JobID)
+	if err != nil {
+		panic(err)
+	}
+
+	siblingsStatus, err := usecases.GetSiblingsDetailedStatus(job)
+	if err != nil {
+		panic(err)
+	}
+
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"job":      job,
-		"siblings": siblingsStatus,
+		"siblings": *siblingsStatus,
 	})
 }

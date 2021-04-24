@@ -1,26 +1,33 @@
 package jobs
 
 import (
-	"github.com/qw4n7y/highkick/src/repo"
+	repo "github.com/qw4n7y/highkick/src/repo/jobs"
 
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type subtreeURIParams struct {
-	JobID int32 `uri:"job_id" binding:"required"`
-}
-
 // Subtree is Subtree
 func Subtree(c *gin.Context) {
-	var params subtreeURIParams
+	params := struct {
+		JobID int `uri:"job_id" binding:"required"`
+	}{}
 	if err := c.ShouldBindUri(&params); err != nil {
-		c.JSON(422, gin.H{"msg": err})
-		return
+		panic(err)
 	}
 
-	job := repo.GetJobByID(params.JobID)
-	jobs := repo.GetJobTree(job)
-	c.JSON(http.StatusOK, jobs)
+	job, err := repo.GetOne(params.JobID)
+	if err != nil {
+		panic(err)
+	}
+
+	jobs, err := repo.Repo.Get(repo.QueryBuilder{
+		Root: job,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(http.StatusOK, *jobs)
 }

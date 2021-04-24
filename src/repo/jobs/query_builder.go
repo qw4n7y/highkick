@@ -1,22 +1,39 @@
-package repo
+package jobs
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/qw4n7y/highkick/src/lib/database"
 	"github.com/qw4n7y/highkick/src/models"
 )
 
-type Filters struct {
+type QueryBuilder struct {
+	ID         *int
 	IsRoot     *bool
 	Root       *models.Job
 	Type       *string
 	SiblingsOf *models.Job
 	Status     *models.JobStatus
+
+	Page    *int
+	PerPage *int
 }
 
-func (f *Filters) SQLWhereClauses() string {
-	clauses := []string{}
+func (f QueryBuilder) Select() *[]string {
+	return nil
+}
+
+func (f QueryBuilder) Join() *string {
+	return nil
+}
+
+func (f QueryBuilder) Where() string {
+	clauses := []string{"true"}
+
+	if f.ID != nil {
+		clauses = append(clauses, fmt.Sprintf("(id = %v)", *f.ID))
+	}
 
 	if f.IsRoot != nil {
 		if *f.IsRoot == true {
@@ -51,4 +68,22 @@ func (f *Filters) SQLWhereClauses() string {
 	}
 
 	return strings.Join(clauses, " AND ")
+}
+
+func (qb QueryBuilder) GroupBy() *[]string {
+	return nil
+}
+
+func (qb QueryBuilder) OrderBy() *string {
+	return nil
+}
+
+func (qb QueryBuilder) Pagination() *database.Pagination {
+	if qb.Page != nil && qb.PerPage != nil {
+		return &database.Pagination{
+			Page:    *qb.Page,
+			PerPage: *qb.PerPage,
+		}
+	}
+	return nil
 }

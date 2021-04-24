@@ -57,8 +57,8 @@ var JobLogTable = &jobLogTableType{
 		Type:    "JobLog",
 		SQLName: "job_logs",
 		Fields: []parse.FieldInfo{
-			{Name: "ID", Type: "int32", Column: "id"},
-			{Name: "JobID", Type: "int32", Column: "job_id"},
+			{Name: "ID", Type: "int", Column: "id"},
+			{Name: "JobID", Type: "int", Column: "job_id"},
 			{Name: "JobPath", Type: "string", Column: "job_path"},
 			{Name: "Content", Type: "string", Column: "content"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},

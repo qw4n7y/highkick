@@ -1,7 +1,7 @@
 package jobs
 
 import (
-	"github.com/qw4n7y/highkick/src/repo"
+	repo "github.com/qw4n7y/highkick/src/repo/jobs"
 
 	"net/http"
 
@@ -11,14 +11,16 @@ import (
 // GetInput
 func GetInput(c *gin.Context) {
 	params := struct {
-		JobID int32 `uri:"job_id" binding:"required"`
+		JobID int `uri:"job_id" binding:"required"`
 	}{}
 	if err := c.ShouldBindUri(&params); err != nil {
-		c.JSON(422, gin.H{"msg": err})
-		return
+		panic(err)
 	}
 
-	job := repo.GetJobByID(params.JobID)
+	job, err := repo.GetOne(params.JobID)
+	if err != nil {
+		panic(err)
+	}
 	input := job.Input
 	c.JSON(http.StatusOK, input)
 }

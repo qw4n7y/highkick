@@ -13,6 +13,7 @@ import (
 	"github.com/qw4n7y/highkick/src/server/controllers/job_metas"
 	"github.com/qw4n7y/highkick/src/server/controllers/job_roots"
 	"github.com/qw4n7y/highkick/src/server/controllers/jobs"
+	"github.com/qw4n7y/highkick/src/server/middlewares"
 	"github.com/qw4n7y/highkick/src/server/ws"
 )
 
@@ -22,6 +23,8 @@ type RunServerParams struct {
 }
 
 func RunServer(engine *gin.Engine, params RunServerParams) {
+	engine.Use(middlewares.HandleError)
+
 	// CLIENT
 
 	{

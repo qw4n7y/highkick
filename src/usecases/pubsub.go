@@ -3,10 +3,11 @@ package usecases
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/qw4n7y/gopubsub"
 	"github.com/qw4n7y/highkick/src/models"
-	"github.com/qw4n7y/highkick/src/repo"
+	jobsRepo "github.com/qw4n7y/highkick/src/repo/jobs"
 	"github.com/qw4n7y/highkick/src/server/ws"
 )
 
@@ -26,10 +27,17 @@ func BroadcastJobUpdate(job *models.Job, err error) {
 }
 
 func BroadcastJobUpdateViaWS(job *models.Job) {
-	root := repo.GetRootJob(job)
+	root, err := jobsRepo.GetOne(job.GetRootID())
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	treeStatus := repo.GetJobTreeStatus(root)
-	root.TreeStatus = &treeStatus
+	treeStatus, err := GetJobTreeStatus(*root)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	root.TreeStatus = treeStatus
 
 	rootJobJSON, _ := json.Marshal(root)
 	message := ws.Message{

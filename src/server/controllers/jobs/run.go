@@ -1,8 +1,9 @@
 package jobs
 
 import (
-	"github.com/qw4n7y/highkick/src/usecases"
 	"net/http"
+
+	"github.com/qw4n7y/highkick/src/usecases"
 
 	"github.com/qw4n7y/highkick/src/models"
 
@@ -10,17 +11,14 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
-type Input struct {
-	SID   string                `binding:"required"`
-	Input models.JSONDictionary `binding:"required"`
-}
-
 func Run(c *gin.Context) {
-	var input Input
+	input := struct {
+		SID   string                `binding:"required"`
+		Input models.JSONDictionary `binding:"required"`
+	}{}
 	err := c.ShouldBindBodyWith(&input, binding.JSON)
 	if err != nil {
-		c.JSON(422, gin.H{"msg": err})
-		return
+		panic(err)
 	}
 
 	job := models.BuildJob(input.SID, input.Input, nil)
