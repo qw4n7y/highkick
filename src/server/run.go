@@ -1,7 +1,12 @@
 package server
 
 import (
+	"net/http"
+	"net/url"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+	"github.com/markbates/pkger"
 	"github.com/qw4n7y/highkick/src/server/controllers/schedulers"
 
 	"github.com/qw4n7y/highkick/src/server/controllers/job_logs"
@@ -12,39 +17,65 @@ import (
 )
 
 type RunServerParams struct {
-	BasicAuthUser     string
-	BasicAuthPassword string
+	AuthMiddleware *gin.HandlerFunc
+	ClientURL      string
 }
 
 func RunServer(engine *gin.Engine, params RunServerParams) {
-	urlPrefix := "highkick"
+	// CLIENT
+
+	{
+		clientHandler := http.FileServer(pkger.Dir("/client/build"))
+		urlPrefix := params.ClientURL
+		if !strings.HasSuffix(urlPrefix, "/") {
+			urlPrefix += "/"
+		}
+		engine.Any(urlPrefix+"*path", func(ctx *gin.Context) {
+			urlWithoutPrefix, err := url.Parse(ctx.Param("path"))
+			if err != nil {
+				ctx.JSON(500, map[string]string{
+					"error": err.Error(),
+				})
+				return
+			}
+			ctx.Request.URL = urlWithoutPrefix
+
+			clientHandler.ServeHTTP(ctx.Writer, ctx.Request)
+		})
+	}
+
+	// SERVER
 
 	// unauthorized
-
-	engine.GET("/highkick/jobs/show/:job_id", jobs.Show)
-	engine.GET("/highkick/ws", ws.HttpUpgadeHandler)
+	unauthorized := engine.Group("highkick")
+	unauthorized.GET("/jobs/show/:job_id", jobs.Show)
+	unauthorized.GET("/ws", ws.HttpUpgadeHandler)
 	// engine.Static("/highkick/client", "../client/build")
 
 	// authorized
-
-	routes := engine.Group(urlPrefix, gin.BasicAuth(gin.Accounts{
-		params.BasicAuthUser: params.BasicAuthPassword,
-	}))
-
-	{
-		routes.GET("/job_roots/index", job_roots.Index)
-		routes.GET("/job_metas/index", job_metas.Index)
-		routes.POST("/jobs/run", jobs.Run)
-		routes.DELETE("/jobs/delete/:job_id", jobs.Destroy)
-		routes.POST("/jobs/retry/:job_id/", jobs.Retry)
-		routes.POST("/jobs/retry_failed_leaves/:job_id/", jobs.RetryFailedLeaves)
-		routes.GET("/jobs/subtree/:job_id", jobs.Subtree)
-		routes.GET("/jobs/input/:job_id", jobs.GetInput)
-		routes.GET("/job_logs/index/:job_id", job_logs.Index)
+	authorized := engine.Group("highkick")
+	if params.AuthMiddleware != nil {
+		authorized.Use(*params.AuthMiddleware)
 	}
 
 	{
-		g := routes.Group("/schedulers")
+		g := authorized.Group("/jobs")
+		g.POST("/run", jobs.Run)
+		g.DELETE("/delete/:job_id", jobs.Destroy)
+		g.POST("/retry/:job_id/", jobs.Retry)
+		g.POST("/retry_failed_leaves/:job_id/", jobs.RetryFailedLeaves)
+		g.GET("/subtree/:job_id", jobs.Subtree)
+		g.GET("/input/:job_id", jobs.GetInput)
+	}
+
+	{
+		authorized.GET("/job_roots/index", job_roots.Index)
+		authorized.GET("/job_metas/index", job_metas.Index)
+		authorized.GET("/job_logs/index/:job_id", job_logs.Index)
+	}
+
+	{
+		g := authorized.Group("/schedulers")
 		g.GET("/index", schedulers.Index)
 		g.GET("/show/:id", schedulers.Show)
 		g.POST("/create", schedulers.CreateUpdate)

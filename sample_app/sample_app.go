@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/qw4n7y/highkick"
 	"github.com/tidwall/gjson"
@@ -78,20 +77,27 @@ func main() {
 	engine.Use(cors.Default())
 
 	engine.Static("/app", ".")
-	engine.Use(static.Serve("/highkick/client", static.LocalFile("../client/build", true)))
+
+	highkickAuth := gin.BasicAuth(gin.Accounts{"foo": "bar"})
 
 	highkick.RunServer(engine, highkick.RunServerParams{
-		BasicAuthUser:     "root",
-		BasicAuthPassword: "root",
+		AuthMiddleware: &highkickAuth,
+		ClientURL:      "/highkick_app",
 	})
-	log.Fatalln(engine.Run())
+	go func() {
+		if err := engine.Run("0.0.0.0:8000"); err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	fmt.Println("Server running on http://localhost:8000/app")
 
 	// USAGE
 
 	// Case 1. Run in async way. Will be runned by worker launcher
-	highkick.RunAsync(highkick.NewJob(HELLO_WORLD, highkick.Input{
-		"Depth": 1,
-	}, nil))
+	// highkick.RunAsync(highkick.NewJob(HELLO_WORLD, highkick.Input{
+	// 	"Depth": 1,
+	// }, nil))
 
 	// Case 2. Run scheduler
 
