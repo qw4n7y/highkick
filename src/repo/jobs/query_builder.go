@@ -16,6 +16,8 @@ type QueryBuilder struct {
 	SiblingsOf *models.Job
 	Status     *models.JobStatus
 
+	OrderDesc *bool
+
 	Page    *int
 	PerPage *int
 }
@@ -75,6 +77,10 @@ func (qb QueryBuilder) GroupBy() *[]string {
 }
 
 func (qb QueryBuilder) OrderBy() *string {
+	if qb.OrderDesc != nil && *qb.OrderDesc == true {
+		q := "id DESC"
+		return &q
+	}
 	return nil
 }
 

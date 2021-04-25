@@ -17,6 +17,7 @@ import (
 func Index(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	limit := 50
+	truly := true
 
 	qb := jobsRepo.QueryBuilder{}
 	if err := json.Unmarshal([]byte(ctx.Query("filters")), &qb); err != nil {
@@ -24,6 +25,7 @@ func Index(ctx *gin.Context) {
 	}
 	qb.Page = &page
 	qb.PerPage = &limit
+	qb.OrderDesc = &truly
 
 	roots, err := jobsRepo.Repo.Get(qb)
 	if err != nil {
