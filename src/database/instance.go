@@ -1,6 +1,8 @@
 package database
 
 import (
+	"database/sql"
+
 	"github.com/qw4n7y/highkick/src/repo/job_logs"
 	"github.com/qw4n7y/highkick/src/repo/jobs"
 	"github.com/qw4n7y/highkick/src/repo/schedulers"
@@ -11,13 +13,26 @@ var (
 	Manager manager
 )
 
-type SetupOptions struct {
+type DatabaseEngine string
+
+var DatabaseEngines = struct {
+	MySQL   DatabaseEngine
+	SQLite3 DatabaseEngine
+}{
+	MySQL:   "mysql",
+	SQLite3: "sqlite3",
+}
+
+type DatabaseOptions struct {
+	DB            *sql.DB
+	Engine        DatabaseEngine
+	Database      string
 	RunMigrations bool
 }
 
 // Setup inits singleton
-func Setup(dataSourceName string, options SetupOptions) {
-	Manager.Setup(dataSourceName, options)
+func Setup(options DatabaseOptions) {
+	Manager.Setup(options)
 
 	jobs.InitializeRepo(Manager.DBR)
 	job_logs.InitializeRepo(Manager.DBR)

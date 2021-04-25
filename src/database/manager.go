@@ -6,19 +6,18 @@ import (
 	"io/ioutil"
 	"log"
 
-	sqlDriverMySQL "github.com/go-sql-driver/mysql"
-
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database"
 	migrateMySQL "github.com/golang-migrate/migrate/v4/database/mysql"
+	migrateSQLite3 "github.com/golang-migrate/migrate/v4/database/sqlite3"
+	"github.com/markbates/pkger"
 
-	// _ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/golang-migrate/migrate/v4/source/github"
 
 	"gopkg.in/reform.v1"
 	reformMySQL "gopkg.in/reform.v1/dialects/mysql"
 )
-
-const migrateMigrationsTableName = "schema_migrations"
 
 // manager keeps everyting related to database
 type manager struct {
@@ -27,30 +26,58 @@ type manager struct {
 	DBR          *reform.DB
 }
 
-func (m *manager) initDatabase(dataSourceName string) {
-	db, _ := sql.Open("mysql", dataSourceName)
-	m.DB = db
-
-	config, _ := sqlDriverMySQL.ParseDSN(dataSourceName)
-	m.databaseName = config.DBName
+func (m *manager) initDatabase(options DatabaseOptions) {
+	m.DB = options.DB
+	m.databaseName = options.Database
 
 	if err := m.DB.Ping(); err != nil {
 		panic(fmt.Sprintf("Failed to ping database: %v", err.Error()))
 	}
 }
 
-func (m *manager) runMigrations() {
-	driver, err := migrateMySQL.WithInstance(m.DB, &migrateMySQL.Config{
-		MigrationsTable: "highkick_schema_migrations",
-	})
-	if err != nil {
-		panic(err.Error())
+func (m *manager) runMigrations(options DatabaseOptions) {
+	var driver database.Driver
+	{
+		switch options.Engine {
+		case DatabaseEngines.MySQL:
+			{
+				_driver, err := migrateMySQL.WithInstance(m.DB, &migrateMySQL.Config{
+					MigrationsTable: "highkick_schema_migrations",
+					DatabaseName:    options.Database,
+				})
+				if err != nil {
+					panic(err.Error())
+				}
+				driver = _driver
+			}
+		case DatabaseEngines.SQLite3:
+			{
+				_driver, err := migrateSQLite3.WithInstance(m.DB, &migrateSQLite3.Config{
+					MigrationsTable: "highkick_schema_migrations",
+					DatabaseName:    options.Database,
+				})
+				if err != nil {
+					panic(err.Error())
+				}
+				driver = _driver
+			}
+		}
+	}
+
+	migrationsDirPath := ""
+	{
+		file, err := pkger.Open("/client/build/index.html")
+		if err != nil {
+			panic(err)
+		}
+		migrationsDirPath = fmt.Sprintf("%v/migrations/%v", file.Info().Module.Dir, options.Engine)
 	}
 
 	migrations, err := migrate.NewWithDatabaseInstance(
 		// "file://../migrations",
-		"github://:@qw4n7y/highkick/migrations",
-		"mysql",
+		// fmt.Sprintf("github://:@qw4n7y/highkick/migrations/%v", options.Engine),
+		fmt.Sprintf("file://%v", migrationsDirPath),
+		string(options.Engine),
 		driver,
 	)
 	if err != nil {
@@ -73,16 +100,18 @@ func (m *manager) initReform() {
 
 // Setup initializes database connection and runs migrations
 //
-func (m *manager) Setup(dataSourceName string, options SetupOptions) {
-	m.initDatabase(dataSourceName)
+func (m *manager) Setup(options DatabaseOptions) {
+	m.initDatabase(options)
 	if options.RunMigrations != false {
-		m.runMigrations()
+		m.runMigrations(options)
 	}
 	m.initReform()
 }
 
 // TruncateDatabase truncates the database (using in tests)
 func (m *manager) TruncateDatabase() {
+	const tableToIgnore = "schema_migrations"
+
 	sql := fmt.Sprintf("SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = ?")
 	rows, err := m.DB.Query(sql, m.databaseName)
 	if err != nil {
@@ -95,7 +124,7 @@ func (m *manager) TruncateDatabase() {
 		if err := rows.Scan(&tableName); err != nil {
 			log.Panic(err)
 		}
-		if tableName == migrateMigrationsTableName {
+		if tableName == tableToIgnore {
 			continue
 		}
 		sql := fmt.Sprintf("TRUNCATE TABLE %s", tableName)

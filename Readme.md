@@ -3,14 +3,14 @@
 ### Types
 
 - Input = map[string]interface{}
-- Job
+- Job(SID, Input, Output, Status)
 - JobMeta(SID, title, InputJSONSchema)
 - PubSubMessage(Job, error)
 
 ### Setup
 
-- SetupDatabase(SetupDatabaseOptions)
-- RunServer(RunServerParams)
+- SetupDatabase(DatabaseOptions(DB sql.DB, Engine DatabaseEngine, Database string, RunMigrations bool))
+- RunServer(ServerParams(AuthMiddleware, ClientURL))
 - RunSchedulers
 - RunWorkerLauncher
 
@@ -24,7 +24,7 @@
 ### Utils
 
 - Lock(Job)
-- Lock(Unlock)
+- Unlock(Job)
 - Log(Job, message)
 - SetOutput(Job, key, value)
 - GetOutput(Job, key)

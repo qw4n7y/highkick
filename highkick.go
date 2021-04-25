@@ -18,11 +18,14 @@ var GetOutput = usecases.GetOutput
 var SetOutput = usecases.SetOutput
 
 // Database
-type SetupDatabaseOptions = database.SetupOptions
+type DatabaseOptions = database.DatabaseOptions
+
+var DatabaseEngines = database.DatabaseEngines
 var SetupDatabase = database.Setup
 
 // Server
-type RunServerParams = server.RunServerParams
+type ServerParams = server.ServerParams
+
 var RunServer = server.RunServer
 
 // Execution
@@ -42,4 +45,5 @@ var Log = usecases.Log
 
 // PubSub
 type PubSubMessage = models.PubSubMessage
+
 var JobsPubSub = usecases.JobsPubSub

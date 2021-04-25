@@ -17,12 +17,12 @@ import (
 	"github.com/qw4n7y/highkick/src/server/ws"
 )
 
-type RunServerParams struct {
+type ServerParams struct {
 	AuthMiddleware *gin.HandlerFunc
 	ClientURL      string
 }
 
-func RunServer(engine *gin.Engine, params RunServerParams) {
+func RunServer(engine *gin.Engine, params ServerParams) {
 	engine.Use(middlewares.HandleError)
 
 	// CLIENT

@@ -5,6 +5,7 @@
 
 ### How to bake client build into package
 
+- pkger -include /client/build -include /migrations
 - pkger (https://github.com/markbates/pkger)
 
 

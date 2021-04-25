@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"sync"
@@ -13,7 +14,6 @@ import (
 )
 
 const HELLO_WORLD = "HELLO_WORLD"
-const DB = "root:root@tcp(127.0.0.1:3306)/highkick_dev?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
 
 func HelloWorld(job *highkick.Job) error {
 	highkick.Lock(*job)
@@ -63,7 +63,20 @@ func init() {
 }
 
 func main() {
-	highkick.SetupDatabase(DB, highkick.SetupDatabaseOptions{RunMigrations: false})
+	// const DSN = "root:root@tcp(127.0.0.1:3306)/highkick_dev?clientFoundRows=true&charset=utf8mb4&parseTime=true&multiStatements=true"
+	// db, err := sql.Open("mysql", DB)
+
+	db, err := sql.Open("sqlite3", "./highkick.db?parseTime=true")
+	if err != nil {
+		panic(err)
+	}
+
+	highkick.SetupDatabase(highkick.DatabaseOptions{
+		DB:            db,
+		Engine:        highkick.DatabaseEngines.SQLite3,
+		Database:      "highkick_dev",
+		RunMigrations: true,
+	})
 	highkick.RunWorkerLauncher()
 	highkick.RunSchedulers()
 
