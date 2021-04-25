@@ -1,11 +1,19 @@
 package highkick
 
 import (
+	"github.com/markbates/pkger"
+
 	"github.com/qw4n7y/highkick/src/database"
 	"github.com/qw4n7y/highkick/src/models"
 	"github.com/qw4n7y/highkick/src/server"
 	"github.com/qw4n7y/highkick/src/usecases"
 )
+
+func init() {
+	// Include is a no-op that directs the pkger tool to include the desired file or folder.
+	pkger.Include("/client/build")
+	pkger.Include("/migrations")
+}
 
 // Domain
 type JobMeta = models.JobMeta

@@ -3,8 +3,11 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"io"
+	"io/fs"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database"
@@ -64,19 +67,38 @@ func (m *manager) runMigrations(options DatabaseOptions) {
 		}
 	}
 
-	migrationsDirPath := ""
+	// Copy from pkger to local FS
+	unbackedMigrationsDirPath := fmt.Sprintf("./highkick_migrations_%v", options.Engine)
+	bakedMigrationsDirPath := fmt.Sprintf("github.com/qw4n7y/highkick:/migrations/%v", options.Engine)
 	{
-		file, err := pkger.Open("/client/build/index.html")
-		if err != nil {
+		if err := os.MkdirAll(unbackedMigrationsDirPath, 0755); err != nil {
 			panic(err)
 		}
-		migrationsDirPath = fmt.Sprintf("%v/migrations/%v", file.Info().Module.Dir, options.Engine)
+		if err := pkger.Walk(bakedMigrationsDirPath, func(path string, info fs.FileInfo, err error) error {
+			if info.IsDir() {
+				return nil
+			}
+			backedFile, err := pkger.Open(path)
+			if err != nil {
+				return err
+			}
+			unbackedFile, err := os.Create(fmt.Sprintf("%v/%v", unbackedMigrationsDirPath, info.Name()))
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(unbackedFile, backedFile); err != nil {
+				return err
+			}
+			return nil
+		}); err != nil {
+			panic(err)
+		}
 	}
 
 	migrations, err := migrate.NewWithDatabaseInstance(
 		// "file://../migrations",
 		// fmt.Sprintf("github://:@qw4n7y/highkick/migrations/%v", options.Engine),
-		fmt.Sprintf("file://%v", migrationsDirPath),
+		fmt.Sprintf("file://%v", unbackedMigrationsDirPath),
 		string(options.Engine),
 		driver,
 	)

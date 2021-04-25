@@ -93,7 +93,7 @@ func main() {
 
 	// highkickAuth := gin.BasicAuth(gin.Accounts{"foo": "bar"})
 
-	highkick.RunServer(engine, highkick.RunServerParams{
+	highkick.RunServer(engine, highkick.ServerParams{
 		// AuthMiddleware: &highkickAuth,
 		ClientURL: "/highkick_app",
 	})
