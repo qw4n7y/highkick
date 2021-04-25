@@ -1,29 +1,34 @@
-package highkick // import "github.com/qw4n7y/highkick"
+```import "github.com/qw4n7y/highkick"```
 
-type Input = models.JSONDictionary
-type Job = models.Job
-type JobMeta = models.JobMeta
+### Types
 
-var SetOutput = usecases.SetOutput
-var GetOutput = usecases.GetOutput
+- Input = map[string]interface{}
+- Job
+- JobMeta(SID, title, InputJSONSchema)
+- PubSubMessage(Job, error)
 
-type SetupDatabaseOptions = database.SetupOptions
-var SetupDatabase = database.Setup
+### Setup
 
-type RunServerParams = server.RunServerParams
-var RunServer = server.RunServer
+- SetupDatabase(SetupDatabaseOptions)
+- RunServer(RunServerParams)
+- RunSchedulers
+- RunWorkerLauncher
 
-var NewJob = models.BuildJob
-var Register = usecases.Register
-var RunSync = usecases.RunSync
-var RunAsync = usecases.RunAsync
-var RunSchedulers = usecases.RunScheduler
-var RunWorkerLauncher = usecases.RunWorkerLauncher
+### Job
 
-var Lock = usecases.Lock
-var Unlock = usecases.Unlock
+- Register(JobMeta)
+- NewJob(SID, Input, Parent)
+- RunSync(Job)
+- RunAsync(Job)
 
-var Log = usecases.Log
+### Utils
 
-type PubSubMessage = models.PubSubMessage
-var JobsPubSub = usecases.JobsPubSub
+- Lock(Job)
+- Lock(Unlock)
+- Log(Job, message)
+- SetOutput(Job, key, value)
+- GetOutput(Job, key)
+
+### PubSub
+
+- JobsPubSub.Subscribe(onMessage(PubSubMessage))
