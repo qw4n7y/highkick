@@ -26,6 +26,7 @@ func Index(ctx *gin.Context) {
 	qb.Page = &page
 	qb.PerPage = &limit
 	qb.OrderDesc = &truly
+	qb.IsRoot = &truly
 
 	roots, err := jobsRepo.Repo.Get(qb)
 	if err != nil {
