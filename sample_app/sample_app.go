@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/qw4n7y/highkick"
 	"github.com/tidwall/gjson"
 )
@@ -16,8 +17,8 @@ import (
 const HELLO_WORLD = "HELLO_WORLD"
 
 func HelloWorld(job *highkick.Job) error {
-	highkick.Lock(*job)
-	defer highkick.Unlock(*job)
+	// highkick.Lock(*job)
+	// defer highkick.Unlock(*job)
 
 	for _, key := range []string{"Depth"} {
 		if !gjson.Get(*job.Input, key).Exists() {
@@ -27,7 +28,7 @@ func HelloWorld(job *highkick.Job) error {
 	depth := gjson.Get(*job.Input, "Depth").Int()
 
 	if depth <= 0 {
-		return nil
+		return fmt.Errorf("END")
 	}
 
 	time.Sleep(1 * time.Second)
@@ -38,9 +39,9 @@ func HelloWorld(job *highkick.Job) error {
 	fmt.Println(msg)
 
 	time.Sleep(10 * time.Second)
-	// highkick.RunSync(highkick.NewJob(HELLO_WORLD, highkick.Input{
-	// 	"Depth": depth - 1,
-	// }, job))
+	highkick.RunAsync(highkick.NewJob(HELLO_WORLD, highkick.Input{
+		"Depth": depth - 1,
+	}, job))
 
 	return nil
 }
@@ -56,6 +57,24 @@ func init() {
 	}`
 	highkick.Register(highkick.JobMeta{
 		SID:             HELLO_WORLD,
+		Title:           "Hello, world!",
+		Perform:         HelloWorld,
+		InputJSONSchema: &inputJSONSchema,
+	})
+	highkick.Register(highkick.JobMeta{
+		SID:             HELLO_WORLD + "1",
+		Title:           "Hello, world!",
+		Perform:         HelloWorld,
+		InputJSONSchema: &inputJSONSchema,
+	})
+	highkick.Register(highkick.JobMeta{
+		SID:             HELLO_WORLD + "3",
+		Title:           "Hello, world!",
+		Perform:         HelloWorld,
+		InputJSONSchema: &inputJSONSchema,
+	})
+	highkick.Register(highkick.JobMeta{
+		SID:             HELLO_WORLD + "0",
 		Title:           "Hello, world!",
 		Perform:         HelloWorld,
 		InputJSONSchema: &inputJSONSchema,
@@ -111,8 +130,6 @@ func main() {
 	// highkick.RunAsync(highkick.NewJob(HELLO_WORLD, highkick.Input{
 	// 	"Depth": 1,
 	// }, nil))
-
-	// Case 2. Run scheduler
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)

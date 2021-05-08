@@ -19,7 +19,11 @@ class FiltersComponent extends React.Component<Props> {
   }
 
   render() {
-    const { jobMetas, value } = this.props
+    const { value } = this.props
+    const jobMetas = (this.props.jobMetas || []).sort((a, b) => {
+      return a.SID > b.SID ? 1 : -1
+    })
+
     return (
       <form onChange={this.onChange}>
         <div className="d-flex align-items-center">

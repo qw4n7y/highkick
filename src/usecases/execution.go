@@ -119,6 +119,18 @@ func failJob(job *models.Job, err error) {
 		log.Fatal(err)
 	}
 
+	// Set root job status to failed
+	if job.IsRoot() == false {
+		rootID := job.GetRootID()
+		if err := jobsRepo.Repo.UpdateAll(&models.Job{
+			Status: models.JobStatuses.Failed,
+		}, []string{"status"}, jobsRepo.QueryBuilder{
+			ID: &rootID,
+		}); err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	log.Print(fmt.Sprintf("[JOB] [%v] %v", job.Type, err.Error()))
 	log.Print(fmt.Sprintf("[JOB] [%v] Stacktrace: %v", job.Type, string(debug.Stack())))
 	Log(job, fmt.Sprintf("[ERROR] %v. Stack: %v", err.Error(), string(debug.Stack())))
