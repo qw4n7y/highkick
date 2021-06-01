@@ -8,7 +8,9 @@ import (
 )
 
 type QueryBuilder struct {
-	ID *int
+	ID          *int
+	JobTypes    *[]string
+	JobTypesNot *[]string
 }
 
 func (f QueryBuilder) Select() *[]string {
@@ -24,6 +26,20 @@ func (f QueryBuilder) Where() string {
 
 	if f.ID != nil {
 		clauses = append(clauses, fmt.Sprintf("(id = %v)", *f.ID))
+	}
+	if f.JobTypes != nil && len(*f.JobTypes) > 0 {
+		escaped := []string{}
+		for _, jobType := range *f.JobTypes {
+			escaped = append(escaped, fmt.Sprintf(`"%v"`, jobType))
+		}
+		clauses = append(clauses, fmt.Sprintf("job_type IN (%v)", strings.Join(escaped, ", ")))
+	}
+	if f.JobTypesNot != nil && len(*f.JobTypesNot) > 0 {
+		escaped := []string{}
+		for _, jobType := range *f.JobTypesNot {
+			escaped = append(escaped, fmt.Sprintf(`"%v"`, jobType))
+		}
+		clauses = append(clauses, fmt.Sprintf("job_type NOT IN (%v)", strings.Join(escaped, ", ")))
 	}
 
 	return strings.Join(clauses, " AND ")

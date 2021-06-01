@@ -30,7 +30,7 @@ func loadSchedulerMeta(schedulerID int) *SchedulerMeta {
 	return &schedulerMeta
 }
 
-func RunSchedulers() {
+func RunSchedulers(jobsToHandle models.JobsToHandle) {
 	fmt.Printf("[HIGHKICK] Schedulers started\n")
 	go func() {
 		every := 30 * time.Second
@@ -42,7 +42,10 @@ func RunSchedulers() {
 				return true
 			})
 
-			schedulers, err := schedulersRepo.Repo.Get(schedulersRepo.QueryBuilder{})
+			schedulers, err := schedulersRepo.Repo.Get(schedulersRepo.QueryBuilder{
+				JobTypes:    &jobsToHandle.Only,
+				JobTypesNot: &jobsToHandle.Except,
+			})
 			if err != nil {
 				fmt.Printf("[HIGHKICK] Loading schedulers: %+v\n", err)
 				return

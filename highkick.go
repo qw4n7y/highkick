@@ -19,6 +19,7 @@ func init() {
 type JobMeta = models.JobMeta
 type Job = models.Job
 type Input = models.JSONDictionary
+type JobsToHandle = models.JobsToHandle
 
 var NewJob = models.BuildJob
 var Register = usecases.Register

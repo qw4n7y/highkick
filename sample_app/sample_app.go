@@ -96,8 +96,8 @@ func main() {
 		Database:      "highkick_dev",
 		RunMigrations: true,
 	})
-	highkick.RunWorkerLauncher()
-	highkick.RunSchedulers()
+	highkick.RunWorkerLauncher(highkick.JobsToHandle{})
+	highkick.RunSchedulers(highkick.JobsToHandle{})
 
 	highkick.JobsPubSub.Subscribe(func(iMessage interface{}) {
 		message := iMessage.(highkick.PubSubMessage)

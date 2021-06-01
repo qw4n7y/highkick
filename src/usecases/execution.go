@@ -11,13 +11,15 @@ import (
 	jobsRepo "github.com/qw4n7y/highkick/src/repo/jobs"
 )
 
-func RunWorkerLauncher() {
+func RunWorkerLauncher(jobsToHandle models.JobsToHandle) {
 	fmt.Printf("[HIGHKICK] Workers launcher started\n")
 	go func() {
 		every := 30 * time.Second
 		for {
 			scheduledJobs, err := jobsRepo.Repo.Get(jobsRepo.QueryBuilder{
-				Status: &models.JobStatuses.Scheduled,
+				Status:      &models.JobStatuses.Scheduled,
+				JobTypes:    &jobsToHandle.Only,
+				JobTypesNot: &jobsToHandle.Except,
 			})
 			if err != nil {
 				fmt.Println("[ERROR]", err)
