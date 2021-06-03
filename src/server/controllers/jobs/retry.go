@@ -24,7 +24,9 @@ func Retry(c *gin.Context) {
 		panic(err)
 	}
 
-	go usecases.RunSync(job)
+	if err := usecases.RunAsync(job); err != nil {
+		panic(err)
+	}
 
 	c.JSON(http.StatusOK, struct{}{})
 }
