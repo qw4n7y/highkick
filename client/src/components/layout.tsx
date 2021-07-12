@@ -19,6 +19,7 @@ const Layout: React.FC<Props> = (props: Props) => {
           <a href="/" className="text-dark">Highkick</a>
         </Navbar.Brand>
 
+          <Link to="/online" className="pr-2">Online</Link>
           <Link to="/index" className="pr-2">Jobs</Link>
           <Link to="/schedulers/index">Schedulers</Link>
       </Navbar>

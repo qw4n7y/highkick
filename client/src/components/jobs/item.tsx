@@ -16,7 +16,7 @@ import HumanDuration from '../misc/human_duration'
 
 import StatusComponent from './status'
 
-import Job from '../../models/job'
+import Job, { Status } from '../../models/job'
 import JobMeta from '../../models/job_meta'
 import JobLog from '../../models/job_log'
 import Jobs from '../../services/jobs'
@@ -67,6 +67,9 @@ class JobComponent extends React.Component<Props, State> {
     const jobMeta = (jobMetas || []).find(candidate => candidate.SID === item.type)
 
     const treeStatus = Jobs.treeStatus(item)
+    const statusBackground = function(status: Status): string {
+      return status === "failed" ? "#fcede8" : status === "processing" ? "#e8f4fc" : "#f8f9fa"
+    }
 
     return (
       <div 
@@ -76,7 +79,7 @@ class JobComponent extends React.Component<Props, State> {
           gridTemplateAreas: "'header actions' 'details details'",
           gridTemplateColumns: "1fr 170px",
           gridGap: "2px",
-          background: treeStatus === "failed" ? "#fcede8" : treeStatus === "processing" ? "#e8f4fc" : "#f8f9fa",
+          background: statusBackground(treeStatus),
         }}
         key={JSON.stringify(jobMeta)}
       >
@@ -103,9 +106,20 @@ class JobComponent extends React.Component<Props, State> {
                       className={this.state.showLogs ? undefined : "text-muted"}
                       onClick={() => this.showLogs(!this.state.showLogs)}
               ><ReceiptCutoff/></Button>) }
-          <span className="flex-fill" onClick={this.loadItem} style={{cursor: 'pointer'}}>
+          <span onClick={this.loadItem} style={{cursor: 'pointer'}}>
             { expanded ? <ArrowDown/> : <ArrowRight/> }
           </span>
+          <div className="flex-fill">
+            { (Object.keys(item.childrenStatuses || {}) as Status[]).map((key) => (
+              <>
+                { (item.childrenStatuses[key] > 0) && (
+                  <span className="badge" style={{background: statusBackground(key)}}>
+                    { key } <span className="badge badge-light">{item.childrenStatuses[key]}</span>
+                  </span>
+                ) }
+              </>
+            )) }
+          </div>
           <small className="text-muted">
             {Moment(item.createdAt).format("MM-DD HH:mm")}
             { item.durationSeconds() > 0 && <>

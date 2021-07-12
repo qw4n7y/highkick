@@ -72,7 +72,12 @@ func RunServer(engine *gin.Engine, params ServerParams) {
 	}
 
 	{
-		authorized.GET("/job_roots/index", job_roots.Index)
+		g := authorized.Group("/job_roots")
+		g.GET("/index", job_roots.Index)
+		g.GET("/active", job_roots.Active)
+	}
+
+	{
 		authorized.GET("/job_metas/index", job_metas.Index)
 		authorized.GET("/job_logs/index/:job_id", job_logs.Index)
 	}

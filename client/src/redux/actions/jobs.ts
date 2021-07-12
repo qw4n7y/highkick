@@ -36,6 +36,13 @@ function index(filters: Filters, params: { page: number }) {
   }
 }
 
+function loadActiveRoots(filters: Filters) {
+  return async (dispatch: any, getState: () => ReduxState) => {
+    const roots = await Jobs.loadActiveRoots(filters)
+    return roots
+  }
+}
+
 function loadSubtree(job: Job) {
   return async (dispatch: any, getState: () => ReduxState) => {
     let updatedJob = await Jobs.loadSubtree(job)
@@ -64,4 +71,4 @@ function run(sid: string, input: any) {
   }
 }
 
-export default { index, loadSubtree, destroy, getInput, run }
+export default { index, loadSubtree, destroy, getInput, run, loadActiveRoots }

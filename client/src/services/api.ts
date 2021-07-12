@@ -22,7 +22,8 @@ const URLS = {
     destroy: (id: number) => `${API_BASE}/jobs/delete/${id}`,
   },
   jobRoots: {
-    index: `${API_BASE}/job_roots/index`
+    index: `${API_BASE}/job_roots/index`,
+    active: `${API_BASE}/job_roots/active`
   },
   jobLogs: {
     index: (jobId: number) => `${API_BASE}/job_logs/index/${jobId}`,

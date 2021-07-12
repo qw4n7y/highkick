@@ -14,6 +14,21 @@ async function loadRoots(filters: Filters, params: { page: number }) {
   return roots
 }
 
+async function loadActiveRoots(filters: Filters) {
+  const data = Object.assign({}, { filters })
+  const url = API.URLS.jobRoots.active
+  const responseJson = await HTTP.get(url, data)
+  const childrenStats= responseJson.ChildrenStats as {RootID: number, ChildrenStatuses: {[status: string]: number}}[]
+  
+  let roots = (responseJson.Items as any[]).map(Job.deserialize)
+  roots = roots.map(root => {
+    root.childrenStatuses = childrenStats.find(cs => cs.RootID === root.id)!.ChildrenStatuses
+    return root
+  })
+
+  return roots
+}
+
 async function loadSubtree(job: Job) {
   const jsons = await HTTP.get(API.URLS.jobs.subtree(job.id))
   const jobs = jsons.map(Job.deserialize)
@@ -80,4 +95,5 @@ export default {
   loadRoots, loadSubtree, retry, retryFailedLeaves,
   destroy, treeStatus, getInput,
   runJob,
+  loadActiveRoots,
 }

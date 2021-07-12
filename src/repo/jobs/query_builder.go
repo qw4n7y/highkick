@@ -10,6 +10,7 @@ import (
 
 type QueryBuilder struct {
 	ID          *int
+	IDs         *[]int
 	IsRoot      *bool
 	Root        *models.Job
 	Type        *string
@@ -17,6 +18,7 @@ type QueryBuilder struct {
 	JobTypesNot *[]string
 	SiblingsOf  *models.Job
 	Status      *models.JobStatus
+	Statuses    *[]models.JobStatus
 
 	OrderDesc *bool
 
@@ -37,6 +39,14 @@ func (f QueryBuilder) Where() string {
 
 	if f.ID != nil {
 		clauses = append(clauses, fmt.Sprintf("(id = %v)", *f.ID))
+	}
+
+	if f.IDs != nil {
+		escaped := []string{}
+		for _, v := range *f.IDs {
+			escaped = append(escaped, fmt.Sprintf(`%v`, v))
+		}
+		clauses = append(clauses, fmt.Sprintf("id IN (%v)", strings.Join(escaped, ", ")))
 	}
 
 	if f.IsRoot != nil {
@@ -69,6 +79,14 @@ func (f QueryBuilder) Where() string {
 
 	if f.Status != nil {
 		clauses = append(clauses, fmt.Sprintf("(status = '%v')", *f.Status))
+	}
+
+	if f.Statuses != nil {
+		escaped := []string{}
+		for _, v := range *f.Statuses {
+			escaped = append(escaped, fmt.Sprintf(`"%v"`, v))
+		}
+		clauses = append(clauses, fmt.Sprintf("status IN (%v)", strings.Join(escaped, ", ")))
 	}
 
 	if f.JobTypes != nil && len(*f.JobTypes) > 0 {

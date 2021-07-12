@@ -19,6 +19,7 @@ type Props = {
   FinishedAt: string
 
   childs: Job[]
+  childrenStatuses: {[status: string]: number}
 }
 
 class Job implements Props, TreeLeaf {
@@ -37,6 +38,7 @@ class Job implements Props, TreeLeaf {
   FinishedAt: string = ''
 
   childs: Job[] = []
+  childrenStatuses: {[status: string]: number} = {}
 
   constructor(props: Partial<Props>) {
     // super()

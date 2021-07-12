@@ -82,3 +82,28 @@ func GetSiblingsDetailedStatus(job *models.Job) (*map[models.JobStatus]int, erro
 
 	return &result, nil
 }
+
+type ChildrenStat struct {
+	RootID           int
+	ChildrenStatuses map[models.JobStatus]int
+}
+
+func GetChildrenStat(job *models.Job) (*ChildrenStat, error) {
+	result := ChildrenStat{
+		RootID:           job.ID,
+		ChildrenStatuses: map[models.JobStatus]int{},
+	}
+
+	children, err := repo.Repo.Get(repo.QueryBuilder{
+		Root: job,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, child := range *children {
+		result.ChildrenStatuses[child.Status] += 1
+	}
+
+	return &result, nil
+}
