@@ -31,27 +31,33 @@ func Active(ctx *gin.Context) {
 	// Extend active root ids to query builder
 	childStatusForRootID := map[int]models.JobStatus{}
 	rootJobIDsMap := map[int]bool{}
-	for _, activeJob := range *activeJobs {
-		rootID := activeJob.GetRootID()
-		rootJobIDsMap[rootID] = true
-		childStatusForRootID[rootID] = activeJob.Status
-	}
-	rootJobIDs := []int{}
-	for rootJobID, _ := range rootJobIDsMap {
-		rootJobIDs = append(rootJobIDs, rootJobID)
-	}
-	qb.IDs = &rootJobIDs
+	roots := []models.Job{}
+	{
+		if len(*activeJobs) > 0 {
+			for _, activeJob := range *activeJobs {
+				rootID := activeJob.GetRootID()
+				rootJobIDsMap[rootID] = true
+				childStatusForRootID[rootID] = activeJob.Status
+			}
+			rootJobIDs := []int{}
+			for rootJobID, _ := range rootJobIDsMap {
+				rootJobIDs = append(rootJobIDs, rootJobID)
+			}
+			qb.IDs = &rootJobIDs
 
-	truly := true
-	qb.IsRoot = &truly
+			truly := true
+			qb.IsRoot = &truly
 
-	roots, err := jobsRepo.Repo.Get(qb)
-	if err != nil {
-		panic(err)
+			_roots, err := jobsRepo.Repo.Get(qb)
+			if err != nil {
+				panic(err)
+			}
+			roots = *_roots
+		}
 	}
 
 	items := []models.Job{}
-	for _, root := range *roots {
+	for _, root := range roots {
 		// Strategy A
 		// Resolve from child statuses
 		childStatus := childStatusForRootID[root.ID]
