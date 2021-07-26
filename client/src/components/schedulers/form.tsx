@@ -6,8 +6,9 @@ import JobMeta from '../../models/job_meta'
 import { Form, Button } from 'react-bootstrap'
 import JsonEditor from '../misc/json_editor'
 import HumanDuration from '../../components/misc/human_duration'
+import ServerTime from '../../components/misc/server_time'
 
-import Scheduler from "../../models/scheduler";
+import Scheduler, { SchedulerType } from "../../models/scheduler";
 
 type Props = {
     jobMetas?: JobMeta[]
@@ -57,19 +58,61 @@ class SchedulerForm extends React.Component<Props, State> {
 
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>RunEverySeconds</Form.Label>
-                    <Form.Control type="number"
-                                  value={value.RunEverySeconds}
-                                  onChange={e => {
-                                      value.RunEverySeconds = parseInt(e.currentTarget.value, 10)
-                                      this.onChange(value)
-                                  }}
-                    />
-
-                    <blockquote className="blockquote">
-                        <HumanDuration seconds={value.RunEverySeconds}/>
-                    </blockquote>
+                    <Form.Label>SchedulerType</Form.Label>
+                    <div className="btn-group">
+                        <button 
+                            className={`btn btn-${value.SchedulerType === SchedulerType.Timer ? 'success' : 'primary'}`}
+                            onClick={e => {
+                                value.SchedulerType = SchedulerType.Timer
+                                this.onChange(value)
+                            }}
+                        >Timer</button>
+                        <button 
+                            className={`btn btn-${value.SchedulerType === SchedulerType.ExactTime ? 'success' : 'primary'}`}
+                            onClick={e => {
+                                value.SchedulerType = SchedulerType.ExactTime
+                                this.onChange(value)
+                            }}
+                        >ExactTime</button>
+                    </div>
                 </Form.Group>
+                { (value.SchedulerType === SchedulerType.Timer) && (
+                    <Form.Group>
+                        <Form.Label>RunEverySeconds</Form.Label>
+                        <Form.Control type="number"
+                                    value={value.RunEverySeconds}
+                                    onChange={e => {
+                                        value.RunEverySeconds = parseInt(e.currentTarget.value, 10)
+                                        this.onChange(value)
+                                    }}
+                        />
+                        <blockquote className="blockquote">
+                            <HumanDuration seconds={value.RunEverySeconds}/>
+                        </blockquote>
+                    </Form.Group>) }
+                { (value.SchedulerType === SchedulerType.ExactTime) && (
+                    <div className="row">
+                        <div className="col-md-9">
+                            <Form.Group>
+                                <Form.Label>ExactTimes</Form.Label>
+                                <Form.Control
+                                    value={value.ExactTimes.join(", ")}
+                                    onChange={e => {
+                                        value.ExactTimes = e.currentTarget.value.split(", ").map(s => s.trim())
+                                        this.onChange(value)
+                                    }}
+                                />
+                                <blockquote className="blockquote">
+                                    {JSON.stringify(value.ExactTimes)}
+                                </blockquote>
+                            </Form.Group>
+                        </div>
+                        <div className="col-md-3">
+                            <ServerTime/>
+                        </div>
+                    </div>
+                    ) }
+                
                 <Form.Group>
                     <Form.Check type="checkbox" label="Stopped"
                         checked={value.Stopped}

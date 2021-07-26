@@ -2,32 +2,60 @@ package usecases
 
 import (
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/qw4n7y/highkick/src/models"
+	jobsRepo "github.com/qw4n7y/highkick/src/repo/jobs"
 	schedulersRepo "github.com/qw4n7y/highkick/src/repo/schedulers"
 )
 
 type SchedulerMeta struct {
 	StopChan  chan bool
-	UpdatedAt time.Time
-	ID        int
+	LastRun   *models.Job
+	Scheduler models.Scheduler
 }
 
-var schedulerMetas = sync.Map{}
+type SchedulerMetas struct {
+	data map[int]SchedulerMeta
+	mu   sync.RWMutex
+}
 
-func loadSchedulerMeta(schedulerID int) *SchedulerMeta {
-	p, ok := schedulerMetas.Load(schedulerID)
+func (sm SchedulerMetas) Get(schedulerID int) *SchedulerMeta {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	v, ok := sm.data[schedulerID]
 	if !ok {
 		return nil
 	}
-	schedulerMeta, ok := p.(SchedulerMeta)
-	if !ok {
-		panic("[HIGHKICK] Weird, should never happen: Can not convert to SchedulerMeta\n")
-	}
-	return &schedulerMeta
+	return &v
+}
+
+func (sm SchedulerMetas) Set(schedulerID int, schedulerMeta SchedulerMeta) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	sm.data[schedulerID] = schedulerMeta
+}
+
+func (sm SchedulerMetas) Delete(schedulerID int) {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	delete(sm.data, schedulerID)
+}
+
+func (sm SchedulerMetas) Snapshot() map[int]SchedulerMeta {
+	sm.mu.RLock()
+	defer sm.mu.RUnlock()
+
+	clone := sm.data
+	return clone
+}
+
+var schedulerMetas = SchedulerMetas{
+	data: map[int]SchedulerMeta{},
 }
 
 func RunSchedulers(jobsToHandle models.JobsToHandle) {
@@ -36,11 +64,9 @@ func RunSchedulers(jobsToHandle models.JobsToHandle) {
 		every := 30 * time.Second
 		for {
 			prevSchedulerIDs := []int{}
-			schedulerMetas.Range(func(key interface{}, value interface{}) bool {
-				schedulerID := key.(int)
+			for schedulerID := range schedulerMetas.Snapshot() {
 				prevSchedulerIDs = append(prevSchedulerIDs, schedulerID)
-				return true
-			})
+			}
 
 			schedulers, err := schedulersRepo.Repo.Get(schedulersRepo.QueryBuilder{
 				JobTypes:    &jobsToHandle.Only,
@@ -58,10 +84,10 @@ func RunSchedulers(jobsToHandle models.JobsToHandle) {
 					stopScheduler(scheduler.ID)
 					continue
 				}
-				schedulerMeta := loadSchedulerMeta(scheduler.ID)
+				schedulerMeta := schedulerMetas.Get(scheduler.ID)
 				if schedulerMeta != nil {
 					// model was changed
-					if schedulerMeta.UpdatedAt != scheduler.UpdatedAt {
+					if schedulerMeta.Scheduler.Equal(scheduler) == false {
 						stopScheduler(scheduler.ID)
 						runScheduler(scheduler)
 					}
@@ -84,7 +110,9 @@ func RunSchedulers(jobsToHandle models.JobsToHandle) {
 }
 
 func stopScheduler(schedulerID int) {
-	schedulerMeta := loadSchedulerMeta(schedulerID)
+	fmt.Printf("[Highkick] [Schedulers] Stopping %v\n", schedulerID)
+
+	schedulerMeta := schedulerMetas.Get(schedulerID)
 	if schedulerMeta != nil {
 		schedulerMeta.StopChan <- true
 		close(schedulerMeta.StopChan)
@@ -92,42 +120,149 @@ func stopScheduler(schedulerID int) {
 	schedulerMetas.Delete(schedulerID)
 }
 
-func runScheduler(scheduler models.Scheduler) {
-	stopChan := make(chan bool)
+func ExecuteScheduler(scheduler models.Scheduler) error {
+	job := models.BuildJob(scheduler.JobType, scheduler.GetJobInput(), nil)
 
-	schedulerMeta := SchedulerMeta{
-		StopChan:  stopChan,
-		UpdatedAt: scheduler.UpdatedAt,
-		ID:        scheduler.ID,
-	}
-	schedulerMetas.Store(scheduler.ID, schedulerMeta)
-
-	go func() {
-		ticker := time.NewTicker(time.Duration(scheduler.RunEverySeconds) * time.Second)
-		for {
-			select {
-			case <-stopChan:
-				return
-			case <-ticker.C:
-				{
-					job := models.BuildJob(scheduler.JobType, scheduler.GetJobInput(), nil)
-					err := RunSync(job)
-
-					now := time.Now()
-					scheduler.LastRunAt = &now
-					if err != nil {
-						scheduler.LastError = fmt.Sprintf("%+v", err)
-					} else {
-						scheduler.LastError = ""
-					}
-
-					if err := schedulersRepo.Repo.UpdateAll(&scheduler, []string{"last_run_at", "last_error"}, schedulersRepo.QueryBuilder{
-						ID: &scheduler.ID,
-					}); err != nil {
-						log.Fatalln(err)
-					}
-				}
+	var executionErr error
+	{
+		switch scheduler.SchedulerType {
+		case models.SchedulerTypes.Timer:
+			{
+				executionErr = RunSync(job)
+			}
+		case models.SchedulerTypes.ExactTime:
+			{
+				executionErr = RunAsync(job)
 			}
 		}
-	}()
+	}
+
+	now := time.Now()
+	scheduler.LastRunAt = &now
+	if executionErr != nil {
+		scheduler.LastError = fmt.Sprintf("%+v", executionErr)
+	} else {
+		scheduler.LastError = ""
+	}
+
+	if err := schedulersRepo.Repo.DB.UpdateColumns(&scheduler, "last_run_at", "last_error"); err != nil {
+		fmt.Printf("[Highkick] [Schedulers] Run failed with %v", err)
+		return err
+	}
+
+	{
+		if schedulerMeta := schedulerMetas.Get(scheduler.ID); schedulerMeta != nil {
+			schedulerMeta.LastRun = job
+			schedulerMetas.Set(scheduler.ID, *schedulerMeta)
+		}
+	}
+
+	return executionErr
+}
+
+func runScheduler(scheduler models.Scheduler) {
+	fmt.Printf("[Highkick] [Schedulers] Running %v\n", scheduler)
+
+	stopChan := make(chan bool)
+
+	lastRun := models.Job{}
+	{
+		// Get last 10 of roots and choose with same input. Clumzy
+		truly := true
+		page := 1
+		limit := 10
+		if candidates, err := jobsRepo.Repo.Get(jobsRepo.QueryBuilder{
+			Type:      &scheduler.JobType,
+			IsRoot:    &truly,
+			OrderDesc: &truly,
+			Page:      &page,
+			PerPage:   &limit,
+		}); err == nil {
+			for _, candidate := range *candidates {
+				if candidate.GetInput().Equal(scheduler.GetJobInput()) {
+					lastRun = candidate
+					break
+				}
+			}
+		} else {
+			fmt.Errorf("[Highkick] [Schedulers] Can not get last run. %v", err)
+		}
+	}
+
+	// Init scheduler meta
+	{
+		schedulerMeta := SchedulerMeta{
+			StopChan:  stopChan,
+			LastRun:   nil,
+			Scheduler: scheduler,
+		}
+		if lastRun.ID != 0 {
+			schedulerMeta.LastRun = &lastRun
+		}
+		schedulerMetas.Set(scheduler.ID, schedulerMeta)
+	}
+
+	switch scheduler.SchedulerType {
+	case models.SchedulerTypes.Timer:
+		{
+			schedulerMeta := schedulerMetas.Get(scheduler.ID)
+			ticker := time.NewTicker(time.Duration(scheduler.RunEverySeconds) * time.Second)
+			go func() {
+				fmt.Printf("[Highkick] [Schedulers] Running %v 333\n", scheduler)
+				for {
+					select {
+					case <-schedulerMeta.StopChan:
+						fmt.Printf("[Highkick] [Schedulers] Stopping %v", scheduler)
+						return
+					case <-ticker.C:
+						ExecuteScheduler(scheduler)
+					}
+				}
+			}()
+		}
+	case models.SchedulerTypes.ExactTime:
+		{
+			fmt.Printf("[Highkick] [Schedulers] Running %v 444\n", scheduler)
+			schedulerMeta := schedulerMetas.Get(scheduler.ID)
+			ticker := time.NewTicker(10 * time.Second)
+			go func() {
+				for {
+					select {
+					case <-schedulerMeta.StopChan:
+						fmt.Printf("[Highkick] [Schedulers] Stopping %v", scheduler)
+						return
+					case <-ticker.C:
+						{
+							if schedulerMeta := schedulerMetas.Get(scheduler.ID); schedulerMeta != nil {
+								// Should run few times per minute
+								lastRunAt := time.Time{}
+								if schedulerMeta.LastRun != nil {
+									lastRunAt = schedulerMeta.LastRun.CreatedAt
+								}
+								nowHHMM := time.Now().Format("15:04") // trigger
+								triggeredHHMM := ""
+								for _, candidate := range scheduler.ExactTimes {
+									if candidate == nowHHMM {
+										triggeredHHMM = candidate
+										break
+									} else if candidate > nowHHMM {
+										break // assuming ExaxtTimes is sorted asc
+									}
+								}
+								if triggeredHHMM != "" {
+									if !lastRunAt.IsZero() && lastRunAt.Format("15:04") == triggeredHHMM && lastRunAt.Format("2006-01-02") == time.Now().Format("2006-01-02") {
+										// double run. skip
+									} else {
+										ExecuteScheduler(scheduler)
+									}
+								}
+							} else {
+								fmt.Printf("[Highkick] [Schedulers] [Error] No campaign meta found for a running exact-time scheduler !!!\n")
+							}
+						}
+					}
+				}
+			}()
+		}
+	}
 }

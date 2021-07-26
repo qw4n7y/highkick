@@ -9,6 +9,7 @@ import (
 	"github.com/markbates/pkger"
 	"github.com/qw4n7y/highkick/src/server/controllers/schedulers"
 
+	"github.com/qw4n7y/highkick/src/server/controllers/highkick"
 	"github.com/qw4n7y/highkick/src/server/controllers/job_logs"
 	"github.com/qw4n7y/highkick/src/server/controllers/job_metas"
 	"github.com/qw4n7y/highkick/src/server/controllers/job_roots"
@@ -59,6 +60,11 @@ func RunServer(engine *gin.Engine, params ServerParams) {
 	authorized := engine.Group("highkick")
 	if params.AuthMiddleware != nil {
 		authorized.Use(*params.AuthMiddleware)
+	}
+
+	{
+		g := authorized.Group("/highkick")
+		g.GET("/hello", highkick.Hello)
 	}
 
 	{

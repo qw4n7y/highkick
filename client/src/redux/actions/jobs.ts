@@ -46,7 +46,8 @@ function loadActiveRoots(filters: Filters) {
 function loadSubtree(job: Job) {
   return async (dispatch: any, getState: () => ReduxState) => {
     let updatedJob = await Jobs.loadSubtree(job)
-    dispatch(new Update(updatedJob))
+    dispatch(new Update(updatedJob)) // dispatch redux
+    return updatedJob // and return value at same moment
   }
 }
 

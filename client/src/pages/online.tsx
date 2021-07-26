@@ -81,10 +81,12 @@ class RootsList extends React.Component<Props, State> {
     }
 
     return (
-      <TreeLeaves
-        items={this.state.items! || []}
-        builder={Item}
-      />
+      (this.state.items! || []).map(onlineRoot => (
+        <TreeLeaves
+          items={[onlineRoot]}
+          builder={Item}
+        />
+      ))
     )
   }
 

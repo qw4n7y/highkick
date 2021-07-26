@@ -31,7 +31,9 @@ func (v *schedulerTableType) Columns() []string {
 		"id",
 		"job_type",
 		"job_input",
+		"scheduler_type",
 		"run_every_seconds",
+		"exact_times",
 		"stopped",
 		"updated_at",
 		"last_run_at",
@@ -63,7 +65,9 @@ var SchedulerTable = &schedulerTableType{
 			{Name: "ID", Type: "int", Column: "id"},
 			{Name: "JobType", Type: "string", Column: "job_type"},
 			{Name: "JobInput", Type: "string", Column: "job_input"},
+			{Name: "SchedulerType", Type: "SchedulerType", Column: "scheduler_type"},
 			{Name: "RunEverySeconds", Type: "int", Column: "run_every_seconds"},
+			{Name: "ExactTimes", Type: "database.StringList", Column: "exact_times"},
 			{Name: "Stopped", Type: "bool", Column: "stopped"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 			{Name: "LastRunAt", Type: "*time.Time", Column: "last_run_at"},
@@ -76,15 +80,17 @@ var SchedulerTable = &schedulerTableType{
 
 // String returns a string representation of this struct or record.
 func (s Scheduler) String() string {
-	res := make([]string, 8)
+	res := make([]string, 10)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "JobType: " + reform.Inspect(s.JobType, true)
 	res[2] = "JobInput: " + reform.Inspect(s.JobInput, true)
-	res[3] = "RunEverySeconds: " + reform.Inspect(s.RunEverySeconds, true)
-	res[4] = "Stopped: " + reform.Inspect(s.Stopped, true)
-	res[5] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	res[6] = "LastRunAt: " + reform.Inspect(s.LastRunAt, true)
-	res[7] = "LastError: " + reform.Inspect(s.LastError, true)
+	res[3] = "SchedulerType: " + reform.Inspect(s.SchedulerType, true)
+	res[4] = "RunEverySeconds: " + reform.Inspect(s.RunEverySeconds, true)
+	res[5] = "ExactTimes: " + reform.Inspect(s.ExactTimes, true)
+	res[6] = "Stopped: " + reform.Inspect(s.Stopped, true)
+	res[7] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[8] = "LastRunAt: " + reform.Inspect(s.LastRunAt, true)
+	res[9] = "LastError: " + reform.Inspect(s.LastError, true)
 	return strings.Join(res, ", ")
 }
 
@@ -95,7 +101,9 @@ func (s *Scheduler) Values() []interface{} {
 		s.ID,
 		s.JobType,
 		s.JobInput,
+		s.SchedulerType,
 		s.RunEverySeconds,
+		s.ExactTimes,
 		s.Stopped,
 		s.UpdatedAt,
 		s.LastRunAt,
@@ -110,7 +118,9 @@ func (s *Scheduler) Pointers() []interface{} {
 		&s.ID,
 		&s.JobType,
 		&s.JobInput,
+		&s.SchedulerType,
 		&s.RunEverySeconds,
+		&s.ExactTimes,
 		&s.Stopped,
 		&s.UpdatedAt,
 		&s.LastRunAt,

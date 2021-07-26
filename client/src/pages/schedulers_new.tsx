@@ -23,7 +23,8 @@ class App extends React.Component<Props, State> {
     super(props)
     this.state = {
       model: new Scheduler({
-        Stopped: false
+        Stopped: false,
+        ExactTimes: [],
       })
     }
     this.onSubmit = this.onSubmit.bind(this)

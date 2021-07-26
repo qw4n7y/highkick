@@ -5,12 +5,14 @@ import (
 	"strings"
 
 	"github.com/qw4n7y/highkick/src/lib/database"
+	"github.com/qw4n7y/highkick/src/models"
 )
 
 type QueryBuilder struct {
-	ID          *int
-	JobTypes    *[]string
-	JobTypesNot *[]string
+	ID            *int
+	JobTypes      *[]string
+	JobTypesNot   *[]string
+	SchedulerType *models.SchedulerType
 }
 
 func (f QueryBuilder) Select() *[]string {
@@ -40,6 +42,9 @@ func (f QueryBuilder) Where() string {
 			escaped = append(escaped, fmt.Sprintf(`"%v"`, jobType))
 		}
 		clauses = append(clauses, fmt.Sprintf("job_type NOT IN (%v)", strings.Join(escaped, ", ")))
+	}
+	if f.SchedulerType != nil {
+		clauses = append(clauses, fmt.Sprintf("scheduler_type = '%v'", *f.SchedulerType))
 	}
 
 	return strings.Join(clauses, " AND ")

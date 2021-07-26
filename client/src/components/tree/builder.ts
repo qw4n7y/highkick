@@ -2,7 +2,7 @@ import React from 'react'
 
 export type Props<Item> = {
   item: Item
-  onExpand: (expanded:  boolean) => any
+  onExpand: (expanded:  boolean, updayedItem: Item | undefined) => any
   expanded: boolean
 }
 

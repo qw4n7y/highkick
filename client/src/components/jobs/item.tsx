@@ -24,12 +24,12 @@ import JobLogs from '../../services/job_logs'
 
 type Props = {
   item: Job
-  onExpand: (expanded: boolean) => any
+  onExpand: (expanded: boolean, updatedItem: Job | undefined) => any
   expanded: boolean
 
   viewJSONlikeAPro?: boolean
   jobMetas?: JobMeta[]
-  loadSubtree?: (job: Job) => Promise<any>
+  loadSubtree?: (job: Job) => Promise<Job>
   destroy?: () => any
   getInput?: () => Promise<any>
 }
@@ -206,10 +206,10 @@ class JobComponent extends React.Component<Props, State> {
   private async loadItem() {
     const { item, expanded } = this.props
     if (!expanded) {
-      await this.props.loadSubtree!(item)
-      this.props.onExpand(true)
+      const updatedJob = await this.props.loadSubtree!(item)
+      this.props.onExpand(true, updatedJob)
     } else {
-      this.props.onExpand(false)
+      this.props.onExpand(false, undefined)
     }
   }
 

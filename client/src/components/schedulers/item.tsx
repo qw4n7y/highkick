@@ -10,7 +10,7 @@ import { Button } from 'react-bootstrap'
 import { Trash, PauseCircle, PencilSquare } from 'react-bootstrap-icons'
 import HumanDuration from '../../components/misc/human_duration'
 
-import Scheduler from '../../models/scheduler'
+import Scheduler, { SchedulerType } from '../../models/scheduler'
 
 type Props = {
     item: Scheduler
@@ -35,7 +35,15 @@ class JobComponent extends React.Component<Props, State> {
         return (
             <div className="card w-100">
                 <div className="card-body d-flex align-items-center">
-                    <span>{item.JobType} every <HumanDuration seconds={item.RunEverySeconds}/></span>
+                    <span>
+                        {item.JobType}&nbsp;
+                        { item.SchedulerType === SchedulerType.Timer && (
+                            <>every <HumanDuration seconds={item.RunEverySeconds}/></>
+                        ) }
+                        { item.SchedulerType === SchedulerType.ExactTime && (
+                            <>at {JSON.stringify(item.ExactTimes)}</>
+                        ) }
+                    </span>
                     <div className="flex-fill">
                         <ReactJsonView src={input} collapsed={true} style={{fontSize: 10}} displayDataTypes={false}/>
                     </div>
