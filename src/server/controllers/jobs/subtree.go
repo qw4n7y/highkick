@@ -23,7 +23,7 @@ func Subtree(c *gin.Context) {
 	}
 
 	jobs, err := repo.Repo.Get(repo.QueryBuilder{
-		Root: job,
+		SubtreeOf: job,
 	})
 	if err != nil {
 		panic(err)

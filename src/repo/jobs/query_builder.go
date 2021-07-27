@@ -13,6 +13,7 @@ type QueryBuilder struct {
 	IDs         *[]int
 	IsRoot      *bool
 	Root        *models.Job
+	SubtreeOf   *models.Job
 	Type        *string
 	JobTypes    *[]string
 	JobTypesNot *[]string
@@ -62,6 +63,14 @@ func (f QueryBuilder) Where() string {
 		clauses = append(clauses, fmt.Sprintf(
 			`(path LIKE "%v/%v/%%" OR path LIKE "%v/%%" OR path = "%v" OR id = %v)`,
 			root.Path, root.ID, root.ID, root.ID, root.ID,
+		))
+	}
+
+	if f.SubtreeOf != nil {
+		root := *f.SubtreeOf
+		clauses = append(clauses, fmt.Sprintf(
+			`(path LIKE "%v/%v/%%" OR path LIKE "%%/%v/%v/%%" OR path = "%v/%v" OR path LIKE "%v/%%" OR path LIKE "%%/%v/%%" OR path = "%v" OR id = %v)`,
+			root.Path, root.ID, root.Path, root.ID, root.Path, root.ID, root.ID, root.ID, root.ID, root.ID,
 		))
 	}
 
