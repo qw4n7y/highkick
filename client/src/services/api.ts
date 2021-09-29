@@ -23,6 +23,9 @@ const URLS = {
     input: (id: number) => `${API_BASE}/jobs/input/${id}`,
     run: `${API_BASE}/jobs/run`,
     destroy: (id: number) => `${API_BASE}/jobs/delete/${id}`,
+    update: (id: number) => `${API_BASE}/jobs/update/${id}`,
+    updateInput: (id: number) => `${API_BASE}/jobs/update_input/${id}`,
+    show: (id: number) => `${API_BASE}/jobs/show/${id}`,
   },
   jobRoots: {
     index: `${API_BASE}/job_roots/index`,

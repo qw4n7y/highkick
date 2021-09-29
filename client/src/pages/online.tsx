@@ -3,7 +3,7 @@ import * as ReactRedux from 'react-redux'
 import ReduxState from '../redux/state'
 import Actions from '../redux/actions/jobs'
 import { Link as RouterLink } from 'react-router-dom'
-import { PlusCircle } from 'react-bootstrap-icons'
+import { PlayBtn } from 'react-bootstrap-icons'
 
 import Job from '../models/job'
 import Filters from '../models/filters'
@@ -51,19 +51,21 @@ class RootsList extends React.Component<Props, State> {
     return (
       <>
         <div className="jumbotron p-2 m-1 d-flex align-items-center">
-          <h3 className="flex-fill m-0">
+          <p className="flex-fill m-0 lead text-monospace font-weight-bold">
             Online&nbsp;
             <div 
               className="d-inline-block pulse-indicator"
               ref={this.pulseIndicatorEl}
             ></div>
-          </h3>
-          <FiltersComponent
-            value={this.state.filters}
-            onChange={this.onFiltersChange}
-          /> 
-          <RouterLink to={"/new"} className="btn btn-light">
-            <PlusCircle/>
+          </p>
+          <div className="flex-fill">
+            <FiltersComponent
+              value={this.state.filters}
+              onChange={this.onFiltersChange}
+            />
+          </div>
+          <RouterLink to={"/new"} className="btn btn-success ml-4">
+            <PlayBtn/>
           </RouterLink>
         </div>
         

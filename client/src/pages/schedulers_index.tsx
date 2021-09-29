@@ -37,8 +37,8 @@ class App extends React.Component<Props, State> {
         return (
             <>
                 <div className="jumbotron p-2 m-1 d-flex align-items-center">
-                    <span className="flex-fill">Schedulers</span>
-                    <RouterLink to={"/schedulers/new"} className="btn btn-light">
+                    <p className="m-0 lead text-monospace font-weight-bold mr-4 flex-fill">Schedulers</p>
+                    <RouterLink to={"/schedulers/new"} className="btn btn-success ml-4">
                         <PlusCircle/>
                     </RouterLink>
                 </div>

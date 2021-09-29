@@ -1,15 +1,9 @@
-type Props = {
-  SID: string
-  Title: string
-  InputJSONSchema?: string
-}
-
-class JobMeta implements Props {
+class JobMeta {
   SID!: string
-  Title!: string
+  // Title!: string
   InputJSONSchema?: string
 
-  constructor(props: Partial<Props>) {
+  constructor(props: Partial<JobMeta>) {
     // super()
     for(const prop in props) {
       (this as any)[prop] = (props as any)[prop]
@@ -17,7 +11,7 @@ class JobMeta implements Props {
   }
 
   static deserialize(json: any): JobMeta {
-    const job = new JobMeta(json as Partial<Props>)
+    const job = new JobMeta(json as Partial<JobMeta>)
     return job
   }
 }

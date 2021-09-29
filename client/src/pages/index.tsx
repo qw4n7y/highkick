@@ -4,7 +4,7 @@ import ReduxState from '../redux/state'
 import Actions from '../redux/actions/jobs'
 import AppActions from '../redux/actions/app'
 import { Link as RouterLink } from 'react-router-dom'
-import { PlusCircle } from 'react-bootstrap-icons'
+import { PlayBtn } from 'react-bootstrap-icons'
 
 import Job from '../models/job'
 import JobMeta from '../models/job_meta'
@@ -61,7 +61,8 @@ class RootsList extends React.Component<Props, State> {
 
     return (
       <>
-        <div  className="jumbotron p-2 m-1 d-flex align-items-center">
+        <div className="jumbotron p-2 m-1 d-flex align-items-center">
+          <p className="m-0 lead text-monospace font-weight-bold mr-4">Jobs</p>
           <div className="form-check form-check-inline flex-fill">
             <input 
               className="form-check-input"
@@ -76,12 +77,14 @@ class RootsList extends React.Component<Props, State> {
               View JSON like a pro
             </label>
           </div>
-          <FiltersComponent
-            value={this.state.filters}
-            onChange={this.onFiltersChange}
-          /> 
-          <RouterLink to={"/new"} className="btn btn-light">
-            <PlusCircle/>
+          <div className="flex-fill">
+            <FiltersComponent
+              value={this.state.filters}
+              onChange={this.onFiltersChange}
+            /> 
+          </div>
+          <RouterLink to={"/new"} className="btn btn-success ml-4">
+            <PlayBtn/>
           </RouterLink>
         </div>
         

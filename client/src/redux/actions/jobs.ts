@@ -72,4 +72,23 @@ function run(sid: string, input: any) {
   }
 }
 
-export default { index, loadSubtree, destroy, getInput, run, loadActiveRoots }
+function update(job: Job) {
+	return async (dispatch: any, getState: () => ReduxState) => {
+		await Jobs.update(job)
+	}
+}
+
+function show(id: number) {
+	return async (dispatch: any, getState: () => ReduxState) => {
+		const job = await Jobs.show(id)
+		return job
+	}
+}
+
+function updateInput(job: Job, input: any) {
+	return async (dispatch: any, getState: () => ReduxState) => {
+		await Jobs.updateInput(job, input)
+	}
+}
+
+export default { index, loadSubtree, destroy, getInput, run, loadActiveRoots, update, show, updateInput }

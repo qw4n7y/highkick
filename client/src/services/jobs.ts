@@ -91,9 +91,30 @@ async function runJob(sid: string, input: any) {
   return response
 }
 
+async function update(job: Job) {
+  const data = Object.assign({}, job)
+  const url = API.URLS.jobs.update(job.id)
+  await HTTP.post(url, data)
+}
+
+async function updateInput(job: Job, input: any) {
+  const data = Object.assign({}, job)
+  const url = API.URLS.jobs.updateInput(job.id)
+  await HTTP.post(url, { input })
+}
+
+async function show(id: number) {
+  const data = Object.assign({}, {})
+  const url = API.URLS.jobs.show(id)
+  const response = await HTTP.get(url, data)
+  return new Job(response.job)
+}
+
 export default { 
   loadRoots, loadSubtree, retry, retryFailedLeaves,
   destroy, treeStatus, getInput,
   runJob,
   loadActiveRoots,
+  update, show,
+  updateInput,
 }

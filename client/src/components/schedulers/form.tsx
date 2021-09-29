@@ -28,7 +28,7 @@ class SchedulerForm extends React.Component<Props, State> {
     render() {
         const { value } = this.props
         const sortedJobMetas = (this.props.jobMetas || []).sort(function (a, b) {
-            return a.Title.localeCompare(b.Title);
+            return a.SID.localeCompare(b.SID);
         })
 
         return (
@@ -36,15 +36,15 @@ class SchedulerForm extends React.Component<Props, State> {
                 <Form.Group>
                     <Form.Label>SID</Form.Label>
                     <Form.Control as="select" custom
-                                  value={value.JobType}
-                                  onChange={e => {
-                                      value.JobType = e.currentTarget.value
-                                      this.onChange(value)
-                                  }}
+                        value={value.JobType}
+                        onChange={e => {
+                            value.JobType = e.currentTarget.value
+                            this.onChange(value)
+                        }}
                     >
                         <option className="text-muted" value="">Choose job to create</option>
                         {sortedJobMetas.map(jobMeta => {
-                            return (<option value={jobMeta.SID}>{jobMeta.Title}</option>)
+                            return (<option value={jobMeta.SID}>{jobMeta.SID}</option>)
                         })}
                     </Form.Control>
                 </Form.Group>
@@ -102,6 +102,7 @@ class SchedulerForm extends React.Component<Props, State> {
                                         this.onChange(value)
                                     }}
                                 />
+                                <Form.Text>Comma separated values in HH:mm format</Form.Text>
                                 <blockquote className="blockquote">
                                     {JSON.stringify(value.ExactTimes)}
                                 </blockquote>

@@ -75,6 +75,7 @@ func RunServer(engine *gin.Engine, params ServerParams) {
 		g.POST("/retry_failed_leaves/:job_id/", jobs.RetryFailedLeaves)
 		g.GET("/subtree/:job_id", jobs.Subtree)
 		g.GET("/input/:job_id", jobs.GetInput)
+		g.POST("/update_input/:job_id", jobs.UpdateInput)
 	}
 
 	{

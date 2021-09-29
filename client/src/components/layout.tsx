@@ -12,16 +12,16 @@ const Layout: React.FC<Props> = (props: Props) => {
 
   return (
     <>
-      <Navbar bg="light" variant="light" className="border-dark border-bottom d-flex align-items-center">
+      <Navbar variant="light" className="bg-success d-flex align-items-center">
         <Navbar.Brand href="" className="p-0 flex-fill">
           <img src="favicon.ico" height="32" width="32"/>
           &nbsp;
-          <a href="/" className="text-dark">Highkick</a>
+          <a href="/" className="ml-2 text-white text-monospace font-weight-bold">Highkick</a>
         </Navbar.Brand>
 
-          <Link to="/online" className="pr-2">Online</Link>
-          <Link to="/index" className="pr-2">Jobs</Link>
-          <Link to="/schedulers/index">Schedulers</Link>
+          <Link to="/online" className="text-dark pr-2">Online</Link>
+          <Link to="/index" className="text-dark pr-2">Jobs</Link>
+          <Link to="/schedulers/index" className="text-dark">Schedulers</Link>
       </Navbar>
       <Container className={isWidget ? "m-0 p-0" : undefined}>
         { props.children }

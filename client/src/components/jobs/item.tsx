@@ -1,6 +1,7 @@
 import React from 'react'
 import * as ReactRedux from 'react-redux'
 import Moment from 'moment'
+import { Link } from 'react-router-dom'
 
 import ReduxState from './../../redux/state'
 import Actions from '../../redux/actions/jobs'
@@ -10,7 +11,7 @@ import { Button } from 'react-bootstrap'
 import { 
   ArrowRight, ArrowDown, ArrowClockwise, Trash,
   ReceiptCutoff, BoxArrowInRight, BoxArrowRight,
-  ArrowLeftRight, Clock,
+  ArrowLeftRight, Clock, Pencil,
 } from 'react-bootstrap-icons'
 import HumanDuration from '../misc/human_duration'
 
@@ -92,7 +93,7 @@ class JobComponent extends React.Component<Props, State> {
         >
           {this.renderStatus()}
           <span className="ml-1 mr-1">
-            {jobMeta?.Title || item.sid}
+            {jobMeta?.SID || item.sid}
           </span>
           <small className="text-muted ml-2 mr-2">
             {item.id}
@@ -135,6 +136,8 @@ class JobComponent extends React.Component<Props, State> {
           <Button variant="light"
             onClick={this.retry}
           ><ArrowClockwise/></Button>
+          <Link to={`/jobs/edit/${item.id}`} className="btn btn-light"
+          ><Pencil/></Link>
           <Button variant="light" onClick={this.destroy}
           ><Trash/></Button>
         </div>
@@ -180,7 +183,7 @@ class JobComponent extends React.Component<Props, State> {
             { jobLogs.map(jobLog => {
               return (
                 <div className="alert alert-primary p-0 d-flex" key={jobLog.id}>
-                  <small className="text-muted mr-2">{jobLog.createdAt}</small>
+                  <small className="text-muted mr-2">{Moment(jobLog.createdAt).format("YYYY-MM-DD HH:mm:ss")}</small>
                   <code className="flex-fill">{jobLog.content}</code>
                 </div>)
             }) }
