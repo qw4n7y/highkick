@@ -35,7 +35,7 @@ func HelloWorld(job *highkick.Job) error {
 	time.Sleep(1 * time.Second)
 
 	msg := fmt.Sprintf("I am job %v. Depth = %v", job.ID, depth)
-	highkick.SetOutput(job, "msg", msg)
+	highkick.SetOutput(job.ID, "msg", msg)
 	highkick.Log(job, msg)
 	fmt.Println(msg)
 

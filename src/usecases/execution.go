@@ -40,7 +40,7 @@ func RunWorker(worker models.Worker, jobsToHandle models.JobsToHandle) {
 				job := scheduledJob // need to copy
 				go func() {
 					job.WorkerID = worker.ID
-					err := RunSync(job)
+					_, err := RunSync(job)
 					if err != nil {
 						fmt.Printf("[HIGHKICK] Job failed %v: %+v\n", job.Type, err)
 					}
@@ -52,26 +52,26 @@ func RunWorker(worker models.Worker, jobsToHandle models.JobsToHandle) {
 	}()
 }
 
-func RunAsync(job *models.Job) error {
+func RunAsync(job models.Job) (*models.Job, error) {
 	job.Status = models.JobStatuses.Scheduled
 	job.CreatedAt = time.Now()
-	if err := jobsRepo.Repo.Save(job); err != nil {
-		return err
+	if err := jobsRepo.Repo.Save(&job); err != nil {
+		return nil, err
 	}
-	return nil
+	return &job, nil
 }
 
-func RunSync(job models.Job) error {
+func RunSync(job models.Job) (*models.Job, error) {
 	workersRepo.IncrementRunningJobsCount(job.WorkerID, 1)
 	defer workersRepo.IncrementRunningJobsCount(job.WorkerID, -1)
 
 	job.Status = models.JobStatuses.Initial
 	job.CreatedAt = time.Now()
 	if err := jobsRepo.Repo.Save(&job); err != nil {
-		return err
+		return nil, err
 	}
 	_, err := runJob(&job)
-	return err
+	return &job, err
 }
 
 func runJob(job *models.Job) (*models.Job, error) {

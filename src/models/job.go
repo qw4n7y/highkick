@@ -115,9 +115,9 @@ func (job *Job) IsFailed() bool {
 	return job.Status == JobStatuses.Failed
 }
 
-// BuildJob is a builder helper
-func BuildJob(jobType string, input JSONDictionary, parent *Job) *Job {
-	job := &Job{
+// NewJob is a builder helper
+func NewJob(jobType string, input JSONDictionary, parent *Job) Job {
+	job := Job{
 		Type: jobType,
 	}
 	job.SetInput(input)

@@ -24,7 +24,7 @@ func Retry(c *gin.Context) {
 		panic(err)
 	}
 
-	if err := usecases.RunAsync(job); err != nil {
+	if _, err := usecases.RunAsync(*job); err != nil {
 		panic(err)
 	}
 

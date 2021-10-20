@@ -10,5 +10,5 @@
 
 ### How to run deploy a new package version
 
-git tag -a v1.2.5 -m "v1.2.5"
+git tag -a v1.5.0 -m "v1.5.0"
 git push --follow-tags origin

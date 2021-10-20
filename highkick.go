@@ -22,7 +22,7 @@ type Input = models.JSONDictionary
 type JobsToHandle = models.JobsToHandle
 type Worker = models.Worker
 
-var NewJob = models.BuildJob
+var NewJob = models.NewJob
 var Register = usecases.Register
 var GetOutput = usecases.GetOutput
 var SetOutput = usecases.SetOutput

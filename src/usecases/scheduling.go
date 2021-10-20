@@ -137,7 +137,7 @@ func stopScheduler(schedulerID int) {
 }
 
 func ExecuteScheduler(scheduler models.Scheduler) error {
-	job := models.BuildJob(scheduler.JobType, scheduler.GetJobInput(), nil)
+	job := models.NewJob(scheduler.JobType, scheduler.GetJobInput(), nil)
 	job.WorkerID = scheduler.WorkerID
 
 	var executionErr error
@@ -145,11 +145,11 @@ func ExecuteScheduler(scheduler models.Scheduler) error {
 		switch scheduler.SchedulerType {
 		case models.SchedulerTypes.Timer:
 			{
-				executionErr = RunSync(*job)
+				_, executionErr = RunSync(job)
 			}
 		case models.SchedulerTypes.ExactTime:
 			{
-				executionErr = RunAsync(job)
+				_, executionErr = RunAsync(job)
 			}
 		}
 	}
@@ -169,7 +169,7 @@ func ExecuteScheduler(scheduler models.Scheduler) error {
 
 	{
 		if schedulerMeta := schedulerMetas.Get(scheduler.ID); schedulerMeta != nil {
-			schedulerMeta.LastRun = job
+			schedulerMeta.LastRun = &job
 			schedulerMetas.Set(scheduler.ID, *schedulerMeta)
 		}
 	}

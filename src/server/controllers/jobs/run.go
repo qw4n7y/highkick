@@ -21,12 +21,12 @@ func Run(c *gin.Context) {
 		panic(err)
 	}
 
-	job := models.BuildJob(input.SID, input.Input, nil)
-	if err := usecases.RunAsync(job); err != nil {
+	job, err := usecases.RunAsync(models.NewJob(input.SID, input.Input, nil))
+	if err != nil {
 		panic(err)
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"job": job,
+		"job": *job,
 	})
 }
