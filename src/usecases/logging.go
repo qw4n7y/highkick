@@ -38,9 +38,9 @@ func SetOutput(jobID int, key string, value string) {
 		panic(err)
 	}
 	if job != nil {
-		output := job.GetOutput()
+		output := job.PRIVATE_GetOutput()
 		output[key] = value
-		job.SetOutput(output)
+		job.PRIVATE_SetOutput(output)
 		if err := jobsRepo.Repo.Save(job); err != nil {
 			panic(err)
 		}
@@ -65,7 +65,7 @@ func GetOutputByKey(jobID int, key string) *string {
 func GetOutput(jobID int) *models.JSONDictionary {
 	job, _ := jobsRepo.GetOne(jobID)
 	if job != nil {
-		output := job.GetOutput()
+		output := job.PRIVATE_GetOutput()
 		return &output
 	}
 	return nil

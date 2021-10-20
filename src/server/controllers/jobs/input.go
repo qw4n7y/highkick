@@ -48,7 +48,7 @@ func UpdateInput(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	job.SetInput(input.Input)
+	job.PRIVATE_SetInput(input.Input)
 	if err := repo.Repo.Save(job); err != nil {
 		panic(err)
 	}

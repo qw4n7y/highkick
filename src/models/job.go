@@ -51,7 +51,7 @@ func (job *Job) GetInput() JSONDictionary {
 }
 
 // SetInput is setter for Input
-func (job *Job) SetInput(dict JSONDictionary) string {
+func (job *Job) PRIVATE_SetInput(dict JSONDictionary) string {
 	valueAsBytes, _ := json.Marshal(dict)
 	value := string(valueAsBytes)
 	job.Input = &value
@@ -59,7 +59,7 @@ func (job *Job) SetInput(dict JSONDictionary) string {
 }
 
 // GetOutput is getter for Output
-func (job *Job) GetOutput() JSONDictionary {
+func (job *Job) PRIVATE_GetOutput() JSONDictionary {
 	dict := JSONDictionary{}
 	if job.Output == nil {
 		return dict
@@ -69,7 +69,7 @@ func (job *Job) GetOutput() JSONDictionary {
 }
 
 // SetOutput is setter for Output
-func (job *Job) SetOutput(dict JSONDictionary) string {
+func (job *Job) PRIVATE_SetOutput(dict JSONDictionary) string {
 	valueAsBytes, _ := json.Marshal(dict)
 	value := string(valueAsBytes)
 	job.Output = &value
@@ -87,7 +87,7 @@ func (job *Job) GetRootID() int {
 }
 
 // SetParent initialize job's path by it's parent
-func (job *Job) SetParent(parent *Job) {
+func (job *Job) PRIVATE_SetParent(parent *Job) {
 	if parent == nil {
 		return
 	}
@@ -120,8 +120,8 @@ func NewJob(jobType string, input JSONDictionary, parent *Job) Job {
 	job := Job{
 		Type: jobType,
 	}
-	job.SetInput(input)
-	job.SetParent(parent)
+	job.PRIVATE_SetInput(input)
+	job.PRIVATE_SetParent(parent)
 	return job
 }
 
