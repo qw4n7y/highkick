@@ -20,6 +20,7 @@ type JobMeta = models.JobMeta
 type Job = models.Job
 type Input = models.JSONDictionary
 type JobsToHandle = models.JobsToHandle
+type Worker = models.Worker
 
 var NewJob = models.BuildJob
 var Register = usecases.Register
@@ -40,7 +41,10 @@ var RunServer = server.RunServer
 // Execution
 var RunSync = usecases.RunSync
 var RunAsync = usecases.RunAsync
-var RunWorkerLauncher = usecases.RunWorkerLauncher
+
+// Workers
+var RegisterAndRunWorker = usecases.RegisterAndRunWorker
+var RunWorkerMonitor = usecases.RunWorkerMonitor
 
 // Scheduling
 var RunSchedulers = usecases.RunSchedulers

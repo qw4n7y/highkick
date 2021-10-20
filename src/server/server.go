@@ -7,13 +7,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/pkger"
-	"github.com/qw4n7y/highkick/src/server/controllers/schedulers"
 
 	"github.com/qw4n7y/highkick/src/server/controllers/highkick"
 	"github.com/qw4n7y/highkick/src/server/controllers/job_logs"
 	"github.com/qw4n7y/highkick/src/server/controllers/job_metas"
 	"github.com/qw4n7y/highkick/src/server/controllers/job_roots"
 	"github.com/qw4n7y/highkick/src/server/controllers/jobs"
+	"github.com/qw4n7y/highkick/src/server/controllers/schedulers"
+	"github.com/qw4n7y/highkick/src/server/controllers/workers"
 	"github.com/qw4n7y/highkick/src/server/middlewares"
 	"github.com/qw4n7y/highkick/src/server/ws"
 )
@@ -96,5 +97,13 @@ func RunServer(engine *gin.Engine, params ServerParams) {
 		g.POST("/create", schedulers.CreateUpdate)
 		g.POST("/update/:id", schedulers.CreateUpdate)
 		g.DELETE("/destroy/:id", schedulers.Destroy)
+	}
+
+	{
+		g := authorized.Group("/workers")
+		g.GET("/index", workers.Index)
+		g.GET("/show/:id", workers.Show)
+		g.POST("/update/:id", workers.CreateUpdate)
+		g.DELETE("/destroy/:id", workers.Destroy)
 	}
 }

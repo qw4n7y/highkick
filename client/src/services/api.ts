@@ -43,6 +43,12 @@ const URLS = {
     update: (id: number) => `${API_BASE}/schedulers/update/${id}`,
     destroy: (id: number) => `${API_BASE}/schedulers/destroy/${id}`,
     show: (id: number) => `${API_BASE}/schedulers/show/${id}`,
+  },
+  workers: {
+    index: `${API_BASE}/workers/index`,
+    update: (id: number) => `${API_BASE}/workers/update/${id}`,
+    destroy: (id: number) => `${API_BASE}/workers/destroy/${id}`,
+    show: (id: number) => `${API_BASE}/workers/show/${id}`,
   }
 }
 

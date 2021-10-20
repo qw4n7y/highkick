@@ -9,25 +9,38 @@ import (
 	"github.com/qw4n7y/highkick/src/models"
 	jobLogsRepo "github.com/qw4n7y/highkick/src/repo/job_logs"
 	jobsRepo "github.com/qw4n7y/highkick/src/repo/jobs"
+	workersRepo "github.com/qw4n7y/highkick/src/repo/workers"
 )
 
-func RunWorkerLauncher(jobsToHandle models.JobsToHandle) {
-	fmt.Printf("[HIGHKICK] Workers launcher started\n")
+func RunWorker(worker models.Worker, jobsToHandle models.JobsToHandle) {
+	fmt.Printf("[HIGHKICK] Worker %v %v %v started\n", worker.ID, worker.SID, worker.ProcessSID)
 	go func() {
 		every := 30 * time.Second
 		for {
+			worker, err := workersRepo.GetOne(worker.ID)
+			if err != nil {
+				fmt.Println("[RunWorkerLauncher/ERROR]", err)
+			}
+			if worker == nil {
+				fmt.Printf("[RunWorkerLauncher] No worker %v found\n", worker.ID)
+			}
+			if worker.Stopped {
+				break
+			}
+
 			scheduledJobs, err := jobsRepo.Repo.Get(jobsRepo.QueryBuilder{
 				Status:      &models.JobStatuses.Scheduled,
 				JobTypes:    &jobsToHandle.Only,
 				JobTypesNot: &jobsToHandle.Except,
 			})
 			if err != nil {
-				fmt.Println("[ERROR]", err)
+				fmt.Println("[RunWorkerLauncher/ERROR]", err)
 			}
 			for _, scheduledJob := range *scheduledJobs {
 				job := scheduledJob // need to copy
 				go func() {
-					err := RunSync(&job)
+					job.WorkerID = worker.ID
+					err := RunSync(job)
 					if err != nil {
 						fmt.Printf("[HIGHKICK] Job failed %v: %+v\n", job.Type, err)
 					}
@@ -35,7 +48,7 @@ func RunWorkerLauncher(jobsToHandle models.JobsToHandle) {
 			}
 			time.Sleep(every)
 		}
-		fmt.Printf("[HIGHKICK] Workers launcher stopped\n")
+		fmt.Printf("[HIGHKICK] Worker %v %v %v stopped\n", worker.ID, worker.SID, worker.ProcessSID)
 	}()
 }
 
@@ -48,13 +61,16 @@ func RunAsync(job *models.Job) error {
 	return nil
 }
 
-func RunSync(job *models.Job) error {
+func RunSync(job models.Job) error {
+	workersRepo.IncrementRunningJobsCount(job.WorkerID, 1)
+	defer workersRepo.IncrementRunningJobsCount(job.WorkerID, -1)
+
 	job.Status = models.JobStatuses.Initial
 	job.CreatedAt = time.Now()
-	if err := jobsRepo.Repo.Save(job); err != nil {
+	if err := jobsRepo.Repo.Save(&job); err != nil {
 		return err
 	}
-	_, err := runJob(job)
+	_, err := runJob(&job)
 	return err
 }
 

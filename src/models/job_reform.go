@@ -37,6 +37,7 @@ func (v *jobTableType) Columns() []string {
 		"status",
 		"retries_left",
 		"logs_count",
+		"worker_id",
 		"started_at",
 		"finished_at",
 		"created_at",
@@ -73,6 +74,7 @@ var JobTable = &jobTableType{
 			{Name: "Status", Type: "JobStatus", Column: "status"},
 			{Name: "RetriesLeft", Type: "int", Column: "retries_left"},
 			{Name: "LogsCount", Type: "int", Column: "logs_count"},
+			{Name: "WorkerID", Type: "int", Column: "worker_id"},
 			{Name: "StartedAt", Type: "*time.Time", Column: "started_at"},
 			{Name: "FinishedAt", Type: "*time.Time", Column: "finished_at"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
@@ -84,7 +86,7 @@ var JobTable = &jobTableType{
 
 // String returns a string representation of this struct or record.
 func (s Job) String() string {
-	res := make([]string, 12)
+	res := make([]string, 13)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "Path: " + reform.Inspect(s.Path, true)
@@ -94,9 +96,10 @@ func (s Job) String() string {
 	res[6] = "Status: " + reform.Inspect(s.Status, true)
 	res[7] = "RetriesLeft: " + reform.Inspect(s.RetriesLeft, true)
 	res[8] = "LogsCount: " + reform.Inspect(s.LogsCount, true)
-	res[9] = "StartedAt: " + reform.Inspect(s.StartedAt, true)
-	res[10] = "FinishedAt: " + reform.Inspect(s.FinishedAt, true)
-	res[11] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[9] = "WorkerID: " + reform.Inspect(s.WorkerID, true)
+	res[10] = "StartedAt: " + reform.Inspect(s.StartedAt, true)
+	res[11] = "FinishedAt: " + reform.Inspect(s.FinishedAt, true)
+	res[12] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -113,6 +116,7 @@ func (s *Job) Values() []interface{} {
 		s.Status,
 		s.RetriesLeft,
 		s.LogsCount,
+		s.WorkerID,
 		s.StartedAt,
 		s.FinishedAt,
 		s.CreatedAt,
@@ -132,6 +136,7 @@ func (s *Job) Pointers() []interface{} {
 		&s.Status,
 		&s.RetriesLeft,
 		&s.LogsCount,
+		&s.WorkerID,
 		&s.StartedAt,
 		&s.FinishedAt,
 		&s.CreatedAt,

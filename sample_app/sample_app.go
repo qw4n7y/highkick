@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -96,8 +97,23 @@ func main() {
 		Database:      "highkick_dev",
 		RunMigrations: true,
 	})
-	highkick.RunWorkerLauncher(highkick.JobsToHandle{})
-	highkick.RunSchedulers(highkick.JobsToHandle{})
+
+	host, err := os.Hostname()
+	if err != nil {
+		panic(err)
+	}
+
+	worker, err := highkick.RegisterAndRunWorker(highkick.Worker{
+		SID:        "MAIN_WORKER",
+		ProcessSID: fmt.Sprintf("%v-%v", host, os.Getpid()),
+	}, highkick.JobsToHandle{})
+	if err != nil {
+		panic(err)
+	}
+	highkick.RunSchedulers(*worker, highkick.JobsToHandle{})
+	highkick.RunWorkerMonitor(worker.ID, func() {
+		os.Exit(0)
+	})
 
 	highkick.JobsPubSub.Subscribe(func(iMessage interface{}) {
 		message := iMessage.(highkick.PubSubMessage)
@@ -112,17 +128,19 @@ func main() {
 
 	// highkickAuth := gin.BasicAuth(gin.Accounts{"foo": "bar"})
 
-	highkick.RunServer(engine, highkick.ServerParams{
-		// AuthMiddleware: &highkickAuth,
-		ClientURL: "/highkick_app",
-	})
-	go func() {
-		if err := engine.Run("0.0.0.0:8000"); err != nil {
-			log.Fatalln(err)
-		}
-	}()
+	if !false {
+		highkick.RunServer(engine, highkick.ServerParams{
+			// AuthMiddleware: &highkickAuth,
+			ClientURL: "/highkick_app",
+		})
+		go func() {
+			if err := engine.Run("0.0.0.0:8000"); err != nil {
+				log.Fatalln(err)
+			}
+		}()
 
-	fmt.Println("Server running on http://localhost:8000/app")
+		fmt.Println("Server running on http://localhost:8000/app")
+	}
 
 	// USAGE
 

@@ -33,6 +33,8 @@ type Scheduler struct {
 	Stopped   bool      `reform:"stopped"`
 	UpdatedAt time.Time `reform:"updated_at"`
 
+	WorkerID int // Keeps the reference to assigned worker
+
 	LastRunAt *time.Time `reform:"last_run_at"`
 	LastError string     `reform:"last_error"`
 }

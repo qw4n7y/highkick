@@ -6,6 +6,7 @@ import (
 	"github.com/qw4n7y/highkick/src/repo/job_logs"
 	"github.com/qw4n7y/highkick/src/repo/jobs"
 	"github.com/qw4n7y/highkick/src/repo/schedulers"
+	"github.com/qw4n7y/highkick/src/repo/workers"
 )
 
 // Keeps singleton instance of Manager
@@ -37,6 +38,7 @@ func Setup(options DatabaseOptions) {
 	jobs.InitializeRepo(Manager.DBR)
 	job_logs.InitializeRepo(Manager.DBR)
 	schedulers.InitializeRepo(Manager.DBR)
+	workers.InitializeRepo(Manager.DBR)
 }
 
 // Close closes all connections

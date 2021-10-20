@@ -15,6 +15,7 @@ type Props = {
   createdAt: string
   cron?: string
   logsCount: number
+  WorkerID: number
   StartedAt: string
   FinishedAt: string
 
@@ -34,6 +35,7 @@ class Job implements Props, TreeLeaf {
   createdAt: string = ''
   cron?: string = undefined
   logsCount: number = 0
+  WorkerID: number = 0
   StartedAt: string = ''
   FinishedAt: string = ''
 

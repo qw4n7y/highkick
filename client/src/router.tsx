@@ -10,6 +10,9 @@ import SchedulersIndex from './pages/schedulers_index'
 import SchedulersNew from './pages/schedulers_new'
 import SchedulersEdit from './pages/schedulers_edit'
 
+import WorkersIndex from './pages/workers/index'
+import WorkersEdit from './pages/workers/edit'
+
 function Router() {
   return (
     <Switch>
@@ -20,6 +23,8 @@ function Router() {
       <Route path="/schedulers/index" exact component={SchedulersIndex}/>
       <Route path="/schedulers/new" exact component={SchedulersNew}/>
       <Route path="/schedulers/edit/:id" exact component={SchedulersEdit}/>
+      <Route path="/workers/index" exact component={WorkersIndex}/>
+      <Route path="/workers/edit/:id" exact component={WorkersEdit}/>
       <Route component={Index}/>
     </Switch>
   )

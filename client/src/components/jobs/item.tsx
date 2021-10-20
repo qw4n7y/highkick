@@ -128,6 +128,9 @@ class JobComponent extends React.Component<Props, State> {
               <HumanDuration seconds={item.durationSeconds()}/>
             </> }
           </small>
+          <small className="text-muted">
+            <span className="badge bg-secondary text-white ml-1">{item.WorkerID}</span>
+          </small>
         </div>
 
         <div style={{ gridArea: "actions" }}

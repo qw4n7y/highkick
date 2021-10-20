@@ -50,7 +50,7 @@ func RetryFailedLeaves(c *gin.Context) {
 		}
 
 		if treeJob.Status == models.JobStatuses.Failed {
-			go usecases.RunSync(&treeJob)
+			go usecases.RunSync(treeJob)
 		}
 	}
 

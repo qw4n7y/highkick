@@ -8,6 +8,7 @@ import (
 	"github.com/qw4n7y/highkick/src/models"
 	jobsRepo "github.com/qw4n7y/highkick/src/repo/jobs"
 	schedulersRepo "github.com/qw4n7y/highkick/src/repo/schedulers"
+	workersRepo "github.com/qw4n7y/highkick/src/repo/workers"
 )
 
 type SchedulerMeta struct {
@@ -58,11 +59,23 @@ var schedulerMetas = SchedulerMetas{
 	data: map[int]SchedulerMeta{},
 }
 
-func RunSchedulers(jobsToHandle models.JobsToHandle) {
-	fmt.Printf("[HIGHKICK] Schedulers started\n")
+func RunSchedulers(worker models.Worker, jobsToHandle models.JobsToHandle) {
+	fmt.Printf("[HIGHKICK] Worker %v: schedulers started\n", worker.ID)
 	go func() {
 		every := 30 * time.Second
 		for {
+			worker, err := workersRepo.GetOne(worker.ID)
+			if err != nil {
+				fmt.Println("[RunSchedulers/ERROR]", err)
+			}
+			if worker == nil {
+				fmt.Printf("[RunSchedulers] No worker %v found\n", worker.ID)
+				break
+			}
+			if worker.Stopped {
+				break
+			}
+
 			prevSchedulerIDs := []int{}
 			for schedulerID := range schedulerMetas.Snapshot() {
 				prevSchedulerIDs = append(prevSchedulerIDs, schedulerID)
@@ -79,6 +92,8 @@ func RunSchedulers(jobsToHandle models.JobsToHandle) {
 
 			currentSchedulerIDs := map[int]bool{}
 			for _, scheduler := range *schedulers {
+				scheduler.WorkerID = worker.ID // will be passed thru into runScheduler
+
 				currentSchedulerIDs[scheduler.ID] = true
 				if scheduler.Stopped {
 					stopScheduler(scheduler.ID)
@@ -105,7 +120,8 @@ func RunSchedulers(jobsToHandle models.JobsToHandle) {
 
 			time.Sleep(every)
 		}
-		fmt.Printf("[HIGHKICK] Schedulers stopped\n")
+
+		fmt.Printf("[HIGHKICK] Worker %v: schedulers stopped\n", worker.ID)
 	}()
 }
 
@@ -122,13 +138,14 @@ func stopScheduler(schedulerID int) {
 
 func ExecuteScheduler(scheduler models.Scheduler) error {
 	job := models.BuildJob(scheduler.JobType, scheduler.GetJobInput(), nil)
+	job.WorkerID = scheduler.WorkerID
 
 	var executionErr error
 	{
 		switch scheduler.SchedulerType {
 		case models.SchedulerTypes.Timer:
 			{
-				executionErr = RunSync(job)
+				executionErr = RunSync(*job)
 			}
 		case models.SchedulerTypes.ExactTime:
 			{
