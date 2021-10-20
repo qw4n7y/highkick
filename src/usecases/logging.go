@@ -48,16 +48,25 @@ func SetOutput(jobID int, key string, value string) {
 }
 
 // GetOutput gets string by key from job's dictionary
-func GetOutput(jobID int, key string) *string {
+func GetOutputByKey(jobID int, key string) *string {
+	output := GetOutput(jobID)
+	if output == nil {
+		return nil
+	}
+	value, exists := (*output)[key]
+	if !exists {
+		return nil
+	}
+	valueStr := value.(string)
+	return &valueStr
+}
+
+// GetOutput gets string by key from job's dictionary
+func GetOutput(jobID int) *models.JSONDictionary {
 	job, _ := jobsRepo.GetOne(jobID)
 	if job != nil {
 		output := job.GetOutput()
-		value, exists := output[key]
-		if exists == false {
-			return nil
-		}
-		valueStr := value.(string)
-		return &valueStr
+		return &output
 	}
 	return nil
 }

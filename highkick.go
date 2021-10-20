@@ -25,6 +25,7 @@ type Worker = models.Worker
 var NewJob = models.NewJob
 var Register = usecases.Register
 var GetOutput = usecases.GetOutput
+var GetOutputByKey = usecases.GetOutputByKey
 var SetOutput = usecases.SetOutput
 
 // Database
