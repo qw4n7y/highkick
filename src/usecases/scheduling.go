@@ -139,7 +139,19 @@ func stopScheduler(schedulerID int) {
 func ExecuteScheduler(scheduler models.Scheduler) error {
 	job := models.NewJob(scheduler.JobType, scheduler.GetJobInput(), nil)
 	job.WorkerID = scheduler.WorkerID
+	job.CreatedAt = time.Now() // dirty
 
+	// Update schedule meta
+	{
+		if schedulerMeta := schedulerMetas.Get(scheduler.ID); schedulerMeta != nil {
+			schedulerMeta.LastRun = &job
+			schedulerMetas.Set(scheduler.ID, *schedulerMeta)
+		} else {
+			fmt.Printf("[Highkick] [Schedulers] Can not update scheduler meta for %+v\n", scheduler)
+		}
+	}
+
+	// Execute
 	var executionErr error
 	{
 		switch scheduler.SchedulerType {
@@ -154,6 +166,7 @@ func ExecuteScheduler(scheduler models.Scheduler) error {
 		}
 	}
 
+	// Store all the details to database
 	now := time.Now()
 	scheduler.LastRunAt = &now
 	if executionErr != nil {
@@ -161,17 +174,9 @@ func ExecuteScheduler(scheduler models.Scheduler) error {
 	} else {
 		scheduler.LastError = ""
 	}
-
 	if err := schedulersRepo.Repo.DB.UpdateColumns(&scheduler, "last_run_at", "last_error"); err != nil {
-		fmt.Printf("[Highkick] [Schedulers] Run failed with %v", err)
+		fmt.Printf("[Highkick] [Schedulers] Run failed with %v\n", err)
 		return err
-	}
-
-	{
-		if schedulerMeta := schedulerMetas.Get(scheduler.ID); schedulerMeta != nil {
-			schedulerMeta.LastRun = &job
-			schedulerMetas.Set(scheduler.ID, *schedulerMeta)
-		}
 	}
 
 	return executionErr
@@ -229,7 +234,7 @@ func runScheduler(scheduler models.Scheduler) {
 				for {
 					select {
 					case <-schedulerMeta.StopChan:
-						fmt.Printf("[Highkick] [Schedulers] Stopping %v", scheduler)
+						fmt.Printf("[Highkick] [Schedulers] Stopping %v\n", scheduler)
 						return
 					case <-ticker.C:
 						ExecuteScheduler(scheduler)
@@ -246,7 +251,7 @@ func runScheduler(scheduler models.Scheduler) {
 				for {
 					select {
 					case <-schedulerMeta.StopChan:
-						fmt.Printf("[Highkick] [Schedulers] Stopping %v", scheduler)
+						fmt.Printf("[Highkick] [Schedulers] Stopping %v\n", scheduler)
 						return
 					case <-ticker.C:
 						{
@@ -274,7 +279,7 @@ func runScheduler(scheduler models.Scheduler) {
 									}
 								}
 							} else {
-								fmt.Printf("[Highkick] [Schedulers] [Error] No campaign meta found for a running exact-time scheduler !!!\n")
+								fmt.Printf("[Highkick] [Schedulers] [Error] No meta found for a running exact-time scheduler !!!\n")
 							}
 						}
 					}
