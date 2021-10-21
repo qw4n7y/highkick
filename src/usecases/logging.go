@@ -32,18 +32,12 @@ func Log(job *models.Job, message string) {
 }
 
 // SetOutput preserves string value by key in job's dictionary
-func SetOutput(jobID int, key string, value string) {
-	job, err := jobsRepo.GetOne(jobID)
-	if err != nil {
+func SetOutput(job *models.Job, key string, value string) {
+	output := job.PRIVATE_GetOutput()
+	output[key] = value
+	job.PRIVATE_SetOutput(output)
+	if err := jobsRepo.Repo.Save(job); err != nil {
 		panic(err)
-	}
-	if job != nil {
-		output := job.PRIVATE_GetOutput()
-		output[key] = value
-		job.PRIVATE_SetOutput(output)
-		if err := jobsRepo.Repo.Save(job); err != nil {
-			panic(err)
-		}
 	}
 }
 

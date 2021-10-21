@@ -28,14 +28,15 @@ func HelloWorld(job *highkick.Job) error {
 	}
 	depth := gjson.Get(*job.Input, "Depth").Int()
 
+	msg := fmt.Sprintf("I am job %v. Depth = %v", job.ID, depth)
+	highkick.SetOutput(job, "msg", msg)
+
 	if depth <= 0 {
 		return fmt.Errorf("END")
 	}
 
 	time.Sleep(1 * time.Second)
 
-	msg := fmt.Sprintf("I am job %v. Depth = %v", job.ID, depth)
-	highkick.SetOutput(job.ID, "msg", msg)
 	highkick.Log(job, msg)
 	fmt.Println(msg)
 
