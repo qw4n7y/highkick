@@ -27,20 +27,24 @@ func RunWorkerMonitor(workerID int, onDestroy func()) {
 		for {
 			worker, err := workersRepo.GetOne(workerID)
 			if err != nil {
-				fmt.Printf("[RunWorkerProcessStopper] %v\n", err)
+				fmt.Printf("[WorkerMonitor] %v\n", err)
 			} else if worker == nil {
-				fmt.Printf("[RunWorkerProcessStopper] No worker ID = %v found\n", workerID)
+				fmt.Printf("[WorkerMonitor] No worker ID = %v found\n", workerID)
 			} else {
 				if worker.Stopped {
 					if worker.RunningJobsCount == 0 {
 						// STOP
 						if err := workersRepo.Repo.Destroy(worker); err != nil {
-							fmt.Printf("[RunWorkerProcessStopper] %v\n", err)
+							fmt.Printf("[WorkerMonitor] %v\n", err)
 						}
-						fmt.Printf("[RunWorkerProcessStopper] Worker %v destroyed\n", workerID)
+						fmt.Printf("[WorkerMonitor] Worker %v destroyed\n", workerID)
 						onDestroy()
 					}
 				}
+			}
+
+			if err := workersRepo.TrachHealthcheckTimestamp(worker.ID); err != nil {
+				fmt.Printf("[WorkerMonitor] TrachHealthcheckTimestamp(workerID = %v): %v\n", worker.ID, err)
 			}
 
 			time.Sleep(every)

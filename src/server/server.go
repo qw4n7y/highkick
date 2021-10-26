@@ -87,7 +87,8 @@ func RunServer(engine *gin.Engine, params ServerParams) {
 
 	{
 		authorized.GET("/job_metas/index", job_metas.Index)
-		authorized.GET("/job_logs/index/:job_id", job_logs.Index)
+		authorized.GET("/job_logs/index_by_job_id/:job_id", job_logs.IndexByJobID)
+		authorized.GET("/job_logs/index", job_logs.Index)
 	}
 
 	{

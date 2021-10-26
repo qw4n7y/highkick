@@ -21,6 +21,7 @@ const Layout: React.FC<Props> = (props: Props) => {
 
           <Link to="/online" className="text-dark pr-2">Online</Link>
           <Link to="/index" className="text-dark pr-2">Jobs</Link>
+          <Link to="/logs/index" className="text-dark pr-2">Logs</Link>
           <Link to="/workers/index" className="text-dark pr-2">Workers</Link>
           <Link to="/schedulers/index" className="text-dark">Schedulers</Link>
       </Navbar>

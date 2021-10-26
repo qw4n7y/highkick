@@ -64,9 +64,6 @@ class RootsList extends React.Component<Props, State> {
               onChange={this.onFiltersChange}
             />
           </div>
-          <RouterLink to={"/new"} className="btn btn-success ml-4">
-            <PlayBtn/>
-          </RouterLink>
         </div>
         
         { this.renderPage() }

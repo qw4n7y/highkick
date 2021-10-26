@@ -51,10 +51,10 @@ class JobComponent extends React.Component<Props, State> {
                     <span>{item.LastRunAt}</span>
                     { !!item.LastError && <div className="alert alert-danger">{item.LastError}</div> }
 
-                    <Link to={`/schedulers/edit/${item.ID}`}><PencilSquare/></Link>
+                    <Link className="btn btn-sm" to={`/schedulers/edit/${item.ID}`}><PencilSquare/></Link>
 
-                    <Button variant="light" onClick={this.destroy}
-                    ><Trash/></Button>
+                    <button className="btn btn-sm" onClick={this.destroy}
+                    ><Trash/></button>
                 </div>
             </div>)
     }

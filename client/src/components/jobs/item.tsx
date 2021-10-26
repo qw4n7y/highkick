@@ -222,7 +222,7 @@ class JobComponent extends React.Component<Props, State> {
   private async showLogs(showLogs: boolean) {
     const { item } = this.props
     if (showLogs) {
-      let jobLogs = await JobLogs.loadLogs(item)
+      let jobLogs = await JobLogs.loadLogsByJobId(item.id)
       this.setState({ showLogs, jobLogs })
     } else {
       this.setState({ showLogs })

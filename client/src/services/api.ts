@@ -32,7 +32,8 @@ const URLS = {
     active: `${API_BASE}/job_roots/active`
   },
   jobLogs: {
-    index: (jobId: number) => `${API_BASE}/job_logs/index/${jobId}`,
+    indexByJobId: (jobId: number) => `${API_BASE}/job_logs/index_by_job_id/${jobId}`,
+    index: `${API_BASE}/job_logs/index`,
   },
   jobMetas: {
     index: `${API_BASE}/job_metas/index`,

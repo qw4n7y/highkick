@@ -6,6 +6,8 @@ import Online from './pages/online'
 import New from './pages/new'
 import JobsEdit from './pages/edit'
 
+import LogsIndex from './pages/logs/index'
+
 import SchedulersIndex from './pages/schedulers_index'
 import SchedulersNew from './pages/schedulers_new'
 import SchedulersEdit from './pages/schedulers_edit'
@@ -25,6 +27,7 @@ function Router() {
       <Route path="/schedulers/edit/:id" exact component={SchedulersEdit}/>
       <Route path="/workers/index" exact component={WorkersIndex}/>
       <Route path="/workers/edit/:id" exact component={WorkersEdit}/>
+      <Route path="/logs/index" exact component={LogsIndex}/>
       <Route component={Index}/>
     </Switch>
   )

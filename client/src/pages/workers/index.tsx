@@ -1,6 +1,7 @@
 import React from 'react'
 import * as ReactRedux from 'react-redux'
 import ReduxState from './../../redux/state'
+import { Trash } from 'react-bootstrap-icons'
 
 import WorkerActions from '../../redux/actions/workers'
 import Worker from "../../models/worker"
@@ -9,6 +10,7 @@ import ItemComponent from './_item'
 
 type Props = {
     indexWorkers?: () => Promise<Worker[]>
+    destroyWorker?: (item: Worker) => Promise<any>
 }
 type State = {
     workers: Worker[]
@@ -24,6 +26,7 @@ class App extends React.Component<Props, State> {
             workers: [],
         }
         this.loadItems = this.loadItems.bind(this)
+        this.deleteDisabledWorkers = this.deleteDisabledWorkers.bind(this)
         this.touchPulseIndicator = this.touchPulseIndicator.bind(this)
     }
 
@@ -41,6 +44,13 @@ class App extends React.Component<Props, State> {
         this.setState({ workers }, this.touchPulseIndicator)
     }
 
+    private async deleteDisabledWorkers() {
+        if (!window.confirm("Are you sure?")) { return }
+        const disabledWorkers = this.state.workers.filter(w => !w.isActive())
+        await Promise.all(disabledWorkers.map(w => this.props.destroyWorker!(w)))
+        alert('Done, sir!')
+    }
+
     render() {
         const { workers } = this.state
 
@@ -53,6 +63,9 @@ class App extends React.Component<Props, State> {
                     className="d-inline-block pulse-indicator"
                     ref={this.pulseIndicatorEl}
                     ></div></p>
+                    <button className="btn border" onClick={this.deleteDisabledWorkers}>
+                        <Trash/>&nbsp;Delete innactive
+                    </button>
                 </div>
                 <table className="table table-sm">
                     { workers.map(worker => (
@@ -76,6 +89,7 @@ class App extends React.Component<Props, State> {
 const mapStateToProps = (state: ReduxState, ownProps: Props) => ({})
 const mapDispatchToProps = (dispatch: any, ownProps: Props) => ({
     indexWorkers: () => dispatch(WorkerActions.index()),
+    destroyWorker: (item: Worker) => dispatch(WorkerActions.destroy(item)),
 })
 
 export default ReactRedux.connect(mapStateToProps, mapDispatchToProps)(App)

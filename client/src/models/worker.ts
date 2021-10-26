@@ -1,3 +1,5 @@
+import Moment from 'moment'
+
 class Worker {
   ID!: number
   SID!: string
@@ -11,6 +13,11 @@ class Worker {
       for(const prop in props) {
           (this as any)[prop] = (props as any)[prop]
       }
+  }
+
+  isActive() {
+    const lastHealthcheckAgo = Moment().diff(Moment.utc(this.HealthcheckedAt), 'seconds')
+    return lastHealthcheckAgo < 90 // < 3 mins
   }
 }
 
