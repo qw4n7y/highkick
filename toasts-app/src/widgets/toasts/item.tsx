@@ -17,7 +17,7 @@ class ToastItem extends React.Component<Props> {
   render() {
     const { toast } = this.props
     return (
-      <div className="toast overflow-auto m-0" role="alert" style={{opacity: 1, maxHeight: 200}}>
+      <div className="toast show overflow-auto m-0" role="alert" style={{opacity: 1, maxHeight: 200}}>
         <div className="toast-header" style={{position: 'relative'}}>
           <span className="mr-2">
             { (toast.type === ToastType.Notice) && <Bell/> }
