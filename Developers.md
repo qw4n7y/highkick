@@ -10,9 +10,9 @@
 
 ### How to run deploy a new package version
 
-git tag -a v1.6.2 -m "v1.6.2"
+git tag -a v1.6.3 -m "v1.6.3"
 git push --follow-tags origin
 
-### Miigrations
+### Migrations
 
 `migrate -path "./migrations/mysql" -database "mysql://root:root@tcp(127.0.0.1:3306)/highkick_dev" up`

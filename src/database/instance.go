@@ -29,6 +29,7 @@ type DatabaseOptions struct {
 	Engine        DatabaseEngine
 	Database      string
 	RunMigrations bool
+	EnableLogging bool
 }
 
 // Setup inits singleton

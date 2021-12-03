@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -112,10 +113,17 @@ func (m *manager) runMigrations(options DatabaseOptions) {
 	}
 }
 
-func (m *manager) initReform() {
-	// logger := log.New(ioutil.Discard, "SQL: ", log.Flags()) // /dev/null
-	logger := log.New(os.Stdout, "SQL: ", log.Flags())
-	reformLogger := reform.NewPrintfLogger(logger.Printf)
+func (m *manager) initReform(enableLogging bool) {
+	var reformLogger *reform.PrintfLogger
+	{
+		if enableLogging {
+			logger := log.New(os.Stdout, "SQL: ", log.Flags())
+			reformLogger = reform.NewPrintfLogger(logger.Printf)
+		} else {
+			logger := log.New(ioutil.Discard, "SQL: ", log.Flags()) // /dev/null
+			reformLogger = reform.NewPrintfLogger(logger.Printf)
+		}
+	}
 	m.DBR = reform.NewDB(m.DB, reformMySQL.Dialect, reformLogger)
 }
 
@@ -126,7 +134,7 @@ func (m *manager) Setup(options DatabaseOptions) {
 	if options.RunMigrations != false {
 		m.runMigrations(options)
 	}
-	m.initReform()
+	m.initReform(options.EnableLogging)
 }
 
 // TruncateDatabase truncates the database (using in tests)
