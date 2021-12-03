@@ -15,21 +15,21 @@ DROP INDEX `jobs_fullpath14_idx`;
 DROP INDEX `jobs_fullpath15_idx`;
 
 ALTER TABLE `jobs`
-  DROP `jobs_fullpath1`,
-  DROP `jobs_fullpath2`,
-  DROP `jobs_fullpath3`,
-  DROP `jobs_fullpath4`,
-  DROP `jobs_fullpath5`,
-  DROP `jobs_fullpath6`,
-  DROP `jobs_fullpath7`,
-  DROP `jobs_fullpath8`,
-  DROP `jobs_fullpath9`,
-  DROP `jobs_fullpath10`,
-  DROP `jobs_fullpath11`,
-  DROP `jobs_fullpath12`,
-  DROP `jobs_fullpath13`,
-  DROP `jobs_fullpath14`,
-  DROP `jobs_fullpath15`;
+  DROP COLUMN `full_path1`,
+  DROP COLUMN `full_path2`,
+  DROP COLUMN `full_path3`,
+  DROP COLUMN `full_path4`,
+  DROP COLUMN `full_path5`,
+  DROP COLUMN `full_path6`,
+  DROP COLUMN `full_path7`,
+  DROP COLUMN `full_path8`,
+  DROP COLUMN `full_path9`,
+  DROP COLUMN `full_path10`,
+  DROP COLUMN `full_path11`,
+  DROP COLUMN `full_path12`,
+  DROP COLUMN `full_path13`,
+  DROP COLUMN `full_path14`,
+  DROP COLUMN `full_path15`;
 
 ALTER TABLE `jobs`
-  DROP `jobs_fullpath`,
+  DROP COLUMN `full_path`,

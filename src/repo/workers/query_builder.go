@@ -17,6 +17,10 @@ func (f QueryBuilder) Select() *[]string {
 	return nil
 }
 
+func (f QueryBuilder) ForceIndex() *string {
+	return nil
+}
+
 func (f QueryBuilder) Join() *string {
 	return nil
 }

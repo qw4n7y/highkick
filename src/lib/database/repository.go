@@ -15,6 +15,7 @@ type Pagination struct {
 
 type QueryBuilder interface {
 	Select() *[]string
+	ForceIndex() *string
 	Where() string
 	Join() *string
 	OrderBy() *string
@@ -31,10 +32,15 @@ func (repo *Repository) GetAll_2(queryBuilder QueryBuilder) (*[]reform.Struct, e
 	QUERY := ""
 
 	// SELECT
+	forceIndex := ""
+	if v := queryBuilder.ForceIndex(); v != nil {
+		forceIndex = *v
+	}
+
 	if selectFields := queryBuilder.Select(); selectFields != nil {
-		QUERY = fmt.Sprintf("SELECT %v FROM %v", strings.Join(*selectFields, ", "), repo.View.Name())
+		QUERY = fmt.Sprintf("SELECT %v FROM %v %v", strings.Join(*selectFields, ", "), repo.View.Name(), forceIndex)
 	} else {
-		QUERY = fmt.Sprintf("SELECT * FROM %v", repo.View.Name())
+		QUERY = fmt.Sprintf("SELECT * FROM %v %v", repo.View.Name(), forceIndex)
 	}
 
 	if join := queryBuilder.Join(); join != nil {

@@ -15,14 +15,20 @@ type repo struct {
 
 // Quick
 func GetOne(id int) (*models.Job, error) {
-	record, err := Repo.GetFirst(QueryBuilder{ID: &id})
+	one := 1
+	records, err := Repo.GetAll_2(QueryBuilder{
+		ID:      &id,
+		Page:    &one,
+		PerPage: &one,
+	})
 	if err != nil {
 		return nil, err
 	}
-	if record == nil {
+	if records == nil || len(*records) == 0 {
 		return nil, fmt.Errorf("No record found")
 	}
-	model, err := Repo.UnmarshalRecord(record)
+	record := (*records)[0]
+	model, err := Repo.UnmarshalRecord(&record)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +36,7 @@ func GetOne(id int) (*models.Job, error) {
 }
 
 func (r *repo) Get(qb QueryBuilder) (*[]models.Job, error) {
-	records, err := r.GetAll(qb)
+	records, err := r.GetAll_2(qb)
 	if err != nil {
 		return nil, err
 	}
