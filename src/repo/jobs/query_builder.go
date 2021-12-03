@@ -36,7 +36,7 @@ func (f QueryBuilder) Select() *[]string {
 }
 
 func (f QueryBuilder) ForceIndex() *string {
-	forceIndex := fmt.Sprintf("FORCE INDEX (PRIMARY, jobs_fullpath1_idx, jobs_fullpath2_idx, jobs_fullpath3_idx, jobs_fullpath4_idx, jobs_fullpath5_idx, jobs_fullpath6_idx, jobs_fullpath7_idx, jobs_fullpath8_idx, jobs_fullpath9_idx, jobs_fullpath10_idx, jobs_fullpath11_idx, jobs_fullpath12_idx, jobs_fullpath13_idx, jobs_fullpath14_idx, jobs_fullpath14_idx)")
+	forceIndex := fmt.Sprintf("FORCE INDEX (PRIMARY, jobs_fullpath1_idx, jobs_fullpath2_idx, jobs_fullpath3_idx, jobs_fullpath4_idx, jobs_fullpath5_idx, jobs_fullpath6_idx, jobs_fullpath7_idx, jobs_fullpath8_idx, jobs_fullpath9_idx, jobs_fullpath10_idx, jobs_fullpath11_idx, jobs_fullpath12_idx, jobs_fullpath13_idx, jobs_fullpath14_idx, jobs_fullpath15_idx)")
 	return &forceIndex
 }
 

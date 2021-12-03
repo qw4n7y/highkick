@@ -10,7 +10,7 @@
 
 ### How to run deploy a new package version
 
-git tag -a v1.6.1 -m "v1.6.1"
+git tag -a v1.6.2 -m "v1.6.2"
 git push --follow-tags origin
 
 ### Miigrations
