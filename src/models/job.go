@@ -27,9 +27,13 @@ var JobStatuses = struct {
 //go:generate reform
 //reform:jobs
 type Job struct {
-	ID          int        `reform:"id,pk" json:"id"`
-	Type        string     `reform:"type" json:"type"`
-	Path        string     `reform:"path" json:"path"`
+	ID   int    `reform:"id,pk" json:"id"`
+	Type string `reform:"type" json:"type"`
+
+	Path                 string `reform:"path" json:"path"`
+	FullPathJSONAsString string `reform:"full_path" json:"-"`
+	FullPath             []int
+
 	Sid         *string    `reform:"sid" json:"sid"`
 	Input       *string    `reform:"input" json:"-"`
 	Output      *string    `reform:"output" json:"output"`
@@ -41,6 +45,41 @@ type Job struct {
 	StartedAt   *time.Time `reform:"started_at"`
 	FinishedAt  *time.Time `reform:"finished_at"`
 	CreatedAt   time.Time  `reform:"created_at" json:"createdAt"`
+}
+
+func (job Job) FullPathWithoutZeros() []int {
+	result := []int{}
+	for _, v := range job.FullPath {
+		if v == 0 {
+			continue
+		}
+		result = append(result, v)
+	}
+	return result
+}
+
+func (job Job) FullPathWithZeros(n int) []int {
+	result := job.FullPath
+	for i := 0; i < n-len(job.FullPath); i++ {
+		result = append(result, 0)
+	}
+	return result
+}
+
+func (job *Job) UnpackOutDb() error {
+	if err := json.Unmarshal([]byte(job.FullPathJSONAsString), &job.FullPath); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (job *Job) PackIntoDb() error {
+	if jsonBytes, err := json.Marshal(job.FullPathWithZeros(15)); err == nil {
+		job.FullPathJSONAsString = string(jsonBytes)
+		return nil
+	} else {
+		return err
+	}
 }
 
 // GetInput is getter for Input
@@ -91,11 +130,20 @@ func (job *Job) PRIVATE_SetParent(parent *Job) {
 	if parent == nil {
 		return
 	}
-	parentIDString := strconv.Itoa(int(parent.ID))
-	if parent.Path == "" {
-		job.Path = parentIDString
-	} else {
-		job.Path = strings.Join([]string{parent.Path, parentIDString}, "/")
+
+	// Path
+	{
+		parentIDString := fmt.Sprintf("%v", parent.ID)
+		if parent.Path == "" {
+			job.Path = parentIDString
+		} else {
+			job.Path = strings.Join([]string{parent.Path, parentIDString}, "/")
+		}
+	}
+
+	// Full path
+	{
+		job.FullPath = append(parent.FullPathWithoutZeros(), parent.ID)
 	}
 }
 

@@ -26,7 +26,7 @@ func RetryFailedLeaves(c *gin.Context) {
 	}
 
 	treeJobs, err := repo.Repo.Get(repo.QueryBuilder{
-		Root: job,
+		SubtreeOf: job,
 	})
 	if err != nil {
 		panic(err)

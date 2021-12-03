@@ -7,6 +7,8 @@ import (
 	"github.com/qw4n7y/highkick/src/models"
 	"github.com/qw4n7y/highkick/src/server"
 	"github.com/qw4n7y/highkick/src/usecases"
+
+	_ "github.com/qw4n7y/highkick/src/jobs"
 )
 
 func init() {

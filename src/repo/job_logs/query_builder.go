@@ -9,12 +9,13 @@ import (
 )
 
 type QueryBuilder struct {
-	ID      *int
-	JobID   *int
-	IDSince *int
-	Since   *time.Time
-	Till    *time.Time
-	Limit   *int
+	ID            *int
+	JobID         *int
+	JobIDLessThan *int
+	IDSince       *int
+	Since         *time.Time
+	Till          *time.Time
+	Limit         *int
 }
 
 func (f QueryBuilder) Select() *[]string {
@@ -43,6 +44,9 @@ func (f QueryBuilder) Where() string {
 
 	if f.JobID != nil {
 		clauses = append(clauses, fmt.Sprintf("(job_id = %v)", *f.JobID))
+	}
+	if f.JobIDLessThan != nil {
+		clauses = append(clauses, fmt.Sprintf("(job_id < %v)", *f.JobIDLessThan))
 	}
 
 	return strings.Join(clauses, " AND ")

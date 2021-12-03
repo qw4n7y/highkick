@@ -48,11 +48,13 @@ func (r *repo) UnmarshalRecord(record *reform.Struct) (models.Job, error) {
 		return models.Job{}, nil
 	}
 	model, ok := (*record).(*models.Job)
-	if ok {
-		return *model, nil
-	} else {
+	if !ok {
 		return models.Job{}, fmt.Errorf("Can not cast %+v to models.Job", record)
 	}
+	if err := model.UnpackOutDb(); err != nil {
+		return models.Job{}, err
+	}
+	return *model, nil
 }
 
 func (r *repo) UnmarshalRecords(records *[]reform.Struct) ([]models.Job, error) {
@@ -65,6 +67,13 @@ func (r *repo) UnmarshalRecords(records *[]reform.Struct) ([]models.Job, error) 
 		}
 	}
 	return models, nil
+}
+
+func (r *repo) Save2(model *models.Job) error {
+	if err := model.PackIntoDb(); err != nil {
+		return err
+	}
+	return r.Repository.Save(model)
 }
 
 var (

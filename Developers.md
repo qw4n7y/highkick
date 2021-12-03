@@ -12,3 +12,7 @@
 
 git tag -a v1.5.0 -m "v1.5.0"
 git push --follow-tags origin
+
+### Miigrations
+
+`migrate -path "./migrations/mysql" -database "mysql://root:root@tcp(127.0.0.1:3306)/highkick_dev" up`

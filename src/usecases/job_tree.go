@@ -8,7 +8,7 @@ import (
 // GetJobTreeStatus .
 func GetJobTreeStatus(job models.Job) (*models.JobStatus, error) {
 	jobs, err := repo.Repo.Get(repo.QueryBuilder{
-		Root: &job,
+		SubtreeOf: &job,
 	})
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ func GetChildrenStat(job *models.Job) (*ChildrenStat, error) {
 	}
 
 	children, err := repo.Repo.Get(repo.QueryBuilder{
-		Root: job,
+		SubtreeOf: job,
 	})
 	if err != nil {
 		return nil, err

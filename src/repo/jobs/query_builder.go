@@ -9,10 +9,11 @@ import (
 )
 
 type QueryBuilder struct {
-	ID          *int
-	IDs         *[]int
+	ID         *int
+	IDLessThan *int
+	IDs        *[]int
+
 	IsRoot      *bool
-	Root        *models.Job
 	SubtreeOf   *models.Job
 	Type        *string
 	JobTypes    *[]string
@@ -21,7 +22,8 @@ type QueryBuilder struct {
 	Status      *models.JobStatus
 	Statuses    *[]models.JobStatus
 
-	OrderDesc *bool
+	OrderDesc    *bool
+	OrderByIDAsc *bool
 
 	Page    *int
 	PerPage *int
@@ -36,10 +38,33 @@ func (f QueryBuilder) Join() *string {
 }
 
 func (f QueryBuilder) Where() string {
+	generateFullPathOptions := func(parentID int) []string {
+		return []string{
+			fmt.Sprintf("full_path1 = %v", parentID),
+			fmt.Sprintf("full_path2 = %v", parentID),
+			fmt.Sprintf("full_path3 = %v", parentID),
+			fmt.Sprintf("full_path4 = %v", parentID),
+			fmt.Sprintf("full_path5 = %v", parentID),
+			fmt.Sprintf("full_path6 = %v", parentID),
+			fmt.Sprintf("full_path7 = %v", parentID),
+			fmt.Sprintf("full_path8 = %v", parentID),
+			fmt.Sprintf("full_path9 = %v", parentID),
+			fmt.Sprintf("full_path10 = %v", parentID),
+			fmt.Sprintf("full_path11 = %v", parentID),
+			fmt.Sprintf("full_path12 = %v", parentID),
+			fmt.Sprintf("full_path13 = %v", parentID),
+			fmt.Sprintf("full_path14 = %v", parentID),
+			fmt.Sprintf("full_path15 = %v", parentID),
+		}
+	}
+
 	clauses := []string{"true"}
 
 	if f.ID != nil {
 		clauses = append(clauses, fmt.Sprintf("(id = %v)", *f.ID))
+	}
+	if f.IDLessThan != nil {
+		clauses = append(clauses, fmt.Sprintf("(id < %v)", *f.IDLessThan))
 	}
 
 	if f.IDs != nil {
@@ -58,20 +83,21 @@ func (f QueryBuilder) Where() string {
 		}
 	}
 
-	if f.Root != nil {
-		root := *f.Root
-		clauses = append(clauses, fmt.Sprintf(
-			`(path LIKE "%v/%v/%%" OR path LIKE "%v/%%" OR path = "%v" OR id = %v)`,
-			root.Path, root.ID, root.ID, root.ID, root.ID,
-		))
-	}
-
 	if f.SubtreeOf != nil {
 		root := *f.SubtreeOf
-		clauses = append(clauses, fmt.Sprintf(
-			`(path LIKE "%v/%v/%%" OR path LIKE "%%/%v/%v/%%" OR path = "%v/%v" OR path LIKE "%v/%%" OR path LIKE "%%/%v/%%" OR path = "%v" OR id = %v)`,
-			root.Path, root.ID, root.Path, root.ID, root.Path, root.ID, root.ID, root.ID, root.ID, root.ID,
-		))
+		// Old way via path and LIKE
+		// {
+		// 	clauses = append(clauses, fmt.Sprintf(
+		// 		`(path LIKE "%v/%v/%%" OR path LIKE "%%/%v/%v/%%" OR path = "%v/%v" OR path LIKE "%v/%%" OR path LIKE "%%/%v/%%" OR path = "%v" OR id = %v)`,
+		// 		root.Path, root.ID, root.Path, root.ID, root.Path, root.ID, root.ID, root.ID, root.ID, root.ID,
+		// 	))
+		// }
+		// New way via JSON array and generated columns
+		{
+			options := generateFullPathOptions(root.ID)
+			options = append(options, fmt.Sprintf("id = %v", root.ID))
+			clauses = append(clauses, fmt.Sprintf(`( (%v) )`, strings.Join(options, ") OR (")))
+		}
 	}
 
 	if f.SiblingsOf != nil {
@@ -124,6 +150,10 @@ func (qb QueryBuilder) GroupBy() *[]string {
 func (qb QueryBuilder) OrderBy() *string {
 	if qb.OrderDesc != nil && *qb.OrderDesc == true {
 		q := "id DESC"
+		return &q
+	}
+	if qb.OrderByIDAsc != nil && *qb.OrderByIDAsc == true {
+		q := "id ASC"
 		return &q
 	}
 	return nil

@@ -31,6 +31,7 @@ func (v *jobTableType) Columns() []string {
 		"id",
 		"type",
 		"path",
+		"full_path",
 		"sid",
 		"input",
 		"output",
@@ -68,6 +69,7 @@ var JobTable = &jobTableType{
 			{Name: "ID", Type: "int", Column: "id"},
 			{Name: "Type", Type: "string", Column: "type"},
 			{Name: "Path", Type: "string", Column: "path"},
+			{Name: "FullPathJSONAsString", Type: "string", Column: "full_path"},
 			{Name: "Sid", Type: "*string", Column: "sid"},
 			{Name: "Input", Type: "*string", Column: "input"},
 			{Name: "Output", Type: "*string", Column: "output"},
@@ -86,20 +88,21 @@ var JobTable = &jobTableType{
 
 // String returns a string representation of this struct or record.
 func (s Job) String() string {
-	res := make([]string, 13)
+	res := make([]string, 14)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "Path: " + reform.Inspect(s.Path, true)
-	res[3] = "Sid: " + reform.Inspect(s.Sid, true)
-	res[4] = "Input: " + reform.Inspect(s.Input, true)
-	res[5] = "Output: " + reform.Inspect(s.Output, true)
-	res[6] = "Status: " + reform.Inspect(s.Status, true)
-	res[7] = "RetriesLeft: " + reform.Inspect(s.RetriesLeft, true)
-	res[8] = "LogsCount: " + reform.Inspect(s.LogsCount, true)
-	res[9] = "WorkerID: " + reform.Inspect(s.WorkerID, true)
-	res[10] = "StartedAt: " + reform.Inspect(s.StartedAt, true)
-	res[11] = "FinishedAt: " + reform.Inspect(s.FinishedAt, true)
-	res[12] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[3] = "FullPathJSONAsString: " + reform.Inspect(s.FullPathJSONAsString, true)
+	res[4] = "Sid: " + reform.Inspect(s.Sid, true)
+	res[5] = "Input: " + reform.Inspect(s.Input, true)
+	res[6] = "Output: " + reform.Inspect(s.Output, true)
+	res[7] = "Status: " + reform.Inspect(s.Status, true)
+	res[8] = "RetriesLeft: " + reform.Inspect(s.RetriesLeft, true)
+	res[9] = "LogsCount: " + reform.Inspect(s.LogsCount, true)
+	res[10] = "WorkerID: " + reform.Inspect(s.WorkerID, true)
+	res[11] = "StartedAt: " + reform.Inspect(s.StartedAt, true)
+	res[12] = "FinishedAt: " + reform.Inspect(s.FinishedAt, true)
+	res[13] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -110,6 +113,7 @@ func (s *Job) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.Path,
+		s.FullPathJSONAsString,
 		s.Sid,
 		s.Input,
 		s.Output,
@@ -130,6 +134,7 @@ func (s *Job) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.Path,
+		&s.FullPathJSONAsString,
 		&s.Sid,
 		&s.Input,
 		&s.Output,

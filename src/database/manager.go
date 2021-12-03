@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -114,8 +113,8 @@ func (m *manager) runMigrations(options DatabaseOptions) {
 }
 
 func (m *manager) initReform() {
-	logger := log.New(ioutil.Discard, "SQL: ", log.Flags()) // /dev/null
-	// logger := log.New(os.Stderr, "SQL: ", log.Flags())
+	// logger := log.New(ioutil.Discard, "SQL: ", log.Flags()) // /dev/null
+	logger := log.New(os.Stdout, "SQL: ", log.Flags())
 	reformLogger := reform.NewPrintfLogger(logger.Printf)
 	m.DBR = reform.NewDB(m.DB, reformMySQL.Dialect, reformLogger)
 }

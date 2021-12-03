@@ -55,7 +55,7 @@ func RunWorker(worker models.Worker, jobsToHandle models.JobsToHandle) {
 func RunAsync(job models.Job) (*models.Job, error) {
 	job.Status = models.JobStatuses.Scheduled
 	job.CreatedAt = time.Now()
-	if err := jobsRepo.Repo.Save(&job); err != nil {
+	if err := jobsRepo.Repo.Save2(&job); err != nil {
 		return nil, err
 	}
 	return &job, nil
@@ -67,7 +67,7 @@ func RunSync(job models.Job) (*models.Job, error) {
 
 	job.Status = models.JobStatuses.Initial
 	job.CreatedAt = time.Now()
-	if err := jobsRepo.Repo.Save(&job); err != nil {
+	if err := jobsRepo.Repo.Save2(&job); err != nil {
 		return nil, err
 	}
 	_, err := runJob(&job)
@@ -85,7 +85,7 @@ func runJob(job *models.Job) (*models.Job, error) {
 	job.Status = models.JobStatuses.Processing
 	now := time.Now()
 	job.StartedAt = &now
-	if err := jobsRepo.Repo.Save(job); err != nil {
+	if err := jobsRepo.Repo.Save2(job); err != nil {
 		return nil, err
 	}
 
@@ -122,7 +122,7 @@ func completeJob(job *models.Job) {
 	job.Status = models.JobStatuses.Completed
 	now := time.Now()
 	job.FinishedAt = &now
-	if err := jobsRepo.Repo.Save(job); err != nil {
+	if err := jobsRepo.Repo.Save2(job); err != nil {
 		log.Fatal(err)
 	}
 	BroadcastJobUpdate(job, nil)
@@ -133,7 +133,7 @@ func failJob(job *models.Job, err error) {
 	job.Status = models.JobStatuses.Failed
 	now := time.Now()
 	job.FinishedAt = &now
-	if err := jobsRepo.Repo.Save(job); err != nil {
+	if err := jobsRepo.Repo.Save2(job); err != nil {
 		log.Fatal(err)
 	}
 
@@ -157,7 +157,7 @@ func failJob(job *models.Job, err error) {
 
 func clearJob(job *models.Job) {
 	jobs, err := jobsRepo.Repo.Get(jobsRepo.QueryBuilder{
-		Root: job,
+		SubtreeOf: job,
 	})
 	if err != nil {
 		panic(err.Error())
