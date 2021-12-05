@@ -38,6 +38,16 @@ class FiltersComponent extends React.Component<Props> {
               <option value={jobMeta.SID}>{jobMeta.SID}</option>
             ))}
           </select>
+          <select 
+            className="form-control form-control-sm"
+            name="Status"
+            value={value.Status}
+          >
+            <option></option>
+            { ["scheduled", "initial", "processing", "failed", "completed"].map(status => (
+              <option value={status}>{status}</option>
+            ))}
+          </select>
         </div>
       </form>
     )
@@ -47,6 +57,7 @@ class FiltersComponent extends React.Component<Props> {
     const formData = new FormData(event.currentTarget)
     const value: Filters = {}
     if (formData.get("Type") !== "") { value.Type = formData.get("Type") as string }
+    if (formData.get("Status") !== "") { value.Status = formData.get("Status") as string }
     this.props.onChange(value)
   }
 }

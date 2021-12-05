@@ -96,6 +96,7 @@ func main() {
 		Engine:        highkick.DatabaseEngines.MySQL,
 		Database:      "highkick_dev",
 		RunMigrations: true,
+		EnableLogging: true,
 	})
 
 	host, err := os.Hostname()
