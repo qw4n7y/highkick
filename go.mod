@@ -13,6 +13,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/qw4n7y/gopubsub v0.0.0-20190731135927-57ca0b200c55
-	github.com/tidwall/gjson v1.7.5
+	github.com/tidwall/gjson v1.9.3
 	gopkg.in/reform.v1 v1.5.0
 )
